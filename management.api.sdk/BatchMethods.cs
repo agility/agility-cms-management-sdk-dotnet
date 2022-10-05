@@ -1,5 +1,7 @@
 ﻿using agility.models;
 using RestSharp;
+using agility.enums;
+using System.Text.Json;
 
 namespace management.api.sdk
 {
@@ -26,6 +28,35 @@ namespace management.api.sdk
             catch
             {
                 throw;
+            }
+        }
+
+        public async Task<Batch> Retry(Func<Task<Batch>> method, int duration = 3000, int retryCount = 3)
+        {
+            if (retryCount <= 0)
+                throw new ArgumentOutOfRangeException(nameof(retryCount));
+
+            while (true)
+            {
+                try
+                {
+                    var batch = await method();
+                    if(batch.BatchState == BatchState.Processed)
+                    {
+                        return batch;
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
+                }
+                catch
+                {
+                    if (--retryCount == 0)
+                        throw;
+                    await Task.Delay(duration);
+                    //Thread.Sleep(duration);
+                }
             }
         }
     }

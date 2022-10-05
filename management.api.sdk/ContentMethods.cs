@@ -1,5 +1,6 @@
 ﻿using agility.models;
 using RestSharp;
+using System.Text;
 using System.Text.Json;
 
 namespace management.api.sdk
@@ -8,10 +9,12 @@ namespace management.api.sdk
     {
         ClientInstance _clientInstance = null;
         public readonly RestClient client = null;
+        BatchMethods _batchMethods = null;
         public ContentMethods(string? baseAddress, string? guid)
         {
             _clientInstance = new ClientInstance();
             client = _clientInstance.CreateClient(baseAddress, guid);
+            _batchMethods = new BatchMethods(baseAddress, guid);
         }
         public async Task<string> GetContentItem(string? locale, int? contentID)
         {
@@ -110,9 +113,19 @@ namespace management.api.sdk
             {
                 var request = new RestRequest($"/{locale}/item");
                 request.AddJsonBody(contentItem, "application/json");
-                var response = client.ExecuteAsync(request, Method.Post).Result.Content;
-                var batchID = JsonSerializer.Deserialize<string>(response);
-                return response;
+                var id = client.ExecuteAsync(request, Method.Post).Result.Content;
+                var batchID = JsonSerializer.Deserialize<int>(id);
+                
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                StringBuilder response = new StringBuilder();
+
+                foreach (var item in batch.Items)
+                {
+                    response.Append(await GetContentItem(locale, item.ItemID));
+                }
+                
+                return response.ToString();
             }
             catch
             {
@@ -120,13 +133,38 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<string> SaveContentItems(string? locale, List<ContentItem?> contentItems)
+        public async Task<Batch?> GetBatchObject(int? id)
+        {
+            try
+            {
+                var response = await _batchMethods.GetBatch(id);
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var batch = JsonSerializer.Deserialize<Batch>(response, options);
+                return batch;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<string>> SaveContentItems(string? locale, List<ContentItem?> contentItems)
         {
             try
             {
                 var request = new RestRequest($"/{locale}/item/multi");
                 request.AddJsonBody(contentItems, "application/json");
-                var response = client.ExecuteAsync(request, Method.Post).Result.Content;
+                var id = client.ExecuteAsync(request, Method.Post).Result.Content;
+                var batchID = JsonSerializer.Deserialize<int>(id);
+
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+                //GC.Collect();
+                List<string> response = new List<string>();
+                foreach (var item in batch.Items)
+                {
+                    response.Add(await GetContentItem(locale, item.ItemID));
+                }
                 return response;
             }
             catch

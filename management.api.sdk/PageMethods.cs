@@ -1,15 +1,20 @@
 ﻿using agility.models;
 using RestSharp;
+using System.Text;
+using System.Text.Json;
+
 namespace management.api.sdk
 {
     public class PageMethods
     {
         ClientInstance _clientInstance = null;
         public readonly RestClient client = null;
+        BatchMethods _batchMethods = null;
         public PageMethods(string? baseAddress, string? guid)
         {
             _clientInstance = new ClientInstance();
             client = _clientInstance.CreateClient(baseAddress, guid);
+            _batchMethods = new BatchMethods(baseAddress, guid);
         }
         public async Task<string?> GetSiteMap(string? locale)
         {
@@ -129,8 +134,35 @@ namespace management.api.sdk
             {
                 var request = new RestRequest($"/{locale}/page?parentPageID={parentPageID}&placeBeforePageItemID={placeBeforePageItemID}");
                 request.AddJsonBody(pageItem, "application/json");
-                var response = client.ExecuteAsync(request, Method.Post).Result.Content;
-                return response;
+                var id = client.ExecuteAsync(request, Method.Post).Result.Content;
+                var batchID = JsonSerializer.Deserialize<int>(id);
+
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                StringBuilder response = new StringBuilder();
+
+                foreach (var item in batch.Items)
+                {
+                    response.Append(await GetPage(locale, item.ItemID));
+                }
+
+                return response.ToString();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<Batch?> GetBatchObject(int? id)
+        {
+            try
+            {
+                var response = await _batchMethods.GetBatch(id);
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var batch = JsonSerializer.Deserialize<Batch>(response, options);
+                return batch;
             }
             catch
             {
