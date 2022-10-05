@@ -1,5 +1,6 @@
 ﻿using agility.models;
 using RestSharp;
+using System.Text.Json;
 
 namespace management.api.sdk
 {
@@ -110,6 +111,7 @@ namespace management.api.sdk
                 var request = new RestRequest($"/{locale}/item");
                 request.AddJsonBody(contentItem, "application/json");
                 var response = client.ExecuteAsync(request, Method.Post).Result.Content;
+                var batchID = JsonSerializer.Deserialize<string>(response);
                 return response;
             }
             catch
