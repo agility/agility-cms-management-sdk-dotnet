@@ -143,9 +143,23 @@ namespace management.api.sdk
 
                 foreach (var item in batch.Items)
                 {
-                    response.Append(await GetPage(locale, item.ItemID));
+                    if (item.ItemID != Int32.MaxValue)
+                    {
+                        response.Append(item.ItemID);
+                    }
+                    //else
+                    //{
+                    //    response.Append($"Error record found for batch item {item.BatchItemID}. Additional details on error {batch.ErrorData}");
+                    //}
                 }
-
+                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (response.Length > 0)
+                    {
+                        response.Append(",");
+                    }
+                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
                 return response.ToString();
             }
             catch

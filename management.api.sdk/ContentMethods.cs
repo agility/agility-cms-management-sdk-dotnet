@@ -119,12 +119,30 @@ namespace management.api.sdk
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
                 StringBuilder response = new StringBuilder();
-
+                string seperator = string.Empty;
                 foreach (var item in batch.Items)
                 {
-                    response.Append(await GetContentItem(locale, item.ItemID));
+                    response.Append(seperator);
+                    if (item.ItemID != Int32.MaxValue)
+                    {
+                        response.Append(item.ItemID);
+                    }
+                    //else
+                    //{
+                    //    response.Append($"Error record found for batch item {item.BatchItemID}. Additional details on error {batch.ErrorData}");
+                    //}
+                    seperator = ",";
                 }
-                
+                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (response.Length > 0)
+                    {
+                        response.Append(",");
+                    }
+                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+                    
+
                 return response.ToString();
             }
             catch
@@ -149,7 +167,7 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<List<string>> SaveContentItems(string? locale, List<ContentItem?> contentItems)
+        public async Task<string> SaveContentItems(string? locale, List<ContentItem?> contentItems)
         {
             try
             {
@@ -159,13 +177,31 @@ namespace management.api.sdk
                 var batchID = JsonSerializer.Deserialize<int>(id);
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
-                //GC.Collect();
-                List<string> response = new List<string>();
+                StringBuilder response = new StringBuilder();
+                string seperator = string.Empty;
                 foreach (var item in batch.Items)
                 {
-                    response.Add(await GetContentItem(locale, item.ItemID));
+                    response.Append(seperator);
+                    if (item.ItemID != Int32.MaxValue)
+                    {
+                        response.Append(item.ItemID);
+                    }
+                    //else
+                    //{
+                    //    response.Append($"Error record found for batch item {item.BatchItemID}. Additional details on error {batch.ErrorData}");
+                    //}
+                    seperator = ",";
                 }
-                return response;
+
+                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (response.Length > 0)
+                    {
+                        response.Append(",");
+                    }
+                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+                return response.ToString();
             }
             catch
             {
