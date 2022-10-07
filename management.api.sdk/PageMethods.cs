@@ -10,11 +10,11 @@ namespace management.api.sdk
         ClientInstance _clientInstance = null;
         public readonly RestClient client = null;
         BatchMethods _batchMethods = null;
-        public PageMethods(string? baseAddress, string? guid)
+        public PageMethods(string? guid)
         {
             _clientInstance = new ClientInstance();
-            client = _clientInstance.CreateClient(baseAddress, guid);
-            _batchMethods = new BatchMethods(baseAddress, guid);
+            client = _clientInstance.CreateClient(guid);
+            _batchMethods = new BatchMethods(guid);
         }
         public async Task<string?> GetSiteMap(string? locale)
         {

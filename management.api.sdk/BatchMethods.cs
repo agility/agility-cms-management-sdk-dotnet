@@ -10,10 +10,10 @@ namespace management.api.sdk
         ClientInstance _clientInstance = null;
         public readonly RestClient client = null;
 
-        public BatchMethods(string? baseAddress, string? guid)
+        public BatchMethods(string? guid)
         {
             _clientInstance = new ClientInstance();
-            client = _clientInstance.CreateClient(baseAddress, guid);
+            client = _clientInstance.CreateClient(guid);
 
         }
 

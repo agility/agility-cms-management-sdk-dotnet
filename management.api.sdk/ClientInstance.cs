@@ -6,14 +6,41 @@ namespace management.api.sdk
 {
     public class ClientInstance
     {
-        public RestClient? CreateClient(string? baseUrl, string? guid)
+        private string BaseUrl { get; set; } = "https://api.aglty.io";
+        public RestClient? CreateClient(string? guid)
         {
-            var client = new RestClient($"{baseUrl}/{guid}");
-                    
-            client.AddDefaultHeader("Authorization", "Bearer YOUR TOKEN");
+            var baseURL = DetermineBaseURL(guid);
+            var client = new RestClient($"{baseURL}/{guid}");
+
+            client.AddDefaultHeader("Authorization", "Bearer <<TOKEN>>");
             client.AddDefaultHeader("Cache-Control", "no-cache");
             return client;
         }
-      
+
+        private string DetermineBaseURL(string guid)
+        {
+            if (guid.EndsWith("-d"))
+            {
+                BaseUrl = "https://mgmt-dev.aglty.io/api/v1/instance";
+            }
+            else if (guid.EndsWith("-u"))
+            {
+                BaseUrl = "https://api.aglty.io";
+            }
+            else if (guid.EndsWith("-ca"))
+            {
+                BaseUrl = "https://api-ca.aglty.io";
+            }
+            else if (guid.EndsWith("-eu"))
+            {
+                BaseUrl = "https://api-eu.aglty.io";
+            }
+            else
+            {
+                BaseUrl = "https://api.aglty.io";
+            }
+            return BaseUrl;
+        }
+
     }
 }

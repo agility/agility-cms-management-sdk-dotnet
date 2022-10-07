@@ -10,11 +10,11 @@ namespace management.api.sdk
         ClientInstance _clientInstance = null;
         public readonly RestClient client = null;
         BatchMethods _batchMethods = null;
-        public ContentMethods(string? baseAddress, string? guid)
+        public ContentMethods(string? guid)
         {
             _clientInstance = new ClientInstance();
-            client = _clientInstance.CreateClient(baseAddress, guid);
-            _batchMethods = new BatchMethods(baseAddress, guid);
+            client = _clientInstance.CreateClient(guid);
+            _batchMethods = new BatchMethods(guid);
         }
         public async Task<string> GetContentItem(string? locale, int? contentID)
         {

@@ -7,10 +7,10 @@ namespace management.api.sdk
     {
         ClientInstance _clientInstance = null;
         public readonly RestClient client = null;
-        public ContainerMethods(string? baseAddress, string? guid)
+        public ContainerMethods(string? guid)
         {
             _clientInstance = new ClientInstance();
-            client = _clientInstance.CreateClient(baseAddress, guid);
+            client = _clientInstance.CreateClient(guid);
         }
         public async Task<string?> GetContainerById(int? id)
         {
