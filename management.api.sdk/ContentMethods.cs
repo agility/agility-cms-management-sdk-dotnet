@@ -123,14 +123,10 @@ namespace management.api.sdk
                 foreach (var item in batch.Items)
                 {
                     response.Append(seperator);
-                    if (item.ItemID != Int32.MaxValue)
+                    if (item.ItemID > 0)
                     {
                         response.Append(item.ItemID);
                     }
-                    //else
-                    //{
-                    //    response.Append($"Error record found for batch item {item.BatchItemID}. Additional details on error {batch.ErrorData}");
-                    //}
                     seperator = ",";
                 }
                 if (!string.IsNullOrWhiteSpace(batch.ErrorData))
@@ -182,14 +178,10 @@ namespace management.api.sdk
                 foreach (var item in batch.Items)
                 {
                     response.Append(seperator);
-                    if (item.ItemID != Int32.MaxValue)
+                    if (item.ItemID > 0)
                     {
                         response.Append(item.ItemID);
                     }
-                    //else
-                    //{
-                    //    response.Append($"Error record found for batch item {item.BatchItemID}. Additional details on error {batch.ErrorData}");
-                    //}
                     seperator = ",";
                 }
 
