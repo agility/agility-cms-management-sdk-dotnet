@@ -8,11 +8,13 @@ namespace management.api.sdk
     {
         ClientInstance _clientInstance = null;
         public readonly RestClient client = null;
+        private Options _options = null;
 
-        public AssetMethods(string? guid)
+        public AssetMethods(Options options)
         {
+            _options = options;
             _clientInstance = new ClientInstance();
-            client = _clientInstance.CreateClient(guid);
+            client = _clientInstance.CreateClient(_options);
         }
 
         public async Task<string?> Upload(Dictionary<string, string> files, string agilityFolderPath, bool overwrite = false, int groupingID = -1)

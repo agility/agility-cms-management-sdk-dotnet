@@ -5,6 +5,8 @@ VisualStudioVersion = 17.1.32414.318
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "management.api.sdk", "management.api.sdk\management.api.sdk.csproj", "{AC818CC2-12EC-4D60-8BDA-E49B99C3C3C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "management.api.sdk.tests", "management.api.sdk.tests\management.api.sdk.tests.csproj", "{F68A0FA4-26B4-409E-922D-7DA0077E29F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{AC818CC2-12EC-4D60-8BDA-E49B99C3C3C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC818CC2-12EC-4D60-8BDA-E49B99C3C3C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC818CC2-12EC-4D60-8BDA-E49B99C3C3C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F68A0FA4-26B4-409E-922D-7DA0077E29F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F68A0FA4-26B4-409E-922D-7DA0077E29F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F68A0FA4-26B4-409E-922D-7DA0077E29F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F68A0FA4-26B4-409E-922D-7DA0077E29F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

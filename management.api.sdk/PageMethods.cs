@@ -10,11 +10,13 @@ namespace management.api.sdk
         ClientInstance _clientInstance = null;
         public readonly RestClient client = null;
         BatchMethods _batchMethods = null;
-        public PageMethods(string? guid)
+        private Options _options = null;
+        public PageMethods(Options options)
         {
+            _options = options;
             _clientInstance = new ClientInstance();
-            client = _clientInstance.CreateClient(guid);
-            _batchMethods = new BatchMethods(guid);
+            client = _clientInstance.CreateClient(_options);
+            _batchMethods = new BatchMethods(_options);
         }
         public async Task<string?> GetSiteMap(string? locale)
         {
@@ -30,11 +32,11 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<string?> GetPage(string? locale, int? pageID)
+        public async Task<string?> GetPage(int? pageID)
         {
             try
             {
-                var request = new RestRequest($"/{locale}/page/{pageID}");
+                var request = new RestRequest($"/{_options.locale}/page/{pageID}");
                 var response = client.ExecuteAsync(request, Method.Get).Result.Content;
                 return response;
             }
@@ -44,11 +46,11 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<string?> PublishPage(string? locale, int? pageID, string? comments = null)
+        public async Task<string?> PublishPage(int? pageID, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{locale}/page/{pageID}/publish?comments={comments}");
+                var request = new RestRequest($"/{_options.locale}/page/{pageID}/publish?comments={comments}");
                 var response = client.ExecuteAsync(request, Method.Get).Result.Content;
                 return response;
             }
@@ -58,11 +60,11 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<string?> UnPublishPage(string? locale, int? pageID, string? comments = null)
+        public async Task<string?> UnPublishPage(int? pageID, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{locale}/page/{pageID}/unpublish?comments={comments}");
+                var request = new RestRequest($"/{_options.locale}/page/{pageID}/unpublish?comments={comments}");
                 var response = client.ExecuteAsync(request, Method.Get).Result.Content;
                 return response;
             }
@@ -72,11 +74,11 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<string?> DeletePage(string? locale, int? pageID, string? comments = null)
+        public async Task<string?> DeletePage(int? pageID, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{locale}/page/{pageID}?comments={comments}");
+                var request = new RestRequest($"/{_options.locale}/page/{pageID}?comments={comments}");
                 var response = client.ExecuteAsync(request, Method.Delete).Result.Content;
                 return response;
             }
@@ -86,11 +88,11 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<string?> ApprovePage(string? locale, int? pageID, string? comments = null)
+        public async Task<string?> ApprovePage(int? pageID, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{locale}/page/{pageID}/approve?comments={comments}");
+                var request = new RestRequest($"/{_options.locale}/page/{pageID}/approve?comments={comments}");
                 var response = client.ExecuteAsync(request, Method.Get).Result.Content;
                 return response;
             }
@@ -100,11 +102,11 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<string?> DeclinePage(string? locale, int? pageID, string? comments = null)
+        public async Task<string?> DeclinePage(int? pageID, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{locale}/page/{pageID}/decline?comments={comments}");
+                var request = new RestRequest($"/{_options.locale}/page/{pageID}/decline?comments={comments}");
                 var response = client.ExecuteAsync(request, Method.Get).Result.Content;
                 return response;
             }
@@ -114,11 +116,11 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<string?> PageRequestApproval(string? locale, int? pageID, string? comments = null)
+        public async Task<string?> PageRequestApproval(int? pageID, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{locale}/page/{pageID}/request-approval?comments={comments}");
+                var request = new RestRequest($"/{_options.locale}/page/{pageID}/request-approval?comments={comments}");
                 var response = client.ExecuteAsync(request, Method.Get).Result.Content;
                 return response;
             }
@@ -128,11 +130,11 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<string?> SavePage(string? locale, PageItem? pageItem, int? parentPageID = -1, int? placeBeforePageItemID = -1)
+        public async Task<string?> SavePage(PageItem? pageItem, int? parentPageID = -1, int? placeBeforePageItemID = -1)
         {
             try
             {
-                var request = new RestRequest($"/{locale}/page?parentPageID={parentPageID}&placeBeforePageItemID={placeBeforePageItemID}");
+                var request = new RestRequest($"/{_options.locale}/page?parentPageID={parentPageID}&placeBeforePageItemID={placeBeforePageItemID}");
                 request.AddJsonBody(pageItem, "application/json");
                 var id = client.ExecuteAsync(request, Method.Post).Result.Content;
                 var batchID = JsonSerializer.Deserialize<int>(id);

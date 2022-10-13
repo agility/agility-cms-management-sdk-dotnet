@@ -7,10 +7,12 @@ namespace management.api.sdk
     {
         ClientInstance _clientInstance = null;
         public readonly RestClient client = null;
-        public ModelMethods(string? guid)
+        private Options _options = null;
+        public ModelMethods(Options options)
         {
+            _options = options;
             _clientInstance = new ClientInstance();
-            client = _clientInstance.CreateClient(guid);
+            client = _clientInstance.CreateClient(_options);
         }
         public async Task<string?> GetContentModel(int? id)
         {
