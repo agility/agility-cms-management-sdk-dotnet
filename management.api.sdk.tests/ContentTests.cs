@@ -27,7 +27,7 @@ namespace management.api.sdk.tests
         [TestMethod]
         public async Task<ContentItem?> GetContentItem(int contentID)
         {
-            var contentItem = await contentMethods.GetContentItem(124);
+            var contentItem = await contentMethods.GetContentItem(contentID);
             Assert.IsNotNull(contentItem,$"Unable to find Content item for content id {contentID}.");
 
             if (!string.IsNullOrWhiteSpace(contentItem))
@@ -93,7 +93,7 @@ namespace management.api.sdk.tests
             var container = new Container();
             container.ContentViewID = 0;
             container.ContentDefinitionID = model.id;
-            container.ContentDefinitionTypeID = 2;
+            container.ContentDefinitionTypeID = 0;
             string format = "Mddyyyyhhmmsstt";
             string modelDate = DateTime.Now.ToString(format);
             container.ContentViewName = $"Test_Container {modelDate}";
