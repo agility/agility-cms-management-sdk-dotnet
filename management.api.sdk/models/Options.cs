@@ -13,7 +13,22 @@
         {
             if (guid.EndsWith("-d"))
             {
-                baseUrl = "https://mgmt-dev.aglty.io/api/v1/instance";
+                if (Environment.GetEnvironmentVariable("Local") != null)
+                {
+                    var runLocally = Environment.GetEnvironmentVariable("Local");
+                    if(runLocally == "True")
+                    {
+                        baseUrl = "https://localhost:5050/api/v1/instance";
+                    }
+                    else
+                    {
+                        baseUrl = "https://mgmt-dev.aglty.io/api/v1/instance";
+                    }
+                }
+                else
+                {
+                    baseUrl = "https://mgmt-dev.aglty.io/api/v1/instance";
+                }
             }
             else if (guid.EndsWith("-u"))
             {
@@ -42,6 +57,19 @@
         {
             if (guid.EndsWith("-d"))
             {
+                if (Environment.GetEnvironmentVariable("Local") != null)
+                {
+                    var runLocally = Environment.GetEnvironmentVariable("Local");
+                    if (runLocally == "True")
+                    {
+                        var baseUrl = Environment.GetEnvironmentVariable("BaseLocalURL");
+                        return baseUrl;
+                    }
+                    else
+                    {
+                        return "https://mgmt-dev.aglty.io";
+                    }
+                }
                 return "https://mgmt-dev.aglty.io";
             }
             else if (guid.EndsWith("-u"))

@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Azure.Cosmos.Table;
 
 namespace agility.models
 {
-    public class TokenResponseData
+    public class TokenResponseData : TableEntity
     {
+
+        public TokenResponseData()
+        {
+            PartitionKey = "Token";
+            RowKey = Guid.NewGuid().ToString();
+        }
         public string? access_token { get; set; }
         public long? expires_in { get; set; }
         public string? token_type { get; set; }

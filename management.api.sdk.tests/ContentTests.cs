@@ -1,4 +1,5 @@
 using agility.models;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -13,22 +14,45 @@ namespace management.api.sdk.tests
         ContentMethods contentMethods = null;
         ModelMethods modelMethods = null;
         ContainerMethods containerMethods = null;
-        private readonly Options _options;
+        private readonly agility.models.Options _options;
+        private readonly AppSettings _appSettings;
+        private readonly AuthMethods _authMethods;
+        private TokenResponseData _tokenResponseData;
         public ContentTests()
         {
-            _options = new Options();
-            _options.guid = "<<Provide your Instance GUID>>";
-            _options.token = "<<Provide token to authenticate your request>>";
-            _options.locale = "<<Mention the Locale example en-us>>";
-            contentMethods = new ContentMethods(_options);
+            _options = new agility.models.Options();
+            _appSettings = new AppSettings();
+            _options.guid = Environment.GetEnvironmentVariable("Guid");
+            _options.locale = Environment.GetEnvironmentVariable("Locale");
+            IOptions<AppSettings> appSettingsOptions = Microsoft.Extensions.Options.Options.Create<AppSettings>(_appSettings);
+            _authMethods = new AuthMethods(_options, appSettingsOptions);
+           
             modelMethods = new ModelMethods(_options);
             containerMethods = new ContainerMethods(_options);
         }
+
+        private TokenResponseData GetTokenResponseDataAsync()
+        {
+            var tokenResponseData = _authMethods.GetCurrentToken(_options.guid);
+            if (tokenResponseData != null)
+            {
+                _options.refresh_token = tokenResponseData.refresh_token;
+            }
+            else
+            {
+                _options.refresh_token = Environment.GetEnvironmentVariable("RefreshToken");
+            }
+            _tokenResponseData = _authMethods.GetAuthorizationToken(_options.guid);
+            _options.token = _tokenResponseData.access_token;
+            _options.refresh_token = _tokenResponseData.refresh_token;
+            return _tokenResponseData;
+        }
+
         [TestMethod]
         public async Task<ContentItem?> GetContentItem(int contentID)
         {
             var contentItem = await contentMethods.GetContentItem(contentID);
-            Assert.IsNotNull(contentItem,$"Unable to find Content item for content id {contentID}.");
+            Assert.IsNotNull(contentItem, $"Unable to find Content item for content id {contentID}.");
 
             if (!string.IsNullOrWhiteSpace(contentItem))
             {
