@@ -27,7 +27,7 @@ namespace management.api.sdk
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable retreive the batch details for batchID {id}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to retreive the batch details for batchID {id}. Additional Details: {response.Result.Content}");
                 }
 
                 var options = new JsonSerializerOptions();

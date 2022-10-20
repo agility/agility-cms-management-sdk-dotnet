@@ -1,5 +1,6 @@
 ﻿using agility.models;
 using RestSharp;
+using System.Text.Json;
 
 namespace management.api.sdk
 {
@@ -14,32 +15,52 @@ namespace management.api.sdk
             _clientInstance = new ClientInstance();
             client = _clientInstance.CreateClient(_options);
         }
-        public async Task<string?> GetUsers(int? websiteID, bool includeSelfIfInternal = false)
+        public async Task<List<WebsiteUser?>> GetUsers(int? websiteID, bool includeSelfIfInternal = false)
         {
             try
             {
                 var request = new RestRequest($"/user/list/{websiteID}/{includeSelfIfInternal}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retreive users for website: {websiteID}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var users = JsonSerializer.Deserialize<List<WebsiteUser>>(response.Result.Content, options);
+
+                return users;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> SaveUser(string? emailAddress, List<InstanceRole> roles, string? firstName = null, string? lastName = null)
+        public async Task<InstanceUser?> SaveUser(string? emailAddress, List<InstanceRole> roles, string? firstName = null, string? lastName = null)
         {
             try
             {
                 var request = new RestRequest($"/user/save?emailAddress={emailAddress}&firstName={firstName}&lastName={lastName}");
                 request.AddJsonBody(roles, "application/json");
-                var response = client.ExecuteAsync(request, Method.Post).Result;
-                return response.Content;
+                var response = client.ExecuteAsync(request, Method.Post);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to create user for emailAddress: {emailAddress}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var user = JsonSerializer.Deserialize<InstanceUser>(response.Result.Content, options);
+
+                return user;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -48,12 +69,16 @@ namespace management.api.sdk
             try
             {
                 var request = new RestRequest($"/user/delete/{userID}");
-                var response = client.ExecuteAsync(request, Method.Delete).Result;
-                return response.Content;
+                var response = client.ExecuteAsync(request, Method.Delete);
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to delete the user for userID: {userID}. Additional Details: {response.Result.Content}");
+                }
+                return response.Result.Content;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
     }

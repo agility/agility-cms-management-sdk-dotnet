@@ -18,115 +18,177 @@ namespace management.api.sdk
             client = _clientInstance.CreateClient(_options);
             _batchMethods = new BatchMethods(_options);
         }
-        public async Task<string?> GetSiteMap(string? locale)
+        public async Task<List<Sitemap?>> GetSiteMap()
         {
             try
             {
-                var request = new RestRequest($"/{locale}/sitemap");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var request = new RestRequest($"/{_options.locale}/sitemap");
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retreive sitemap for locale {_options.locale}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var sitemap = JsonSerializer.Deserialize<List<Sitemap>>(response.Result.Content, options);
+
+                return sitemap;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> GetPage(int? pageID)
+        public async Task<PageItem?> GetPage(int? pageID)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/page/{pageID}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retreive page for pageID {pageID}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var page = JsonSerializer.Deserialize<PageItem>(response.Result.Content, options);
+
+                return page;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> PublishPage(int? pageID, string? comments = null)
+        public async Task<int?> PublishPage(int? pageID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/page/{pageID}/publish?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to publish the page for id: {pageID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> UnPublishPage(int? pageID, string? comments = null)
+        public async Task<int?> UnPublishPage(int? pageID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/page/{pageID}/unpublish?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to un-publish page for id: {pageID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> DeletePage(int? pageID, string? comments = null)
+        public async Task<int?> DeletePage(int? pageID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/page/{pageID}?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Delete).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Delete);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to delete page for id: {pageID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> ApprovePage(int? pageID, string? comments = null)
+        public async Task<int?> ApprovePage(int? pageID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/page/{pageID}/approve?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to approve page for id: {pageID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> DeclinePage(int? pageID, string? comments = null)
+        public async Task<int?> DeclinePage(int? pageID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/page/{pageID}/decline?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to decline page for id: {pageID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> PageRequestApproval(int? pageID, string? comments = null)
+        public async Task<int?> PageRequestApproval(int? pageID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/page/{pageID}/request-approval?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to request approval for page with id: {pageID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -136,8 +198,13 @@ namespace management.api.sdk
             {
                 var request = new RestRequest($"/{_options.locale}/page?parentPageID={parentPageID}&placeBeforePageItemID={placeBeforePageItemID}");
                 request.AddJsonBody(pageItem, "application/json");
-                var id = client.ExecuteAsync(request, Method.Post).Result.Content;
-                var batchID = JsonSerializer.Deserialize<int>(id);
+                var id = client.ExecuteAsync(request, Method.Post);
+
+                if (id.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to save page. Additional Details: {id.Result.Content}");
+                }
+                var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
@@ -160,9 +227,9 @@ namespace management.api.sdk
                 }
                 return response.ToString();
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -171,10 +238,7 @@ namespace management.api.sdk
             try
             {
                 var response = await _batchMethods.GetBatch(id);
-                var options = new JsonSerializerOptions();
-                options.PropertyNameCaseInsensitive = true;
-                var batch = JsonSerializer.Deserialize<Batch>(response, options);
-                return batch;
+                return response;
             }
             catch
             {

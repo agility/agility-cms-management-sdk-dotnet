@@ -24,7 +24,7 @@ namespace management.api.sdk
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable retreive the container for id: {id}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to retreive the container for id: {id}. Additional Details: {response.Result.Content}");
                 }
 
                 var options = new JsonSerializerOptions();
@@ -48,7 +48,7 @@ namespace management.api.sdk
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable retreive the container for reference name: {referenceName}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to retreive the container for reference name: {referenceName}. Additional Details: {response.Result.Content}");
                 }
 
                 var options = new JsonSerializerOptions();
@@ -72,7 +72,7 @@ namespace management.api.sdk
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable retreive the container for id: {id}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to retreive the container for id: {id}. Additional Details: {response.Result.Content}");
                 }
 
                 var options = new JsonSerializerOptions();
@@ -96,7 +96,7 @@ namespace management.api.sdk
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable retreive the containers. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to retreive the containers. Additional Details: {response.Result.Content}");
                 }
 
                 var options = new JsonSerializerOptions();
@@ -120,7 +120,7 @@ namespace management.api.sdk
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable retreive the containers notifications for id {id}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to retreive the containers notifications for id {id}. Additional Details: {response.Result.Content}");
                 }
 
                 var options = new JsonSerializerOptions();
@@ -145,7 +145,7 @@ namespace management.api.sdk
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable retreive the containers. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to retreive the containers. Additional Details: {response.Result.Content}");
                 }
 
                 var options = new JsonSerializerOptions();
