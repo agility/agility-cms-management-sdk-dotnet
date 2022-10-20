@@ -54,12 +54,7 @@ namespace management.api.sdk.tests
             var contentItem = await contentMethods.GetContentItem(contentID);
             Assert.IsNotNull(contentItem, $"Unable to find Content item for content id {contentID}.");
 
-            if (!string.IsNullOrWhiteSpace(contentItem))
-            {
-                var content = JsonSerializer.Deserialize<ContentItem>(contentItem);
-                return content;
-            }
-            return null;
+            return contentItem;
         }
 
         [TestMethod]
@@ -97,17 +92,11 @@ namespace management.api.sdk.tests
 
             model.fields = new List<ModelField?>();
             model.fields.Add(modelField);
-            var modelStr = await modelMethods.SaveModel(model);
+            var retModel = await modelMethods.SaveModel(model);
 
-            Assert.IsNotNull(modelStr, $"Unable to create model for reference name {model.referenceName}");
+            Assert.IsNotNull(retModel, $"Unable to create model for reference name {model.referenceName}");
 
-            if (!string.IsNullOrWhiteSpace(modelStr))
-            {
-                model = new Model();
-                model = JsonSerializer.Deserialize<Model>(modelStr);
-                return model;
-            }
-            return null;
+            return retModel;
         }
 
         [TestMethod]
@@ -126,19 +115,10 @@ namespace management.api.sdk.tests
             container.IsDynamicPageList = true;
             container.ContentViewCategoryID = null;
             container.ContentDefinitionType = 1;
-            var containerStr = await containerMethods.SaveContainer(container);
+            var retcontainer = await containerMethods.SaveContainer(container);
 
-            Assert.IsNotNull(containerStr, $"Unable to create container for reference name {container.ReferenceName}");
-
-            if (!string.IsNullOrWhiteSpace(containerStr))
-            {
-                container = new Container();
-                var options = new JsonSerializerOptions();
-                options.PropertyNameCaseInsensitive = true;
-                container = JsonSerializer.Deserialize<Container>(containerStr, options);
-                return container;
-            }
-            return null;
+            Assert.IsNotNull(retcontainer, $"Unable to create container for reference name {container.ReferenceName}");
+            return retcontainer;
         }
 
         [TestMethod]
