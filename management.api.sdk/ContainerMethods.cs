@@ -1,5 +1,6 @@
 ﻿using agility.models;
 using RestSharp;
+using System.Text.Json;
 
 namespace management.api.sdk
 {
@@ -14,88 +15,148 @@ namespace management.api.sdk
             _clientInstance = new ClientInstance();
             client = _clientInstance.CreateClient(_options);
         }
-        public async Task<string?> GetContainerById(int? id)
+        public async Task<Container?> GetContainerById(int? id)
         {
             try
             {
                 var request = new RestRequest($"/container/{id}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable retreive the container for id: {id}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var container = JsonSerializer.Deserialize<Container>(response.Result.Content, options);
+
+                return container;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> GetContainerByReferenceName(string? referenceName)
+        public async Task<Container?> GetContainerByReferenceName(string? referenceName)
         {
             try
             {
                 var request = new RestRequest($"/container/{referenceName}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable retreive the container for reference name: {referenceName}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var container = JsonSerializer.Deserialize<Container>(response.Result.Content, options);
+
+                return container;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> GetContainerSecurity(int? id)
+        public async Task<Container?> GetContainerSecurity(int? id)
         {
             try
             {
                 var request = new RestRequest($"/container/{id}/security");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable retreive the container for id: {id}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var container = JsonSerializer.Deserialize<Container>(response.Result.Content, options);
+
+                return container;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> GetContainerList()
+        public async Task<List<Container?>> GetContainerList()
         {
             try
             {
                 var request = new RestRequest($"/container/list");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable retreive the containers. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var containers = JsonSerializer.Deserialize<List<Container>>(response.Result.Content, options);
+
+                return containers;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> GetNotificationList(int? id)
+        public async Task<List<Notification?>> GetNotificationList(int? id)
         {
             try
             {
                 var request = new RestRequest($"/container/{id}/notifications");
-                var response = client.ExecuteAsync(request, Method.Get).Result;
-                return response.Content;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable retreive the containers notifications for id {id}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var notifications = JsonSerializer.Deserialize<List<Notification>>(response.Result.Content, options);
+
+                return notifications;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> SaveContainer(Container container)
+        public async Task<Container?> SaveContainer(Container container)
         {
             try
             {
                 var request = new RestRequest($"/container");
                 request.AddJsonBody(container, "application/json");
-                var response = client.ExecuteAsync(request, Method.Post).Result;
-                return response.Content;
+                var response = client.ExecuteAsync(request, Method.Post);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable retreive the containers. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var containers = JsonSerializer.Deserialize<Container>(response.Result.Content, options);
+
+                return containers;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -104,12 +165,16 @@ namespace management.api.sdk
             try
             {
                 var request = new RestRequest($"/container/{id}");
-                var response = client.ExecuteAsync(request, Method.Delete).Result;
-                return response.Content;
+                var response = client.ExecuteAsync(request, Method.Delete);
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to delete the container for containerID: {id}. Additional Details: {response.Result.Content}");
+                }
+                return response.Result.Content;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
     }

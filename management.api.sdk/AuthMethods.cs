@@ -42,7 +42,7 @@ namespace management.api.sdk
         {
             try
             {
-                var baseURL = _options.DetermineBaseForAuth(guid);
+                var baseURL = _options.DetermineBaseURL(guid);
                 var client = new RestClient($"{baseURL}/oauth/refresh");
                 client.AddDefaultHeader("Cache-Control", "no-cache");
 
@@ -95,23 +95,5 @@ namespace management.api.sdk
           
         }
         
-
-        private void ExportToken(string? content, string? path)
-        {
-            try
-            {
-                if (File.Exists(path))
-                {
-                    File.Delete(path);
-                }
-
-                File.WriteAllText(path, content);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-        }
     }
 }

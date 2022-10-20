@@ -1,6 +1,6 @@
 ﻿using agility.models;
 using RestSharp;
-using System.Text;
+using System.Text.Json;
 
 namespace management.api.sdk
 {
@@ -17,7 +17,7 @@ namespace management.api.sdk
             client = _clientInstance.CreateClient(_options);
         }
 
-        public async Task<string?> Upload(Dictionary<string, string> files, string agilityFolderPath, bool overwrite = false, int groupingID = -1)
+        public async Task<List<Media>?> Upload(Dictionary<string, string> files, string agilityFolderPath, bool overwrite = false, int groupingID = -1)
         {
             try
             {
@@ -28,12 +28,20 @@ namespace management.api.sdk
                     var localPath = file.Value;
                     request.AddFile(fileName, $"{localPath}\\{fileName}");
                 }
-                var response = client.ExecuteAsync(request, Method.Post).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Post);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to upload the media. Additional Details: {response.Result.Content}");
+                }
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var medias = JsonSerializer.Deserialize<List<Media>>(response.Result.Content, options);
+                return medias;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -42,69 +50,108 @@ namespace management.api.sdk
             try
             {
                 var request = new RestRequest($"/asset/delete/{mediaID}");
-                var response = client.ExecuteAsync(request, Method.Delete).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Delete);
+                if(response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to delete the media for mediaID: {mediaID}. Additional Details: {response.Result.Content}");
+                }
+                return response.Result.Content;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
-           
+
         }
 
-        public async Task<string?> MoveFile(int? mediaID, string? newFolder)
+        public async Task<Media?> MoveFile(int? mediaID, string? newFolder)
         {
             try
             {
                 var request = new RestRequest($"/asset/move/{mediaID}?newFolder={newFolder}");
-                var response = client.ExecuteAsync(request, Method.Post).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Post);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to move the file for mediaID: {mediaID}. Additional Details: {response.Result.Content}");
+                }
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var media = JsonSerializer.Deserialize<Media>(response.Result.Content, options);
+                return media;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> GetMediaList(int? pageSize, int? recordOffset)
+        public async Task<AssetMediaList?> GetMediaList(int? pageSize, int? recordOffset)
         {
             try
             {
                 var request = new RestRequest($"/asset/list?pageSize={pageSize}&recordOffset={recordOffset}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve assets for the website. Additional Details: {response.Result.Content}");
+                }
+                
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var mediaList = JsonSerializer.Deserialize<AssetMediaList>(response.Result.Content, options);
+                return mediaList;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> GetAssetByID(int? mediaID)
+        public async Task<Media?> GetAssetByID(int? mediaID)
         {
             try
             {
                 var request = new RestRequest($"/asset/{mediaID}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve asset for mediaID {mediaID}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var media = JsonSerializer.Deserialize<Media>(response.Result.Content, options);
+                return media;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string?> GetAssetByURL(string? url)
+        public async Task<Media?> GetAssetByURL(string? url)
         {
             try
             {
                 var request = new RestRequest($"/asset?url={url}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve asset for url {url}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var media = JsonSerializer.Deserialize<Media>(response.Result.Content, options);
+                return media;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
     }

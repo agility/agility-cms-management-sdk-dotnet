@@ -18,17 +18,26 @@ namespace management.api.sdk
 
         }
 
-        public async Task<string?> GetBatch(int? id)
+        public async Task<Batch?> GetBatch(int? id)
         {
             try
             {
                 var request = new RestRequest($"/batch/{id}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable retreive the batch details for batchID {id}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var batch = JsonSerializer.Deserialize<Batch>(response.Result.Content, options);
+                return batch;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 

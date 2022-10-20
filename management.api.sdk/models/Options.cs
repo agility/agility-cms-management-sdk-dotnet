@@ -9,51 +9,8 @@
 
         public string? refresh_token { get; set; }
 
+      
         public string DetermineBaseURL(string guid)
-        {
-            if (guid.EndsWith("-d"))
-            {
-                if (Environment.GetEnvironmentVariable("Local") != null)
-                {
-                    var runLocally = Environment.GetEnvironmentVariable("Local");
-                    if(runLocally == "True")
-                    {
-                        baseUrl = "https://localhost:5050/api/v1/instance";
-                    }
-                    else
-                    {
-                        baseUrl = "https://mgmt-dev.aglty.io/api/v1/instance";
-                    }
-                }
-                else
-                {
-                    baseUrl = "https://mgmt-dev.aglty.io/api/v1/instance";
-                }
-            }
-            else if (guid.EndsWith("-u"))
-            {
-                baseUrl = "https://mgmt-us.aglty.io/api/v1/instance";
-            }
-            else if (guid.EndsWith("-ca"))
-            {
-                baseUrl = "https://mgmt-ca.aglty.io/api/v1/instance";
-            }
-            else if (guid.EndsWith("-eu"))
-            {
-                baseUrl = "https://mgmt-eu.aglty.io/api/v1/instance";
-            }
-            else if (guid.EndsWith("-aus"))
-            {
-                baseUrl = "https://mgmt-aus.aglty.io/api/v1/instance";
-            }
-            else
-            {
-                baseUrl = "https://mgmt-us.aglty.io/";
-            }
-            return baseUrl;
-        }
-
-        public string DetermineBaseForAuth(string guid)
         {
             if (guid.EndsWith("-d"))
             {

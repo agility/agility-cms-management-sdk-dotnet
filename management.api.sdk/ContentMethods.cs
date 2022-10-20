@@ -18,95 +18,136 @@ namespace management.api.sdk
             client = _clientInstance.CreateClient(_options);
             _batchMethods = new BatchMethods(_options);
         }
-        public async Task<string> GetContentItem(int? contentID)
+        public async Task<ContentItem> GetContentItem(int? contentID)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable retreive the content for id: {contentID}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var contentItem = JsonSerializer.Deserialize<ContentItem>(response.Result.Content, options);
+
+                return contentItem;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
-            
+
         }
 
-        public async Task<string> PublishContent(int? contentID, string? comments = null)
+        public async Task<int?> PublishContent(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}/publish?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to publish the content for id: {contentID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
-           
+
         }
 
-        public async Task<string> UnPublishContent(int? contentID, string? comments = null)
+        public async Task<int?> UnPublishContent(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}/unpublish?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to un-publish the content for id: {contentID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
-          
+
         }
 
-        public async Task<string> ContentRequestApproval(int? contentID, string? comments = null)
+        public async Task<int?> ContentRequestApproval(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}/request-approval?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
-            }
-            catch
-            {
+                var response = client.ExecuteAsync(request, Method.Get);
 
-                throw;
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to request for approval for the content id: {contentID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
 
-        public async Task<string> ApproveContent(int? contentID, string? comments = null)
+        public async Task<int?> ApproveContent(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}/approve?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to approve content for the content id: {contentID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
-            
         }
 
-        public async Task<string> DeclineContent(int? contentID, string? comments = null)
+        public async Task<int?> DeclineContent(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}/decline?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to decline content for the content id: {contentID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
-           
+
         }
 
         public async Task<string> SaveContentItem(ContentItem? contentItem)
@@ -115,8 +156,13 @@ namespace management.api.sdk
             {
                 var request = new RestRequest($"/{_options.locale}/item");
                 request.AddJsonBody(contentItem, "application/json");
-                var id = client.ExecuteAsync(request, Method.Post).Result.Content;
-                var batchID = JsonSerializer.Deserialize<int>(id);
+                var id = client.ExecuteAsync(request, Method.Post);
+
+                if (id.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to save content. Additional Details: {id.Result.Content}");
+                }
+                var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
                 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
@@ -139,13 +185,12 @@ namespace management.api.sdk
                     }
                     response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
-                    
-
+ 
                 return response.ToString();
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
@@ -154,10 +199,8 @@ namespace management.api.sdk
             try
             {
                 var response = await _batchMethods.GetBatch(id);
-                var options = new JsonSerializerOptions();
-                options.PropertyNameCaseInsensitive = true;
-                var batch = JsonSerializer.Deserialize<Batch>(response, options);
-                return batch;
+               
+                return response;
             }
             catch
             {
@@ -171,9 +214,14 @@ namespace management.api.sdk
             {
                 var request = new RestRequest($"/{_options.locale}/item/multi");
                 request.AddJsonBody(contentItems, "application/json");
-                var id = client.ExecuteAsync(request, Method.Post).Result.Content;
-                var batchID = JsonSerializer.Deserialize<int>(id);
+                var id = client.ExecuteAsync(request, Method.Post);
 
+                if (id.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to save contents. Additional Details: {id.Result.Content}");
+                }
+                var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
+  
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
                 StringBuilder response = new StringBuilder();
                 string seperator = string.Empty;
@@ -197,27 +245,33 @@ namespace management.api.sdk
                 }
                 return response.ToString();
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public async Task<string> DeleteContent(int? contentID, string? comments = null)
+        public async Task<int?> DeleteContent(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Delete).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Delete);
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to delete content for content id: {contentID}. Additional Details: {response.Result.Content}");
+                }
+
+                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+                return batchID;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
-            
+
         }
-        public async Task<string?> GetContentItems(string? referenceName,
+        public async Task<ContentList?> GetContentItems(string? referenceName,
            string? filter = null,
            string? fields = null,
            string? sortDirection = null,
@@ -228,12 +282,22 @@ namespace management.api.sdk
             try
             {
                 var request = new RestRequest($"/{_options.locale}/list/{referenceName}?filter={filter}&fields={fields}&sortDirection={sortDirection}&sortField={sortField}&take={take}&skip={skip}");
-                var response = client.ExecuteAsync(request, Method.Get).Result.Content;
-                return response;
+                var response = client.ExecuteAsync(request, Method.Get);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable retreive the content details for reference name: {referenceName}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var contentList = JsonSerializer.Deserialize<ContentList>(response.Result.Content, options);
+
+                return contentList;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
     }

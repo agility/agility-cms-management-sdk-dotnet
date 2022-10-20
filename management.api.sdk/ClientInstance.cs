@@ -9,7 +9,7 @@ namespace management.api.sdk
         public RestClient? CreateClient(Options options)
         {
             var baseURL = options.DetermineBaseURL(options.guid);
-            var client = new RestClient($"{baseURL}/{options.guid}");
+            var client = new RestClient($"{baseURL}/api/v1/instance/{options.guid}");
 
             client.AddDefaultHeader("Authorization", $"Bearer {options.token}");
             client.AddDefaultHeader("Cache-Control", "no-cache");
