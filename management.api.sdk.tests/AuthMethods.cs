@@ -1,12 +1,13 @@
 ﻿using agility.models;
+using management.api.sdk;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Options;
 using RestSharp;
-using System.Dynamic;
-using System.Text;
+using System;
+using System.Linq;
 using System.Text.Json;
 
-namespace management.api.sdk
+namespace agility.utils
 {
     public class AuthMethods
     {

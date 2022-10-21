@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
+using agility.utils;
 using System.Threading.Tasks;
 
 namespace management.api.sdk.tests
@@ -14,38 +14,15 @@ namespace management.api.sdk.tests
         ContentMethods contentMethods = null;
         ModelMethods modelMethods = null;
         ContainerMethods containerMethods = null;
-        private readonly agility.models.Options _options;
-        private readonly AppSettings _appSettings;
-        private readonly AuthMethods _authMethods;
-        private TokenResponseData _tokenResponseData;
+        private agility.models.Options _options;
+        private AuthUtil _authUtil = null;
         public ContentTests()
         {
-            _options = new agility.models.Options();
-            _appSettings = new AppSettings();
-            _options.guid = Environment.GetEnvironmentVariable("Guid");
-            _options.locale = Environment.GetEnvironmentVariable("Locale");
-            IOptions<AppSettings> appSettingsOptions = Microsoft.Extensions.Options.Options.Create<AppSettings>(_appSettings);
-            _authMethods = new AuthMethods(_options, appSettingsOptions);
-           
+            _authUtil = new AuthUtil();
+            _options = _authUtil.GetTokenResponseData();
+            contentMethods = new ContentMethods(_options);
             modelMethods = new ModelMethods(_options);
             containerMethods = new ContainerMethods(_options);
-        }
-
-        private TokenResponseData GetTokenResponseDataAsync()
-        {
-            var tokenResponseData = _authMethods.GetCurrentToken(_options.guid);
-            if (tokenResponseData != null)
-            {
-                _options.refresh_token = tokenResponseData.refresh_token;
-            }
-            else
-            {
-                _options.refresh_token = Environment.GetEnvironmentVariable("RefreshToken");
-            }
-            _tokenResponseData = _authMethods.GetAuthorizationToken(_options.guid);
-            _options.token = _tokenResponseData.access_token;
-            _options.refresh_token = _tokenResponseData.refresh_token;
-            return _tokenResponseData;
         }
 
         [TestMethod]
@@ -106,7 +83,7 @@ namespace management.api.sdk.tests
             var container = new Container();
             container.ContentViewID = 0;
             container.ContentDefinitionID = model.id;
-            container.ContentDefinitionTypeID = 0;
+            container.ContentDefinitionTypeID = 1;
             string format = "Mddyyyyhhmmsstt";
             string modelDate = DateTime.Now.ToString(format);
             container.ContentViewName = $"Test_Container {modelDate}";
@@ -114,7 +91,7 @@ namespace management.api.sdk.tests
             container.IsShared = false;
             container.IsDynamicPageList = true;
             container.ContentViewCategoryID = null;
-            container.ContentDefinitionType = 1;
+            //container.ContentDefinitionType = 1;
             var retcontainer = await containerMethods.SaveContainer(container);
 
             Assert.IsNotNull(retcontainer, $"Unable to create container for reference name {container.ReferenceName}");
@@ -122,11 +99,31 @@ namespace management.api.sdk.tests
         }
 
         [TestMethod]
-        public async Task SaveContent()
+        public async Task<int?> SaveContent()
         {
-            var container = await SaveContainer();
-            var contentItem = new ContentItem();
+            try
+            {
+                var container = await SaveContainer();
 
+                var contentItem = GetContentObject(container);
+
+                var contentStr = await contentMethods.SaveContentItem(contentItem);
+                Assert.IsNotNull(contentStr, $"Unable to create content.");
+
+                int contentID = Convert.ToInt32(contentStr);
+                return contentID;
+            }
+
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+            return null;
+        }
+
+        private ContentItem GetContentObject(Container container)
+        {
+            var contentItem = new ContentItem();
             contentItem.contentID = -1;
 
             ContentItemProperties properties = new ContentItemProperties();
@@ -142,16 +139,71 @@ namespace management.api.sdk.tests
             fields.Add("typetext", "Test text for Content: From SDK");
             contentItem.fields = fields;
 
-            var contentStr = await contentMethods.SaveContentItem(contentItem);
-
-            Assert.IsNotNull(contentStr, $"Unable to create content.");
-
-            int contentID = Convert.ToInt32(contentStr);
-
-            await GetContentItem(contentID);
-        
+            return contentItem;
         }
 
+        [TestMethod]
+        public async Task ContentOperations()
+        {
+            try
+            {
+                var contentId = await SaveContent();
+
+                var content = await GetContentItem((int)contentId);
+                Assert.IsNotNull(content, "Unable to retrieve content.");
+
+                var publishContent = await contentMethods.PublishContent(contentId, "Publish Content");
+                Assert.IsNotNull(publishContent, $"In:PublishContent: Unable to generate batch for the contentID: {contentId}");
+
+                var unpublishContent = await contentMethods.UnPublishContent(contentId, "Un-Publish Content");
+                Assert.IsNotNull(unpublishContent, $"In:UnPublishContent: Unable to generate batch for the contentID: {contentId}");
+
+                var contentRequestApproval = await contentMethods.ContentRequestApproval(contentId, "Request for content approval");
+                Assert.IsNotNull(contentRequestApproval, $"In:ContentRequestApproval: Unable to generate batch for the contentID: {contentId}");
+
+                var approveContent = await contentMethods.ApproveContent(contentId, "Content Approved");
+                Assert.IsNotNull(approveContent, $"In:ApproveContent: Unable to generate batch for the contentID: {contentId}");
+
+                var declineContent = await contentMethods.DeclineContent(contentId, "Content Declined");
+                Assert.IsNotNull(declineContent, $"In:DeclineContent: Unable to generate batch for the contentID: {contentId}");
+
+                var deleteContent = await contentMethods.DeleteContent(contentId, "Delete Content");
+                Assert.IsNotNull(deleteContent, $"In:DeleteContent: Unable to generate batch for the contentID: {contentId}");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+
+        }
+
+        [TestMethod]
+        public async Task SaveContents()
+        {
+            try
+            {
+                var container = await SaveContainer();
+                List<ContentItem> contentItems = new List<ContentItem>();
+
+                for (int i = 0; i < 2; i++)
+                {
+                    var contentItem = GetContentObject(container);
+                    contentItems.Add(contentItem);
+                }
+
+                var items = await contentMethods.SaveContentItems(contentItems);
+
+                if (items.Count < 1)
+                {
+                    Assert.Fail("Unable to save multiple content.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+           
+        }
       
     }
 }

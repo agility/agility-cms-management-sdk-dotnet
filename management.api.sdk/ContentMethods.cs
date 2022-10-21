@@ -208,7 +208,7 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<string> SaveContentItems(List<ContentItem?> contentItems)
+        public async Task<List<string?>> SaveContentItems(List<ContentItem?> contentItems)
         {
             try
             {
@@ -223,27 +223,21 @@ namespace management.api.sdk
                 var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
   
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
-                StringBuilder response = new StringBuilder();
+                List<string> response = new List<string>();
                 string seperator = string.Empty;
                 foreach (var item in batch.Items)
                 {
-                    response.Append(seperator);
                     if (item.ItemID > 0)
                     {
-                        response.Append(item.ItemID);
+                        response.Add(item.ItemID.ToString());
                     }
-                    seperator = ",";
                 }
 
                 if (!string.IsNullOrWhiteSpace(batch.ErrorData))
                 {
-                    if (response.Length > 0)
-                    {
-                        response.Append(",");
-                    }
-                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                    response.Add($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
-                return response.ToString();
+                return response;
             }
             catch (Exception ex)
             {
