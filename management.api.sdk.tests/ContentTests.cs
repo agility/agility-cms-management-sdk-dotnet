@@ -220,6 +220,17 @@ namespace management.api.sdk.tests
                 {
                     Assert.Fail("Unable to save multiple content.");
                 }
+
+                foreach (var item in items)
+                {
+                    int contentID = 0;
+                    bool isValid = int.TryParse(item, out contentID);
+
+                    if (isValid)
+                    {
+                        var deleteContent = await contentMethods.DeleteContent(contentID, "Delete Content");
+                    }
+                }
             }
             catch (Exception ex)
             {
