@@ -72,6 +72,10 @@ namespace management.api.sdk
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
+                    if(response.Result.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    {
+                        return new Container();
+                    }
                     throw new ApplicationException($"Unable to retreive the container for id: {id}. Additional Details: {response.Result.Content}");
                 }
 
