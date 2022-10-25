@@ -41,7 +41,7 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<Batch> Retry(Func<Task<Batch>> method, int duration = 3000, int retryCount = 3)
+        public async Task<Batch> Retry(Func<Task<Batch>> method, int duration = 3000, int retryCount = 500)
         {
             if (retryCount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(retryCount));
@@ -57,14 +57,17 @@ namespace management.api.sdk
                     }
                     else
                     {
-                        throw new Exception();
+                        --retryCount;
+                        if (--retryCount <= 0)
+                        {
+                            throw new ApplicationException("Tried more than retry count duration.");
+                        }
+                        await Task.Delay(duration);
                     }
                 }
                 catch
                 {
-                    if (--retryCount == 0)
-                        throw;
-                    await Task.Delay(duration);
+                    throw;
                 }
             }
         }
