@@ -23,6 +23,7 @@ namespace agility.utils
             if (Environment.GetEnvironmentVariable("GenerateToken") != null && Environment.GetEnvironmentVariable("GenerateToken") == "True")
             {
                 _options.refresh_token = Environment.GetEnvironmentVariable("RefreshToken");
+                Environment.SetEnvironmentVariable("GenerateToken", "False");
             }
             else
             {
