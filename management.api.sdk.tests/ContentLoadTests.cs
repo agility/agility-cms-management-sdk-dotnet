@@ -54,9 +54,12 @@ namespace management.api.sdk.tests
                     {
                         var deleteContent = await contentMethods.DeleteContent(contentID, "Delete Content");
 
-                        if (deleteContent < 1)
+                        int id = 0;
+                        bool valid = false;
+                        valid = int.TryParse(deleteContent, out id);
+                        if (!valid)
                         {
-                            Assert.Fail($"In:DeleteContent: Unable to generate batch for the contentID: {contentID}. Negative value of the batchID");
+                            Assert.Fail($"In:SaveMultipleContents: Unable to generate batch for the contentID: {contentID}. Negative value of the batchID");
                         }
                     }
                 }
@@ -70,7 +73,55 @@ namespace management.api.sdk.tests
             {
                 Assert.Fail(ex.Message);
             }
+        }
 
+        [TestMethod]
+        public async Task UpdateContents()
+        {
+            try
+            {
+                List<ContentItem> contentItems = new List<ContentItem>();
+                var container = await contentTests.SaveContainer();
+                for (int i = 0; i < 250; i++)
+                {
+                    contentItems.Add(contentTests.GetContentObject(container));
+                }
+                var items = await contentMethods.SaveContentItems(contentItems);
+                Assert.IsNotNull(items, "Processing the batches in background.");
+
+                if (items.Count != contentItems.Count)
+                {
+                    Assert.Fail("Unable to save multiple contents.");
+                }
+
+               /* foreach (var item in items)
+                {
+                    int contentID = 0;
+                    bool isValid = int.TryParse(item, out contentID);
+
+                    if (isValid)
+                    {
+                        var deleteContent = await contentMethods.DeleteContent(contentID, "Delete Content");
+
+                        int id = 0;
+                        bool valid = false;
+                        valid = int.TryParse(deleteContent, out id);
+                        if (!valid)
+                        {
+                            Assert.Fail($"In:SaveMultipleContents: Unable to generate batch for the contentID: {contentID}. Negative value of the batchID");
+                        }
+                    }
+                }
+
+                var containerStr = await containerMethods.DeleteContainer(container.ContentViewID);
+
+                Assert.IsNotNull(containerStr, "Unable to delete container.");*/
+
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
         }
     }
 }

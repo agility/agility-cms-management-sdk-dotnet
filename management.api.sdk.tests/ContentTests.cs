@@ -150,45 +150,58 @@ namespace management.api.sdk.tests
 
                 var content = await GetContentItem((int)contentId);
                 Assert.IsNotNull(content, "Unable to retrieve content.");
-
+                int id = 0;
+                bool isValid = false;
                 var publishContent = await contentMethods.PublishContent(contentId, "Publish Content");
                 Assert.IsNotNull(publishContent, $"In:PublishContent: Unable to generate batch for the contentID: {contentId}");
-                if (publishContent < 1)
+                isValid = int.TryParse(publishContent, out id);
+                if (!isValid)
                 {
                     Assert.Fail($"In:PublishContent: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
                 }
 
+                isValid = false;
                 var unpublishContent = await contentMethods.UnPublishContent(contentId, "Un-Publish Content");
                 Assert.IsNotNull(unpublishContent, $"In:UnPublishContent: Unable to generate batch for the contentID: {contentId}");
-                if (unpublishContent < 1)
+
+                isValid = int.TryParse(unpublishContent, out id);
+                if (!isValid)
                 {
                     Assert.Fail($"In:UnPublishContent: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
                 }
 
+                isValid = false;
                 var contentRequestApproval = await contentMethods.ContentRequestApproval(contentId, "Request for content approval");
                 Assert.IsNotNull(contentRequestApproval, $"In:ContentRequestApproval: Unable to generate batch for the contentID: {contentId}");
-                if (contentRequestApproval < 1)
+                isValid = int.TryParse(contentRequestApproval, out id);
+                if (!isValid)
                 {
                     Assert.Fail($"In:ContentRequestApproval: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
                 }
 
+                isValid = false;
                 var approveContent = await contentMethods.ApproveContent(contentId, "Content Approved");
                 Assert.IsNotNull(approveContent, $"In:ApproveContent: Unable to generate batch for the contentID: {contentId}");
-                if (approveContent < 1)
+                isValid = int.TryParse(approveContent, out id);
+                if (!isValid)
                 {
                     Assert.Fail($"In:ApproveContent: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
                 }
 
+                isValid = false;
                 var declineContent = await contentMethods.DeclineContent(contentId, "Content Declined");
                 Assert.IsNotNull(declineContent, $"In:DeclineContent: Unable to generate batch for the contentID: {contentId}");
-                if (declineContent < 1)
+                isValid = int.TryParse(declineContent, out id);
+                if (!isValid)
                 {
                     Assert.Fail($"In:DeclineContent: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
                 }
 
+                isValid = false;
                 var deleteContent = await contentMethods.DeleteContent(contentId, "Delete Content");
                 Assert.IsNotNull(deleteContent, $"In:DeleteContent: Unable to generate batch for the contentID: {contentId}");
-                if (deleteContent < 1)
+                isValid = int.TryParse(deleteContent, out id);
+                if (!isValid)
                 {
                     Assert.Fail($"In:DeleteContent: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
                 }

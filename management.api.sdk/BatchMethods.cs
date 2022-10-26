@@ -41,8 +41,10 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<Batch> Retry(Func<Task<Batch>> method, int duration = 3000, int retryCount = 500)
+        public async Task<Batch> Retry(Func<Task<Batch>> method)
         {
+            var retryCount = _options.retryCount;
+            var duration = _options.duration;
             if (retryCount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(retryCount));
 
@@ -60,14 +62,14 @@ namespace management.api.sdk
                         --retryCount;
                         if (--retryCount <= 0)
                         {
-                            throw new ApplicationException("Tried more than retry count duration.");
+                            throw new ApplicationException("Timeout exceeded but operation still in progress. Please check the Batches page in the Agility Content Manager app.");
                         }
                         await Task.Delay(duration);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    throw;
+                    throw ex;
                 }
             }
         }

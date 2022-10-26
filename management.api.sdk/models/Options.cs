@@ -9,7 +9,11 @@
 
         public string? refresh_token { get; set; }
 
-      
+        public int duration { get; set; } = 3000;
+
+        public int retryCount { get; set; } = 500;
+
+
         public string DetermineBaseURL(string guid)
         {
             if (guid.EndsWith("-d"))

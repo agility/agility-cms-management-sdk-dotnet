@@ -43,20 +43,43 @@ namespace management.api.sdk
 
         }
 
-        public async Task<int?> PublishContent(int? contentID, string? comments = null)
+        public async Task<string?> PublishContent(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}/publish?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var id = client.ExecuteAsync(request, Method.Get);
 
-                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                if (id.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable to publish the content for id: {contentID}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to publish the content for id: {contentID}. Additional Details: {id.Result.Content}");
                 }
 
-                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+                var batchID = JsonSerializer.Deserialize<int?>(id.Result.Content);
+  
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                StringBuilder response = new StringBuilder();
+                string seperator = string.Empty;
+                foreach (var item in batch.Items)
+                {
+                    response.Append(seperator);
+                    if (item.ItemID > 0)
+                    {
+                        response.Append(item.ItemID);
+                    }
+                    seperator = ",";
+                }
+                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (response.Length > 0)
+                    {
+                        response.Append(",");
+                    }
+                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return response.ToString();
             }
             catch (Exception ex)
             {
@@ -65,20 +88,43 @@ namespace management.api.sdk
 
         }
 
-        public async Task<int?> UnPublishContent(int? contentID, string? comments = null)
+        public async Task<string?> UnPublishContent(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}/unpublish?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var id = client.ExecuteAsync(request, Method.Get);
 
-                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                if (id.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable to un-publish the content for id: {contentID}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to un-publish the content for id: {contentID}. Additional Details: {id.Result.Content}");
                 }
 
-                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+                var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
+
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                StringBuilder response = new StringBuilder();
+                string seperator = string.Empty;
+                foreach (var item in batch.Items)
+                {
+                    response.Append(seperator);
+                    if (item.ItemID > 0)
+                    {
+                        response.Append(item.ItemID);
+                    }
+                    seperator = ",";
+                }
+                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (response.Length > 0)
+                    {
+                        response.Append(",");
+                    }
+                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return response.ToString();
             }
             catch (Exception ex)
             {
@@ -87,20 +133,43 @@ namespace management.api.sdk
 
         }
 
-        public async Task<int?> ContentRequestApproval(int? contentID, string? comments = null)
+        public async Task<string?> ContentRequestApproval(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}/request-approval?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var id = client.ExecuteAsync(request, Method.Get);
 
-                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                if (id.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable to request for approval for the content id: {contentID}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to request for approval for the content id: {contentID}. Additional Details: {id.Result.Content}");
                 }
 
-                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+                var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
+
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                StringBuilder response = new StringBuilder();
+                string seperator = string.Empty;
+                foreach (var item in batch.Items)
+                {
+                    response.Append(seperator);
+                    if (item.ItemID > 0)
+                    {
+                        response.Append(item.ItemID);
+                    }
+                    seperator = ",";
+                }
+                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (response.Length > 0)
+                    {
+                        response.Append(",");
+                    }
+                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return response.ToString();
             }
             catch (Exception ex)
             {
@@ -109,19 +178,42 @@ namespace management.api.sdk
 
         }
 
-        public async Task<int?> ApproveContent(int? contentID, string? comments = null)
+        public async Task<string?> ApproveContent(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}/approve?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get);
-                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                var id = client.ExecuteAsync(request, Method.Get);
+                if (id.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable to approve content for the content id: {contentID}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to approve content for the content id: {contentID}. Additional Details: {id.Result.Content}");
                 }
 
-                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+                var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
+
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                StringBuilder response = new StringBuilder();
+                string seperator = string.Empty;
+                foreach (var item in batch.Items)
+                {
+                    response.Append(seperator);
+                    if (item.ItemID > 0)
+                    {
+                        response.Append(item.ItemID);
+                    }
+                    seperator = ",";
+                }
+                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (response.Length > 0)
+                    {
+                        response.Append(",");
+                    }
+                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return response.ToString();
             }
             catch (Exception ex)
             {
@@ -129,19 +221,42 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<int?> DeclineContent(int? contentID, string? comments = null)
+        public async Task<string?> DeclineContent(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}/decline?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get);
-                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                var id = client.ExecuteAsync(request, Method.Get);
+                if (id.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable to decline content for the content id: {contentID}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to decline content for the content id: {contentID}. Additional Details: {id.Result.Content}");
                 }
 
-                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+                var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
+
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                StringBuilder response = new StringBuilder();
+                string seperator = string.Empty;
+                foreach (var item in batch.Items)
+                {
+                    response.Append(seperator);
+                    if (item.ItemID > 0)
+                    {
+                        response.Append(item.ItemID);
+                    }
+                    seperator = ",";
+                }
+                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (response.Length > 0)
+                    {
+                        response.Append(",");
+                    }
+                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return response.ToString();
             }
             catch (Exception ex)
             {
@@ -245,19 +360,42 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<int?> DeleteContent(int? contentID, string? comments = null)
+        public async Task<string?> DeleteContent(int? contentID, string? comments = null)
         {
             try
             {
                 var request = new RestRequest($"/{_options.locale}/item/{contentID}?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Delete);
-                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                var id = client.ExecuteAsync(request, Method.Delete);
+                if (id.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable to delete content for content id: {contentID}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to delete content for content id: {contentID}. Additional Details: {id.Result.Content}");
                 }
 
-                var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+                var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
+
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                StringBuilder response = new StringBuilder();
+                string seperator = string.Empty;
+                foreach (var item in batch.Items)
+                {
+                    response.Append(seperator);
+                    if (item.ItemID > 0)
+                    {
+                        response.Append(item.ItemID);
+                    }
+                    seperator = ",";
+                }
+                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (response.Length > 0)
+                    {
+                        response.Append(",");
+                    }
+                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return response.ToString();
             }
             catch (Exception ex)
             {
