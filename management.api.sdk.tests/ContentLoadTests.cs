@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using agility.utils;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace management.api.sdk.tests
 {
@@ -82,7 +83,7 @@ namespace management.api.sdk.tests
             {
                 List<ContentItem> contentItems = new List<ContentItem>();
                 var container = await contentTests.SaveContainer();
-                for (int i = 0; i < 250; i++)
+                for (int i = 0; i < 50; i++)
                 {
                     contentItems.Add(contentTests.GetContentObject(container));
                 }
@@ -94,7 +95,27 @@ namespace management.api.sdk.tests
                     Assert.Fail("Unable to save multiple contents.");
                 }
 
-               /* foreach (var item in items)
+                List<ContentItem> updateItems = new List<ContentItem>();
+                foreach (var item in items)
+                {
+                    int contentID = 0;
+                    bool isValid = int.TryParse(item, out contentID);
+
+                    if (isValid)
+                    {
+                        var contentItem = await contentMethods.GetContentItem(contentID);
+                        updateItems.Add(contentItem);
+                    }
+                }
+
+
+                var json = JsonSerializer.Serialize<List<ContentItem>>(updateItems);
+
+                var updatedItems = await contentMethods.SaveContentItems(updateItems);
+
+                Assert.IsNotNull(updatedItems, "Processing the batches in background.");
+
+                foreach (var item in updatedItems)
                 {
                     int contentID = 0;
                     bool isValid = int.TryParse(item, out contentID);
@@ -108,14 +129,14 @@ namespace management.api.sdk.tests
                         valid = int.TryParse(deleteContent, out id);
                         if (!valid)
                         {
-                            Assert.Fail($"In:SaveMultipleContents: Unable to generate batch for the contentID: {contentID}. Negative value of the batchID");
+                            Assert.Fail($"In:SaveMultipleContents: Unable to generate batch for the contentID: {contentID}.");
                         }
                     }
                 }
 
                 var containerStr = await containerMethods.DeleteContainer(container.ContentViewID);
 
-                Assert.IsNotNull(containerStr, "Unable to delete container.");*/
+                Assert.IsNotNull(containerStr, "Unable to delete container.");
 
             }
             catch (Exception ex)
