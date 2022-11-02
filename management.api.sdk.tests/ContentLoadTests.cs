@@ -83,7 +83,7 @@ namespace management.api.sdk.tests
             {
                 List<ContentItem> contentItems = new List<ContentItem>();
                 var container = await contentTests.SaveContainer();
-                for (int i = 0; i < 50; i++)
+                for (int i = 0; i < 250; i++)
                 {
                     contentItems.Add(contentTests.GetContentObject(container));
                 }
