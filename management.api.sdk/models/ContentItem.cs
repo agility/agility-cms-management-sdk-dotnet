@@ -13,7 +13,8 @@ namespace agility.models
 		public ContentItemProperties properties { get; set; } = new ContentItemProperties();
 		public Dictionary<string, object> fields { get; set; } = new Dictionary<string, object>();
 		public SeoProperties? seo { get; set; }
-
+		public List<ContentTag?>? tags { get; set; }
+		public ContentScripts? scripts { get; set; }
 
 		public object? GetField(string fieldName, Type type)
 		{
@@ -118,5 +119,18 @@ namespace agility.models
 
 		public bool? menuVisible { get; set; }
 		public bool? sitemapVisible { get; set; }
+	}
+
+	public class ContentTag
+	{
+		public int? contentTagID { get; set; }
+		public int? tagContainerID { get; set; }
+		public string? tag { get; set; }
+	}
+
+	public class ContentScripts
+	{
+		public string? top { get; set; }
+		public string? bottom { get; set; }
 	}
 }
