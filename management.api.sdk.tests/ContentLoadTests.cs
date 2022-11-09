@@ -14,6 +14,7 @@ namespace management.api.sdk.tests
         ContentMethods contentMethods = null;
         ContentTests contentTests = null;
         ContainerMethods containerMethods = null;
+        ModelMethods modelMethods = null;
         private agility.models.Options _options;
         private AuthUtil _authUtil = null;
 
@@ -24,6 +25,7 @@ namespace management.api.sdk.tests
             contentMethods = new ContentMethods(_options);
             contentTests = new ContentTests();
             containerMethods = new ContainerMethods(_options);
+            modelMethods = new ModelMethods(_options);
         }
 
 
@@ -104,13 +106,13 @@ namespace management.api.sdk.tests
                     if (isValid)
                     {
                         var contentItem = await contentMethods.GetContentItem(contentID);
+                        contentItem.fields = new Dictionary<string, object>();
+                        contentItem.fields.Add("typeText", "Updated Test text for Content: From SDK");
                         updateItems.Add(contentItem);
                     }
                 }
 
-
-                var json = JsonSerializer.Serialize<List<ContentItem>>(updateItems);
-
+ 
                 var updatedItems = await contentMethods.SaveContentItems(updateItems);
 
                 Assert.IsNotNull(updatedItems, "Processing the batches in background.");
@@ -137,6 +139,10 @@ namespace management.api.sdk.tests
                 var containerStr = await containerMethods.DeleteContainer(container.ContentViewID);
 
                 Assert.IsNotNull(containerStr, "Unable to delete container.");
+
+                var modelStr = await modelMethods.DeleteModel(container.ContentDefinitionID);
+
+                Assert.IsNotNull(modelStr, "Unable to delete container.");
 
             }
             catch (Exception ex)
