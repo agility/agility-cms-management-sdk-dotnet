@@ -15,6 +15,14 @@ namespace management.api.sdk
             _clientInstance = new ClientInstance();
             client = _clientInstance.CreateClient(_options);
         }
+
+        /// <summary>
+        /// Method to List Users for a website.
+        /// </summary>
+        /// <param name="websiteID">The websiteID for the requested website.</param>
+        /// <param name="includeSelfIfInternal">To include the current user if internal user.</param>
+        /// <returns>A collection of Website User.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<List<WebsiteUser?>> GetUsers(int? websiteID, bool includeSelfIfInternal = false)
         {
             try
@@ -39,6 +47,15 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Create a User.
+        /// </summary>
+        /// <param name="emailAddress">The email address of the requested user.</param>
+        /// <param name="roles">Object of InstanceRole class for the requested user.</param>
+        /// <param name="firstName">The first name of the requested user.</param>
+        /// <param name="lastName">The last name of the requested user.</param>
+        /// <returns>An object of the InstanceUser class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<InstanceUser?> SaveUser(string? emailAddress, List<InstanceRole> roles, string? firstName = null, string? lastName = null)
         {
             try
@@ -64,6 +81,13 @@ namespace management.api.sdk
             }
         }
 
+
+        /// <summary>
+        /// Method to delete user.
+        /// </summary>
+        /// <param name="userID">The userID of the requested user.</param>
+        /// <returns>A string response if a user is deleted.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> DeleteUser(int? userID)
         {
             try

@@ -18,6 +18,12 @@ namespace management.api.sdk
             client = _clientInstance.CreateClient(_options);
             _batchMethods = new BatchMethods(_options);
         }
+
+        /// <summary>
+        /// Method to retrieve sitemap for a locale.
+        /// </summary>
+        /// <returns>A collection of Sitemap object.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<List<Sitemap?>> GetSiteMap()
         {
             try
@@ -42,6 +48,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Get a Page.
+        /// </summary>
+        /// <param name="pageID">The id of the requested page.</param>
+        /// <returns>An object of a PageItem.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<PageItem?> GetPage(int? pageID)
         {
             try
@@ -66,6 +78,13 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to publish a page from batch.
+        /// </summary>
+        /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string pageID of the requested page.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<int?> PublishPage(int? pageID, string? comments = null)
         {
             try
@@ -87,6 +106,13 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Unpublish a page from batch.
+        /// </summary>
+        /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string pageID of the requested page.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<int?> UnPublishPage(int? pageID, string? comments = null)
         {
             try
@@ -108,6 +134,14 @@ namespace management.api.sdk
             }
         }
 
+
+        /// <summary>
+        /// Method to delete a page from batch.
+        /// </summary>
+        /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string pageID of the requested page.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<int?> DeletePage(int? pageID, string? comments = null)
         {
             try
@@ -129,6 +163,13 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Approve a page from batch.
+        /// </summary>
+        /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string pageID of the requested page.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<int?> ApprovePage(int? pageID, string? comments = null)
         {
             try
@@ -150,6 +191,13 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Decline a page from batch.
+        /// </summary>
+        /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string pageID of the requested page.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<int?> DeclinePage(int? pageID, string? comments = null)
         {
             try
@@ -171,6 +219,13 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Request approval for a page from batch.
+        /// </summary>
+        /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string pageID of the requested page.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<int?> PageRequestApproval(int? pageID, string? comments = null)
         {
             try
@@ -192,6 +247,14 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to save a page from batch.
+        /// </summary>
+        /// <param name="pageItem">The object of PageItem class for the requested Page.</param>
+        /// <param name="parentPageID">The id of the parent page.</param>
+        /// <param name="placeBeforePageItemID">The id of the page before the page.</param>
+        /// <returns>Returns a string pageID of the requested page.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> SavePage(PageItem? pageItem, int? parentPageID = -1, int? placeBeforePageItemID = -1)
         {
             try

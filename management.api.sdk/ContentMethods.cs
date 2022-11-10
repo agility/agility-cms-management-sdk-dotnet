@@ -18,6 +18,13 @@ namespace management.api.sdk
             client = _clientInstance.CreateClient(_options);
             _batchMethods = new BatchMethods(_options);
         }
+
+        /// <summary>
+        /// Method to Get a Content item by Locale and ContentID
+        /// </summary>
+        /// <param name="contentID">The contentid of the requested content.</param>
+        /// <returns>An object of ContentItem class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<ContentItem> GetContentItem(int? contentID)
         {
             try
@@ -43,6 +50,13 @@ namespace management.api.sdk
 
         }
 
+        /// <summary>
+        /// Method to publish a content in a batch for a contentID.
+        /// </summary>
+        /// <param name="contentID">The contentid of the requested content.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string contentID of the requested content.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> PublishContent(int? contentID, string? comments = null)
         {
             try
@@ -88,6 +102,13 @@ namespace management.api.sdk
 
         }
 
+        /// <summary>
+        /// Method to unpublish a content in a batch for a contentID.
+        /// </summary>
+        /// <param name="contentID">The contentid of the requested content.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string contentID of the requested content.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> UnPublishContent(int? contentID, string? comments = null)
         {
             try
@@ -133,6 +154,13 @@ namespace management.api.sdk
 
         }
 
+        /// <summary>
+        /// Method to request approval for a content in a batch for a contentID.
+        /// </summary>
+        /// <param name="contentID">The contentid of the requested content.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string contentID of the requested content.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> ContentRequestApproval(int? contentID, string? comments = null)
         {
             try
@@ -178,6 +206,13 @@ namespace management.api.sdk
 
         }
 
+        /// <summary>
+        /// Method to approve a content in a batch for a contentID.
+        /// </summary>
+        /// <param name="contentID">The contentid of the requested content.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string contentID of the requested content.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> ApproveContent(int? contentID, string? comments = null)
         {
             try
@@ -221,6 +256,13 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to decline a content in a batch for a contentID.
+        /// </summary>
+        /// <param name="contentID">The contentid of the requested content.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string contentID of the requested content.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> DeclineContent(int? contentID, string? comments = null)
         {
             try
@@ -265,6 +307,12 @@ namespace management.api.sdk
 
         }
 
+        /// <summary>
+        /// Method to save a content in a batch for a contentItem object.
+        /// </summary>
+        /// <param name="contentItem">A contentItem object to create or update a content.</param>
+        /// <returns>Returns a string contentID of the requested content.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string> SaveContentItem(ContentItem? contentItem)
         {
             try
@@ -309,6 +357,11 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to retrieve a batch object.
+        /// </summary>
+        /// <param name="id">The id of the requested batch.</param>
+        /// <returns>An object of the Batch class.</returns>
         public async Task<Batch?> GetBatchObject(int? id)
         {
             try
@@ -323,6 +376,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to save a collection of contents in a batch for a List of contentItem object.
+        /// </summary>
+        /// <param name="contentItems">A collection of contentItems object to create or update multiple contents.</param>
+        /// <returns>A list of string which consists of the processed contentID's for the batch request.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<List<string?>> SaveContentItems(List<ContentItem?> contentItems)
         {
             try
@@ -360,6 +419,13 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to delete a content in a batch for a contentID.
+        /// </summary>
+        /// <param name="contentID">The contentid of the requested content.</param>
+        /// <param name="comments">Additional comments for a batch request.</param>
+        /// <returns>Returns a string contentID of the requested content.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> DeleteContent(int? contentID, string? comments = null)
         {
             try
@@ -403,6 +469,19 @@ namespace management.api.sdk
             }
 
         }
+
+        /// <summary>
+        /// Method to list the content items for a container.
+        /// </summary>
+        /// <param name="referenceName">The referenceName of the container for the requested content.</param>
+        /// <param name="filter">The filter condition for the requested content.</param>
+        /// <param name="fields">The fields mapped to the container.</param>
+        /// <param name="sortDirection">The direction to sort the result.</param>
+        /// <param name="sortField">The field on which the sort needs to be performed.</param>
+        /// <param name="take">The page size for the result.</param>
+        /// <param name="skip">The record offset for the result.</param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<ContentList?> GetContentItems(string? referenceName,
            string? filter = null,
            string? fields = null,

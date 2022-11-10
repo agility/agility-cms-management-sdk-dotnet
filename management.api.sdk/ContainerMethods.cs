@@ -15,6 +15,13 @@ namespace management.api.sdk
             _clientInstance = new ClientInstance();
             client = _clientInstance.CreateClient(_options);
         }
+
+        /// <summary>
+        /// Method to Get Container by ID.
+        /// </summary>
+        /// <param name="id">The container id of the requested container.</param>
+        /// <returns>An object of the Container class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Container?> GetContainerById(int? id)
         {
             try
@@ -39,6 +46,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Get Container by Reference Name.
+        /// </summary>
+        /// <param name="referenceName">The container referenceName of the requested container.</param>
+        /// <returns>An object of the Container class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Container?> GetContainerByReferenceName(string? referenceName)
         {
             try
@@ -63,6 +76,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Get Container Security by container id.
+        /// </summary>
+        /// <param name="id">The container id of the requested container.</param>
+        /// <returns>An object of the Container class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Container?> GetContainerSecurity(int? id)
         {
             try
@@ -91,6 +110,11 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Get All Container List for the website.
+        /// </summary>
+        /// <returns>An object collection of the Container class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<List<Container?>> GetContainerList()
         {
             try
@@ -115,6 +139,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Get Container Notifications by ID.
+        /// </summary>
+        /// <param name="id">The container id of the requested container.</param>
+        /// <returns>An object collection of the Notification class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<List<Notification?>> GetNotificationList(int? id)
         {
             try
@@ -139,6 +169,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to save/update a container.
+        /// </summary>
+        /// <param name="container">An Container type object to create or update a container</param>
+        /// <returns>An object of the Container class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Container?> SaveContainer(Container container)
         {
             try
@@ -164,6 +200,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to Delete a Container by ID.
+        /// </summary>
+        /// <param name="id">The container id of the requested container.</param>
+        /// <returns>Returns a string response if the container has been deleted.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> DeleteContainer(int? id)
         {
             try

@@ -6,6 +6,11 @@ namespace management.api.sdk
 {
     public class ClientInstance
     {
+        /// <summary>
+        /// Method to create a RestClient for the SDK.
+        /// </summary>
+        /// <param name="options">An object of type Options.</param>
+        /// <returns></returns>
         public RestClient? CreateClient(Options options)
         {
             var baseURL = options.DetermineBaseURL(options.guid);

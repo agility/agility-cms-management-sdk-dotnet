@@ -17,18 +17,27 @@ namespace management.api.sdk
             client = _clientInstance.CreateClient(_options);
         }
 
-        public async Task<List<Media>?> Upload(Dictionary<string, string> files, string agilityFolderPath, bool overwrite = false, int groupingID = -1)
+        /// <summary>
+        /// Method to upload multiple multiple files.
+        /// </summary>
+        /// <param name="files">List of files with Key as file name and Value as the local path.</param>
+        /// <param name="agilityFolderPath">Path of the folder in Agility where the file(s) needs to be uploaded.</param>
+        /// <param name="groupingID">The groupingID to which the file belongs.</param>
+        /// <returns>A collection of Media class Object.</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<List<Media>?> Upload(Dictionary<string, string> files, string agilityFolderPath, int groupingID = -1)
         {
             try
             {
-                var request = new RestRequest($"/asset/upload?folderPath={agilityFolderPath}&overwrite={overwrite}&groupingID={groupingID}");
+                var request = new RestRequest($"/asset/upload?folderPath={agilityFolderPath}&groupingID={groupingID}", Method.Post) { RequestFormat = DataFormat.Json, AlwaysMultipartFormData = true };
+
                 foreach (var file in files)
                 {
                     var fileName = file.Key;
                     var localPath = file.Value;
-                    request.AddFile(fileName, $"{localPath}\\{fileName}");
+                    request.AddFile("files", $"{localPath}\\{fileName}");
                 }
-                var response = client.ExecuteAsync(request, Method.Post);
+                var response = client.ExecuteAsync(request);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -45,6 +54,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to delete a file on the basis of a valid mediaID.
+        /// </summary>
+        /// <param name="mediaID">The mediaID of the asset which needs to be deleted.</param>
+        /// <returns>Returns a string response if a file has been deleted.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> DeleteFile(int? mediaID)
         {
             try
@@ -64,6 +79,13 @@ namespace management.api.sdk
 
         }
 
+        /// <summary>
+        /// Method to move an existing file from one folder.
+        /// </summary>
+        /// <param name="mediaID">The mediaID of the file that needs to be moved.</param>
+        /// <param name="newFolder">The new location where the file needs to be moved.</param>
+        /// <returns>An object of Media class with the new location of the file.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Media?> MoveFile(int? mediaID, string? newFolder)
         {
             try
@@ -86,6 +108,13 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to get the list of assets for the website.
+        /// </summary>
+        /// <param name="pageSize">The pageSize on which the assets needs to selected.</param>
+        /// <param name="recordOffset">The record offset value to skip search results.</param>
+        /// <returns>An object of AssetMediaList class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<AssetMediaList?> GetMediaList(int? pageSize, int? recordOffset)
         {
             try
@@ -108,6 +137,13 @@ namespace management.api.sdk
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// Method to get the information of an Asset on the basis of the mediaID.
+        /// </summary>
+        /// <param name="mediaID">The mediaID of the requested asset.</param>
+        /// <returns>An object of Media class with the information of the asset.</returns>
+        /// <exception cref="ApplicationException"></exception>
 
         public async Task<Media?> GetAssetByID(int? mediaID)
         {
@@ -132,6 +168,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to get the information of an Asset on the basis of the url.
+        /// </summary>
+        /// <param name="url">The url  of the requested asset.</param>
+        /// <returns>An object of Media class with the information of the asset.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Media?> GetAssetByURL(string? url)
         {
             try

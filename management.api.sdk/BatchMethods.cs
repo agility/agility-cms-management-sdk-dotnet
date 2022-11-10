@@ -18,6 +18,12 @@ namespace management.api.sdk
 
         }
 
+        /// <summary>
+        /// Method to get the current status of the Batch.
+        /// </summary>
+        /// <param name="id">The batchID of the requested batch.</param>
+        /// <returns>An object of Batch class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Batch?> GetBatch(int? id)
         {
             try
@@ -41,6 +47,13 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to retry a batch processing.
+        /// </summary>
+        /// <param name="method">A method of type Batch class.</param>
+        /// <returns>Returns a completed batch object.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Batch> Retry(Func<Task<Batch>> method)
         {
             var retryCount = _options.retryCount;

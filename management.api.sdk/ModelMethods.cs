@@ -15,6 +15,13 @@ namespace management.api.sdk
             _clientInstance = new ClientInstance();
             client = _clientInstance.CreateClient(_options);
         }
+
+        /// <summary>
+        /// Method to get the model by ID.
+        /// </summary>
+        /// <param name="id">The id of the requested model.</param>
+        /// <returns>An object of Model class of the requested model.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Model?> GetContentModel(int? id)
         {
             try
@@ -39,6 +46,13 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to list the content models.
+        /// </summary>
+        /// <param name="includeDefaults">Boolean value to include defaults.</param>
+        /// <param name="includeModules">Boolean value to include modules.</param>
+        /// <returns>A collection of Model object.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<List<Model?>> GetContentModules(bool includeDefaults, bool includeModules = false)
         {
             try
@@ -63,6 +77,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to list the page models.
+        /// </summary>
+        /// <param name="includeDefault">Boolean value to include defaults.</param>
+        /// <returns>A collection of Model object.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<List<Model?>> GetPageModules(bool includeDefault = false)
         {
             try
@@ -87,6 +107,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to save a ContentModel.
+        /// </summary>
+        /// <param name="model">The object of Model to for the requested model.</param>
+        /// <returns>An object of Model class.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Model?> SaveModel(Model model)
         {
             try
@@ -112,6 +138,12 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to delete the Model.
+        /// </summary>
+        /// <param name="id">The id for the requested model.</param>
+        /// <returns>A string response if the model is deleted.</returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> DeleteModel(int? id)
         {
             try
