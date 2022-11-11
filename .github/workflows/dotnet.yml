@@ -24,6 +24,9 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    # TODO: add testing variables and run tests  
+    # TODO: add testing variables and run tests
     # - name: Test
     #   run: dotnet test --no-build --verbosity normal
+    # TODO: add automatic packaging when we increase the version number...
+    # - name: Pack
+    #  run: dotnet pack
