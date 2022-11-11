@@ -19,20 +19,18 @@ namespace management.api.sdk
         /// <summary>
         /// Method to List Users for a website.
         /// </summary>
-        /// <param name="websiteID">The websiteID for the requested website.</param>
-        /// <param name="includeSelfIfInternal">To include the current user if internal user.</param>
         /// <returns>A collection of Website User.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<List<WebsiteUser?>> GetUsers(int? websiteID, bool includeSelfIfInternal = false)
+        public async Task<List<WebsiteUser?>> GetUsers()
         {
             try
             {
-                var request = new RestRequest($"/user/list/{websiteID}/{includeSelfIfInternal}");
+                var request = new RestRequest($"/user/list");
                 var response = client.ExecuteAsync(request, Method.Get);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable to retreive users for website: {websiteID}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to retreive users. Additional Details: {response.Result.Content}");
                 }
 
                 var options = new JsonSerializerOptions();

@@ -47,7 +47,7 @@ namespace management.api.sdk.tests
                 var userDelete = await userMethods.DeleteUser(savedUser.UserID);
                 Assert.IsNotNull(userDelete, $"Unable to delete user with userID {savedUser.UserID}");
 
-                var users = await userMethods.GetUsers(0, true);
+                var users = await userMethods.GetUsers();
                 Assert.IsNotNull(users, "Unable to retrieve users.");
             }
             catch (Exception ex)
