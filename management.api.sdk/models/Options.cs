@@ -35,7 +35,7 @@
             }
             else if (guid.EndsWith("-u"))
             {
-                return "https://mgmt-us.aglty.io";
+                return "https://mgmt.aglty.io";
             }
             else if (guid.EndsWith("-ca"))
             {
@@ -51,7 +51,7 @@
             }
             else
             {
-                return "https://mgmt-us.aglty.io/";
+                return "https://mgmt.aglty.io";
             }
         }
     }
