@@ -151,60 +151,23 @@ namespace management.api.sdk.tests
                 var content = await GetContentItem((int)contentId);
                 Assert.IsNotNull(content, "Unable to retrieve content.");
                 int id = 0;
-                bool isValid = false;
                 var publishContent = await contentMethods.PublishContent(contentId, "Publish Content");
                 Assert.IsNotNull(publishContent, $"In:PublishContent: Unable to generate batch for the contentID: {contentId}");
-                isValid = int.TryParse(publishContent, out id);
-                if (!isValid)
-                {
-                    Assert.Fail($"In:PublishContent: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
-                }
-
-                isValid = false;
+               
                 var unpublishContent = await contentMethods.UnPublishContent(contentId, "Un-Publish Content");
                 Assert.IsNotNull(unpublishContent, $"In:UnPublishContent: Unable to generate batch for the contentID: {contentId}");
 
-                isValid = int.TryParse(unpublishContent, out id);
-                if (!isValid)
-                {
-                    Assert.Fail($"In:UnPublishContent: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
-                }
-
-                isValid = false;
                 var contentRequestApproval = await contentMethods.ContentRequestApproval(contentId, "Request for content approval");
                 Assert.IsNotNull(contentRequestApproval, $"In:ContentRequestApproval: Unable to generate batch for the contentID: {contentId}");
-                isValid = int.TryParse(contentRequestApproval, out id);
-                if (!isValid)
-                {
-                    Assert.Fail($"In:ContentRequestApproval: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
-                }
 
-                isValid = false;
                 var approveContent = await contentMethods.ApproveContent(contentId, "Content Approved");
                 Assert.IsNotNull(approveContent, $"In:ApproveContent: Unable to generate batch for the contentID: {contentId}");
-                isValid = int.TryParse(approveContent, out id);
-                if (!isValid)
-                {
-                    Assert.Fail($"In:ApproveContent: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
-                }
 
-                isValid = false;
                 var declineContent = await contentMethods.DeclineContent(contentId, "Content Declined");
                 Assert.IsNotNull(declineContent, $"In:DeclineContent: Unable to generate batch for the contentID: {contentId}");
-                isValid = int.TryParse(declineContent, out id);
-                if (!isValid)
-                {
-                    Assert.Fail($"In:DeclineContent: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
-                }
 
-                isValid = false;
                 var deleteContent = await contentMethods.DeleteContent(contentId, "Delete Content");
                 Assert.IsNotNull(deleteContent, $"In:DeleteContent: Unable to generate batch for the contentID: {contentId}");
-                isValid = int.TryParse(deleteContent, out id);
-                if (!isValid)
-                {
-                    Assert.Fail($"In:DeleteContent: Unable to generate batch for the contentID: {contentId}. Negative value of the batchID");
-                }
             }
             catch (Exception ex)
             {
@@ -236,12 +199,11 @@ namespace management.api.sdk.tests
 
                 foreach (var item in items)
                 {
-                    int contentID = 0;
-                    bool isValid = int.TryParse(item, out contentID);
+                    bool isValid = isInteger(item);
 
                     if (isValid)
                     {
-                        var deleteContent = await contentMethods.DeleteContent(contentID, "Delete Content");
+                        var deleteContent = await contentMethods.DeleteContent(Convert.ToInt32(item), "Delete Content");
                     }
                 }
             }
@@ -250,6 +212,11 @@ namespace management.api.sdk.tests
                 Assert.Fail(ex.Message);
             }
            
+        }
+
+        public bool isInteger(object value)
+        {
+            return value is int;
         }
       
     }

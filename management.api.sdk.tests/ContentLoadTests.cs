@@ -36,7 +36,7 @@ namespace management.api.sdk.tests
             {
                 List<ContentItem> contentItems = new List<ContentItem>();
                 var container = await contentTests.SaveContainer();
-                for (int i = 0; i < 250; i++)
+                for (int i = 0; i < 10; i++)
                 {
                     contentItems.Add(contentTests.GetContentObject(container));
                 }
@@ -50,20 +50,11 @@ namespace management.api.sdk.tests
 
                 foreach (var item in items)
                 {
-                    int contentID = 0;
-                    bool isValid = int.TryParse(item, out contentID);
+                    bool isValid = isInteger(item);
 
                     if (isValid)
                     {
-                        var deleteContent = await contentMethods.DeleteContent(contentID, "Delete Content");
-
-                        int id = 0;
-                        bool valid = false;
-                        valid = int.TryParse(deleteContent, out id);
-                        if (!valid)
-                        {
-                            Assert.Fail($"In:SaveMultipleContents: Unable to generate batch for the contentID: {contentID}. Negative value of the batchID");
-                        }
+                        var deleteContent = await contentMethods.DeleteContent(Convert.ToInt32(item), "Delete Content");
                     }
                 }
 
@@ -85,7 +76,7 @@ namespace management.api.sdk.tests
             {
                 List<ContentItem> contentItems = new List<ContentItem>();
                 var container = await contentTests.SaveContainer();
-                for (int i = 0; i < 250; i++)
+                for (int i = 0; i < 10; i++)
                 {
                     contentItems.Add(contentTests.GetContentObject(container));
                 }
@@ -100,12 +91,11 @@ namespace management.api.sdk.tests
                 List<ContentItem> updateItems = new List<ContentItem>();
                 foreach (var item in items)
                 {
-                    int contentID = 0;
-                    bool isValid = int.TryParse(item, out contentID);
+                    bool isValid = isInteger(item);
 
                     if (isValid)
                     {
-                        var contentItem = await contentMethods.GetContentItem(contentID);
+                        var contentItem = await contentMethods.GetContentItem(Convert.ToInt32(item));
                         contentItem.fields = new Dictionary<string, object>();
                         contentItem.fields.Add("typeText", "Updated Test text for Content: From SDK");
                         updateItems.Add(contentItem);
@@ -119,20 +109,11 @@ namespace management.api.sdk.tests
 
                 foreach (var item in updatedItems)
                 {
-                    int contentID = 0;
-                    bool isValid = int.TryParse(item, out contentID);
+                    bool isValid = isInteger(item);
 
                     if (isValid)
                     {
-                        var deleteContent = await contentMethods.DeleteContent(contentID, "Delete Content");
-
-                        int id = 0;
-                        bool valid = false;
-                        valid = int.TryParse(deleteContent, out id);
-                        if (!valid)
-                        {
-                            Assert.Fail($"In:SaveMultipleContents: Unable to generate batch for the contentID: {contentID}.");
-                        }
+                        var deleteContent = await contentMethods.DeleteContent(Convert.ToInt32(item), "Delete Content");
                     }
                 }
 
@@ -149,6 +130,11 @@ namespace management.api.sdk.tests
             {
                 Assert.Fail(ex.Message);
             }
+        }
+
+        public bool isInteger(object value)
+        {
+            return value is int;
         }
     }
 }
