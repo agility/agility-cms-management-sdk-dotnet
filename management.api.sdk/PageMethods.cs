@@ -98,7 +98,36 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                int createdPage = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (batch.Items[0] != null)
+                    {
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdPage = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to publish Page.");
+                        }
+                    }
+                    else
+                    {
+                        throw new ApplicationException($"Unable to publish Page.");
+                    }
+
+                }
+                else
+                {
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return createdPage;
             }
             catch (Exception ex)
             {
@@ -126,7 +155,36 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                int createdPage = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (batch.Items[0] != null)
+                    {
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdPage = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to un-publish Page.");
+                        }
+                    }
+                    else
+                    {
+                        throw new ApplicationException($"Unable to un-publish Page.");
+                    }
+
+                }
+                else
+                {
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return createdPage;
             }
             catch (Exception ex)
             {
@@ -155,7 +213,36 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                int createdPage = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (batch.Items[0] != null)
+                    {
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdPage = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to delete Page.");
+                        }
+                    }
+                    else
+                    {
+                        throw new ApplicationException($"Unable to delete Page.");
+                    }
+
+                }
+                else
+                {
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return createdPage;
             }
             catch (Exception ex)
             {
@@ -183,7 +270,35 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                int createdPage = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (batch.Items[0] != null)
+                    {
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdPage = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to approved Page.");
+                        }
+                    }
+                    else
+                    {
+                        throw new ApplicationException($"Unable to approved Page.");
+                    }
+
+                }
+                else
+                {
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return createdPage;
             }
             catch (Exception ex)
             {
@@ -211,7 +326,35 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                int createdPage = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (batch.Items[0] != null)
+                    {
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdPage = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to decline Page.");
+                        }
+                    }
+                    else
+                    {
+                        throw new ApplicationException($"Unable to decline Page.");
+                    }
+
+                }
+                else
+                {
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return createdPage;
             }
             catch (Exception ex)
             {
@@ -239,7 +382,35 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                return batchID;
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+
+                int createdPage = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
+                {
+                    if (batch.Items[0] != null)
+                    {
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdPage = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to request approval for Page.");
+                        }
+                    }
+                    else
+                    {
+                        throw new ApplicationException($"Unable to request approval for Page.");
+                    }
+
+                }
+                else
+                {
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                }
+
+                return createdPage;
             }
             catch (Exception ex)
             {
@@ -255,7 +426,7 @@ namespace management.api.sdk
         /// <param name="placeBeforePageItemID">The id of the page before the page.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<string?> SavePage(PageItem? pageItem, int? parentPageID = -1, int? placeBeforePageItemID = -1)
+        public async Task<int?> SavePage(PageItem? pageItem, int? parentPageID = -1, int? placeBeforePageItemID = -1)
         {
             try
             {
@@ -271,24 +442,33 @@ namespace management.api.sdk
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
-                StringBuilder response = new StringBuilder();
+                int createdPage = 0;
 
-                foreach (var item in batch.Items)
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
                 {
-                    if (item.ItemID > 0)
+                    if (batch.Items[0] != null)
                     {
-                        response.Append(item.ItemID);
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdPage = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to create Page.");
+                        }
                     }
+                    else
+                    {
+                        throw new ApplicationException($"Unable to create Page.");
+                    }
+
                 }
-                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                else
                 {
-                    if (response.Length > 0)
-                    {
-                        response.Append(",");
-                    }
-                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
-                return response.ToString();
+
+                return createdPage;
             }
             catch (Exception ex)
             {

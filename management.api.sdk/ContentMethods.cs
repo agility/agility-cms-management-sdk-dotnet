@@ -55,9 +55,9 @@ namespace management.api.sdk
         /// </summary>
         /// <param name="contentID">The contentid of the requested content.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
-        /// <returns>Returns a string contentID of the requested content.</returns>
+        /// <returns>Returns a contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<string?> PublishContent(int? contentID, string? comments = null)
+        public async Task<int?> PublishContent(int? contentID, string? comments = null)
         {
             try
             {
@@ -73,27 +73,33 @@ namespace management.api.sdk
   
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
-                StringBuilder response = new StringBuilder();
-                string seperator = string.Empty;
-                foreach (var item in batch.Items)
+                int createdContent = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
                 {
-                    response.Append(seperator);
-                    if (item.ItemID > 0)
+                    if (batch.Items[0] != null)
                     {
-                        response.Append(item.ItemID);
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdContent = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to publish the batch for contentID: {contentID}");
+                        }
                     }
-                    seperator = ",";
+                    else
+                    {
+                        throw new ApplicationException($"Unable to publish the batch for contentID: {contentID}");
+                    }
+
                 }
-                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                else
                 {
-                    if (response.Length > 0)
-                    {
-                        response.Append(",");
-                    }
-                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
 
-                return response.ToString();
+                return createdContent;
             }
             catch (Exception ex)
             {
@@ -107,9 +113,9 @@ namespace management.api.sdk
         /// </summary>
         /// <param name="contentID">The contentid of the requested content.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
-        /// <returns>Returns a string contentID of the requested content.</returns>
+        /// <returns>Returns a contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<string?> UnPublishContent(int? contentID, string? comments = null)
+        public async Task<int?> UnPublishContent(int? contentID, string? comments = null)
         {
             try
             {
@@ -125,27 +131,33 @@ namespace management.api.sdk
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
-                StringBuilder response = new StringBuilder();
-                string seperator = string.Empty;
-                foreach (var item in batch.Items)
+                int createdContent = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
                 {
-                    response.Append(seperator);
-                    if (item.ItemID > 0)
+                    if (batch.Items[0] != null)
                     {
-                        response.Append(item.ItemID);
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdContent = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to un-publish the batch for contentID: {contentID}");
+                        }
                     }
-                    seperator = ",";
+                    else
+                    {
+                        throw new ApplicationException($"Unable to un-publish the batch for contentID: {contentID}");
+                    }
+
                 }
-                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                else
                 {
-                    if (response.Length > 0)
-                    {
-                        response.Append(",");
-                    }
-                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
 
-                return response.ToString();
+                return createdContent;
             }
             catch (Exception ex)
             {
@@ -161,7 +173,7 @@ namespace management.api.sdk
         /// <param name="comments">Additional comments for a batch request.</param>
         /// <returns>Returns a string contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<string?> ContentRequestApproval(int? contentID, string? comments = null)
+        public async Task<int?> ContentRequestApproval(int? contentID, string? comments = null)
         {
             try
             {
@@ -177,27 +189,33 @@ namespace management.api.sdk
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
-                StringBuilder response = new StringBuilder();
-                string seperator = string.Empty;
-                foreach (var item in batch.Items)
+                int createdContent = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
                 {
-                    response.Append(seperator);
-                    if (item.ItemID > 0)
+                    if (batch.Items[0] != null)
                     {
-                        response.Append(item.ItemID);
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdContent = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to process the request approval of batch for contentID: {contentID}");
+                        }
                     }
-                    seperator = ",";
+                    else
+                    {
+                        throw new ApplicationException($"Unable to process the request approval of batch for contentID: {contentID}");
+                    }
+
                 }
-                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                else
                 {
-                    if (response.Length > 0)
-                    {
-                        response.Append(",");
-                    }
-                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
 
-                return response.ToString();
+                return createdContent;
             }
             catch (Exception ex)
             {
@@ -213,7 +231,7 @@ namespace management.api.sdk
         /// <param name="comments">Additional comments for a batch request.</param>
         /// <returns>Returns a string contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<string?> ApproveContent(int? contentID, string? comments = null)
+        public async Task<int?> ApproveContent(int? contentID, string? comments = null)
         {
             try
             {
@@ -228,27 +246,33 @@ namespace management.api.sdk
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
-                StringBuilder response = new StringBuilder();
-                string seperator = string.Empty;
-                foreach (var item in batch.Items)
+                int createdContent = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
                 {
-                    response.Append(seperator);
-                    if (item.ItemID > 0)
+                    if (batch.Items[0] != null)
                     {
-                        response.Append(item.ItemID);
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdContent = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to process the approve content of the batch for contentID: {contentID}");
+                        }
                     }
-                    seperator = ",";
+                    else
+                    {
+                        throw new ApplicationException($"Unable to process the approve content of the batch for contentID: {contentID}");
+                    }
+
                 }
-                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                else
                 {
-                    if (response.Length > 0)
-                    {
-                        response.Append(",");
-                    }
-                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
 
-                return response.ToString();
+                return createdContent;
             }
             catch (Exception ex)
             {
@@ -263,7 +287,7 @@ namespace management.api.sdk
         /// <param name="comments">Additional comments for a batch request.</param>
         /// <returns>Returns a string contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<string?> DeclineContent(int? contentID, string? comments = null)
+        public async Task<int?> DeclineContent(int? contentID, string? comments = null)
         {
             try
             {
@@ -278,27 +302,33 @@ namespace management.api.sdk
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
-                StringBuilder response = new StringBuilder();
-                string seperator = string.Empty;
-                foreach (var item in batch.Items)
+                int createdContent = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
                 {
-                    response.Append(seperator);
-                    if (item.ItemID > 0)
+                    if (batch.Items[0] != null)
                     {
-                        response.Append(item.ItemID);
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdContent = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to decline content for the batch for contentID: {contentID}");
+                        }
                     }
-                    seperator = ",";
+                    else
+                    {
+                        throw new ApplicationException($"Unable to decline content for the batch for contentID: {contentID}");
+                    }
+
                 }
-                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                else
                 {
-                    if (response.Length > 0)
-                    {
-                        response.Append(",");
-                    }
-                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
 
-                return response.ToString();
+                return createdContent;
             }
             catch (Exception ex)
             {
@@ -313,7 +343,7 @@ namespace management.api.sdk
         /// <param name="contentItem">A contentItem object to create or update a content.</param>
         /// <returns>Returns a string contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<string> SaveContentItem(ContentItem? contentItem)
+        public async Task<int> SaveContentItem(ContentItem? contentItem)
         {
             try
             {
@@ -329,27 +359,33 @@ namespace management.api.sdk
                 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
-                StringBuilder response = new StringBuilder();
-                string seperator = string.Empty;
-                foreach (var item in batch.Items)
+                int createdContent = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
                 {
-                    response.Append(seperator);
-                    if (item.ItemID > 0)
+                    if (batch.Items[0] != null)
                     {
-                        response.Append(item.ItemID);
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdContent = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to create content.");
+                        }
                     }
-                    seperator = ",";
+                    else
+                    {
+                        throw new ApplicationException($"Unable to create content.");
+                    }
+
                 }
-                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                else
                 {
-                    if (response.Length > 0)
-                    {
-                        response.Append(",");
-                    }
-                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
- 
-                return response.ToString();
+
+                return createdContent;
             }
             catch (Exception ex)
             {
@@ -382,7 +418,7 @@ namespace management.api.sdk
         /// <param name="contentItems">A collection of contentItems object to create or update multiple contents.</param>
         /// <returns>A list of string which consists of the processed contentID's for the batch request.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<List<string?>> SaveContentItems(List<ContentItem?> contentItems)
+        public async Task<List<object?>> SaveContentItems(List<ContentItem?> contentItems)
         {
             try
             {
@@ -397,13 +433,13 @@ namespace management.api.sdk
                 var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
   
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
-                List<string> response = new List<string>();
+                List<object> response = new List<object>();
                 string seperator = string.Empty;
                 foreach (var item in batch.Items)
                 {
                     if (item.ItemID > 0)
                     {
-                        response.Add(item.ItemID.ToString());
+                        response.Add(item.ItemID);
                     }
                 }
 
@@ -426,7 +462,7 @@ namespace management.api.sdk
         /// <param name="comments">Additional comments for a batch request.</param>
         /// <returns>Returns a string contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<string?> DeleteContent(int? contentID, string? comments = null)
+        public async Task<int?> DeleteContent(int? contentID, string? comments = null)
         {
             try
             {
@@ -441,27 +477,33 @@ namespace management.api.sdk
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
 
-                StringBuilder response = new StringBuilder();
-                string seperator = string.Empty;
-                foreach (var item in batch.Items)
+                int createdContent = 0;
+
+                if (string.IsNullOrWhiteSpace(batch.ErrorData))
                 {
-                    response.Append(seperator);
-                    if (item.ItemID > 0)
+                    if (batch.Items[0] != null)
                     {
-                        response.Append(item.ItemID);
+                        if (batch.Items[0].ItemID > 0)
+                        {
+                            createdContent = batch.Items[0].ItemID;
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Unable to delete content for the batch for contentID: {contentID}");
+                        }
                     }
-                    seperator = ",";
+                    else
+                    {
+                        throw new ApplicationException($"Unable to delete content for the batch for contentID: {contentID}");
+                    }
+
                 }
-                if (!string.IsNullOrWhiteSpace(batch.ErrorData))
+                else
                 {
-                    if (response.Length > 0)
-                    {
-                        response.Append(",");
-                    }
-                    response.Append($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
 
-                return response.ToString();
+                return createdContent;
             }
             catch (Exception ex)
             {
