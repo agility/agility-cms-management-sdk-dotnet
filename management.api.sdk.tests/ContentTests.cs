@@ -10,24 +10,22 @@ namespace management.api.sdk.tests
     [TestClass]
     public class ContentTests
     {
-        ContentMethods contentMethods = null;
-        ModelMethods modelMethods = null;
-        ContainerMethods containerMethods = null;
+        ClientInstance clientInstance = null;
         private agility.models.Options _options;
         private AuthUtil _authUtil = null;
         public ContentTests()
         {
             _authUtil = new AuthUtil();
             _options = _authUtil.GetTokenResponseData();
-            contentMethods = new ContentMethods(_options);
-            modelMethods = new ModelMethods(_options);
-            containerMethods = new ContainerMethods(_options);
+            clientInstance = new ClientInstance(_options);
         }
 
         [TestMethod]
         public async Task<ContentItem?> GetContentItem(int contentID)
         {
-            var contentItem = await contentMethods.GetContentItem(contentID);
+            string? guid = Environment.GetEnvironmentVariable("Guid");
+            string? locale = Environment.GetEnvironmentVariable("Locale");
+            var contentItem = await clientInstance.contentMethods.GetContentItem(contentID, guid, locale);
             Assert.IsNotNull(contentItem, $"Unable to find Content item for content id {contentID}.");
 
             return contentItem;
@@ -36,6 +34,7 @@ namespace management.api.sdk.tests
         [TestMethod]
         public async Task<Model?> SaveContentModel()
         {
+            string? guid = Environment.GetEnvironmentVariable("Guid");
             Model model = new Model();
             model.id = 0;
             model.lastModifiedDate = DateTime.Now;
@@ -68,7 +67,7 @@ namespace management.api.sdk.tests
 
             model.fields = new List<ModelField?>();
             model.fields.Add(modelField);
-            var retModel = await modelMethods.SaveModel(model);
+            var retModel = await clientInstance.modelMethods.SaveModel(model, guid);
 
             Assert.IsNotNull(retModel, $"Unable to create model for reference name {model.referenceName}");
 
@@ -78,6 +77,7 @@ namespace management.api.sdk.tests
         [TestMethod]
         public async Task<Container?> SaveContainer()
         {
+            string? guid = Environment.GetEnvironmentVariable("Guid");
             var model = await SaveContentModel();
             var container = new Container();
             container.ContentViewID = 0;
@@ -90,8 +90,7 @@ namespace management.api.sdk.tests
             container.IsShared = false;
             container.IsDynamicPageList = true;
             container.ContentViewCategoryID = null;
-            //container.ContentDefinitionType = 1;
-            var retcontainer = await containerMethods.SaveContainer(container);
+            var retcontainer = await clientInstance.containerMethods.SaveContainer(container, guid);
 
             Assert.IsNotNull(retcontainer, $"Unable to create container for reference name {container.ReferenceName}");
             return retcontainer;
@@ -102,11 +101,14 @@ namespace management.api.sdk.tests
         {
             try
             {
+
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
                 var container = await SaveContainer();
 
                 var contentItem = GetContentObject(container);
 
-                var contentStr = await contentMethods.SaveContentItem(contentItem);
+                var contentStr = await clientInstance.contentMethods.SaveContentItem(contentItem, guid, locale);
                 Assert.IsNotNull(contentStr, $"Unable to create content.");
 
                 int contentID = Convert.ToInt32(contentStr);
@@ -146,27 +148,29 @@ namespace management.api.sdk.tests
         {
             try
             {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
                 var contentId = await SaveContent();
 
                 var content = await GetContentItem((int)contentId);
                 Assert.IsNotNull(content, "Unable to retrieve content.");
                 int id = 0;
-                var publishContent = await contentMethods.PublishContent(contentId, "Publish Content");
+                var publishContent = await clientInstance.contentMethods.PublishContent(contentId, guid, locale, "Publish Content");
                 Assert.IsNotNull(publishContent, $"In:PublishContent: Unable to generate batch for the contentID: {contentId}");
                
-                var unpublishContent = await contentMethods.UnPublishContent(contentId, "Un-Publish Content");
+                var unpublishContent = await clientInstance.contentMethods.UnPublishContent(contentId, guid, locale, "Un-Publish Content");
                 Assert.IsNotNull(unpublishContent, $"In:UnPublishContent: Unable to generate batch for the contentID: {contentId}");
 
-                var contentRequestApproval = await contentMethods.ContentRequestApproval(contentId, "Request for content approval");
+                var contentRequestApproval = await clientInstance.contentMethods.ContentRequestApproval(contentId, guid, locale, "Request for content approval");
                 Assert.IsNotNull(contentRequestApproval, $"In:ContentRequestApproval: Unable to generate batch for the contentID: {contentId}");
 
-                var approveContent = await contentMethods.ApproveContent(contentId, "Content Approved");
+                var approveContent = await clientInstance.contentMethods.ApproveContent(contentId, guid, locale, "Content Approved");
                 Assert.IsNotNull(approveContent, $"In:ApproveContent: Unable to generate batch for the contentID: {contentId}");
 
-                var declineContent = await contentMethods.DeclineContent(contentId, "Content Declined");
+                var declineContent = await clientInstance.contentMethods.DeclineContent(contentId, guid, locale, "Content Declined");
                 Assert.IsNotNull(declineContent, $"In:DeclineContent: Unable to generate batch for the contentID: {contentId}");
 
-                var deleteContent = await contentMethods.DeleteContent(contentId, "Delete Content");
+                var deleteContent = await clientInstance.contentMethods.DeleteContent(contentId, guid, locale, "Delete Content");
                 Assert.IsNotNull(deleteContent, $"In:DeleteContent: Unable to generate batch for the contentID: {contentId}");
             }
             catch (Exception ex)
@@ -181,6 +185,8 @@ namespace management.api.sdk.tests
         {
             try
             {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
                 var container = await SaveContainer();
                 List<ContentItem> contentItems = new List<ContentItem>();
 
@@ -190,7 +196,7 @@ namespace management.api.sdk.tests
                     contentItems.Add(contentItem);
                 }
 
-                var items = await contentMethods.SaveContentItems(contentItems);
+                var items = await clientInstance.contentMethods.SaveContentItems(contentItems, guid, locale);
 
                 if (items.Count < 1)
                 {
@@ -203,7 +209,7 @@ namespace management.api.sdk.tests
 
                     if (isValid)
                     {
-                        var deleteContent = await contentMethods.DeleteContent(Convert.ToInt32(item), "Delete Content");
+                        var deleteContent = await clientInstance.contentMethods.DeleteContent(Convert.ToInt32(item), guid, locale, "Delete Content");
                     }
                 }
             }

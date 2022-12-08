@@ -1,5 +1,4 @@
 ﻿using agility.models;
-using RestSharp;
 using agility.enums;
 using System.Text.Json;
 
@@ -7,29 +6,29 @@ namespace management.api.sdk
 {
     public class BatchMethods
     {
-        ClientInstance _clientInstance = null;
-        public readonly RestClient client = null;
         private Options _options = null;
+        ExecuteMethods executeMethods = null;
         public BatchMethods(Options options)
         {
             _options = options;
-            _clientInstance = new ClientInstance();
-            client = _clientInstance.CreateClient(_options);
-
+            executeMethods = new ExecuteMethods();
         }
 
         /// <summary>
         /// Method to get the current status of the Batch.
         /// </summary>
         /// <param name="id">The batchID of the requested batch.</param>
+        /// <param name="guid">Current website guid.</param>
         /// <returns>An object of Batch class.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<Batch?> GetBatch(int? id)
+        public async Task<Batch?> GetBatch(int? id, string guid)
         {
             try
             {
-                var request = new RestRequest($"/batch/{id}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                //var request = new RestRequest($"/batch/{id}");
+                var apiPath = $"/batch/{id}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+                //var response = client.ExecuteAsync(request, Method.Get);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {

@@ -1,5 +1,4 @@
 ﻿using agility.models;
-using RestSharp;
 using System.Text;
 using System.Text.Json;
 
@@ -7,33 +6,34 @@ namespace management.api.sdk
 {
     public class PageMethods
     {
-        ClientInstance _clientInstance = null;
-        public readonly RestClient client = null;
         BatchMethods _batchMethods = null;
         private Options _options = null;
+        ExecuteMethods executeMethods = null;
         public PageMethods(Options options)
         {
             _options = options;
-            _clientInstance = new ClientInstance();
-            client = _clientInstance.CreateClient(_options);
-            _batchMethods = new BatchMethods(_options);
+            _batchMethods = new BatchMethods(options);
+            executeMethods = new ExecuteMethods();
         }
 
         /// <summary>
         /// Method to retrieve sitemap for a locale.
         /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
         /// <returns>A collection of Sitemap object.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<List<Sitemap?>> GetSiteMap()
+        public async Task<List<Sitemap?>> GetSiteMap(string guid, string locale)
         {
             try
             {
-                var request = new RestRequest($"/{_options.locale}/sitemap");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var apiPath = $"/{locale}/sitemap";
 
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+ 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new ApplicationException($"Unable to retreive sitemap for locale {_options.locale}. Additional Details: {response.Result.Content}");
+                    throw new ApplicationException($"Unable to retreive sitemap for locale {locale}. Additional Details: {response.Result.Content}");
                 }
 
                 var options = new JsonSerializerOptions();
@@ -52,15 +52,18 @@ namespace management.api.sdk
         /// Method to Get a Page.
         /// </summary>
         /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
         /// <returns>An object of a PageItem.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<PageItem?> GetPage(int? pageID)
+        public async Task<PageItem?> GetPage(int? pageID, string guid, string locale)
         {
             try
             {
-                var request = new RestRequest($"/{_options.locale}/page/{pageID}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var apiPath = $"/{locale}/page/{pageID}";
 
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+ 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new ApplicationException($"Unable to retreive page for pageID {pageID}. Additional Details: {response.Result.Content}");
@@ -82,15 +85,18 @@ namespace management.api.sdk
         /// Method to publish a page from batch.
         /// </summary>
         /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> PublishPage(int? pageID, string? comments = null)
+        public async Task<int?> PublishPage(int? pageID, string guid, string locale, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{_options.locale}/page/{pageID}/publish?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var apiPath = $"/{locale}/page/{pageID}/publish?comments={comments}";
+
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -99,7 +105,7 @@ namespace management.api.sdk
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
 
-                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdPage = 0;
 
@@ -139,15 +145,18 @@ namespace management.api.sdk
         /// Method to Unpublish a page from batch.
         /// </summary>
         /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> UnPublishPage(int? pageID, string? comments = null)
+        public async Task<int?> UnPublishPage(int? pageID, string guid, string locale, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{_options.locale}/page/{pageID}/unpublish?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var apiPath = $"/{locale}/page/{pageID}/unpublish?comments={comments}";
+
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -156,7 +165,7 @@ namespace management.api.sdk
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
 
-                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdPage = 0;
 
@@ -197,15 +206,18 @@ namespace management.api.sdk
         /// Method to delete a page from batch.
         /// </summary>
         /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> DeletePage(int? pageID, string? comments = null)
+        public async Task<int?> DeletePage(int? pageID, string guid, string locale, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{_options.locale}/page/{pageID}?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Delete);
+                var apiPath = $"/{locale}/page/{pageID}?comments={comments}";
+
+                var response = executeMethods.ExecuteDelete(apiPath, guid, _options.token);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -214,7 +226,7 @@ namespace management.api.sdk
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
 
-                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdPage = 0;
 
@@ -254,15 +266,18 @@ namespace management.api.sdk
         /// Method to Approve a page from batch.
         /// </summary>
         /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> ApprovePage(int? pageID, string? comments = null)
+        public async Task<int?> ApprovePage(int? pageID, string guid, string locale, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{_options.locale}/page/{pageID}/approve?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var apiPath = $"/{locale}/page/{pageID}/approve?comments={comments}";
+
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -270,7 +285,7 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdPage = 0;
 
@@ -310,23 +325,26 @@ namespace management.api.sdk
         /// Method to Decline a page from batch.
         /// </summary>
         /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> DeclinePage(int? pageID, string? comments = null)
+        public async Task<int?> DeclinePage(int? pageID, string guid, string locale, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{_options.locale}/page/{pageID}/decline?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var apiPath = $"/{locale}/page/{pageID}/decline?comments={comments}";
 
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+ 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new ApplicationException($"Unable to decline page for id: {pageID}. Additional Details: {response.Result.Content}");
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdPage = 0;
 
@@ -366,15 +384,18 @@ namespace management.api.sdk
         /// Method to Request approval for a page from batch.
         /// </summary>
         /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> PageRequestApproval(int? pageID, string? comments = null)
+        public async Task<int?> PageRequestApproval(int? pageID, string guid, string locale, string? comments = null)
         {
             try
             {
-                var request = new RestRequest($"/{_options.locale}/page/{pageID}/request-approval?comments={comments}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var apiPath = $"/{locale}/page/{pageID}/request-approval?comments={comments}";
+
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -382,7 +403,7 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
-                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdPage = 0;
 
@@ -422,17 +443,19 @@ namespace management.api.sdk
         /// Method to save a page from batch.
         /// </summary>
         /// <param name="pageItem">The object of PageItem class for the requested Page.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
         /// <param name="parentPageID">The id of the parent page.</param>
         /// <param name="placeBeforePageItemID">The id of the page before the page.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> SavePage(PageItem? pageItem, int? parentPageID = -1, int? placeBeforePageItemID = -1)
+        public async Task<int?> SavePage(PageItem? pageItem, string guid, string locale, int? parentPageID = -1, int? placeBeforePageItemID = -1)
         {
             try
             {
-                var request = new RestRequest($"/{_options.locale}/page?parentPageID={parentPageID}&placeBeforePageItemID={placeBeforePageItemID}");
-                request.AddJsonBody(pageItem, "application/json");
-                var id = client.ExecuteAsync(request, Method.Post);
+                var apiPath = $"/{locale}/page?parentPageID={parentPageID}&placeBeforePageItemID={placeBeforePageItemID}";
+
+                var id = executeMethods.ExecutePost(apiPath, guid, pageItem, _options.token);
 
                 if (id.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -440,7 +463,7 @@ namespace management.api.sdk
                 }
                 var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
 
-                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID));
+                var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdPage = 0;
 
@@ -476,11 +499,17 @@ namespace management.api.sdk
             }
         }
 
-        public async Task<Batch?> GetBatchObject(int? id)
+        /// <summary>
+        /// Method to retrieve a batch object.
+        /// </summary>
+        /// <param name="id">The id of the requested batch.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <returns>An object of the Batch class.</returns>
+        public async Task<Batch?> GetBatchObject(int? id, string guid)
         {
             try
             {
-                var response = await _batchMethods.GetBatch(id);
+                var response = await _batchMethods.GetBatch(id, guid);
                 return response;
             }
             catch

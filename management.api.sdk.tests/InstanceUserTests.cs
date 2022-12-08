@@ -10,7 +10,7 @@ namespace management.api.sdk.tests
     [TestClass]
     public class InstanceUserTests
     {
-        InstanceUserMethods userMethods = null;
+        ClientInstance clientInstance = null;
         private agility.models.Options _options;
         private AuthUtil _authUtil = null;
 
@@ -18,7 +18,7 @@ namespace management.api.sdk.tests
         {
             _authUtil = new AuthUtil();
             _options = _authUtil.GetTokenResponseData();
-            userMethods = new InstanceUserMethods(_options);
+            clientInstance = new ClientInstance(_options);
         }
 
         [TestMethod]
@@ -26,6 +26,7 @@ namespace management.api.sdk.tests
         {
             try
             {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
                 var userRole = new InstanceRole
                 {
                     RoleID = 7,
@@ -41,13 +42,13 @@ namespace management.api.sdk.tests
                 var lastName = $"LastName{DateTime.Now.Ticks}";
                 var email = $"{firstName}.{lastName}@mail.com";
 
-                var savedUser = await userMethods.SaveUser(email, userRoles, firstName, lastName);
+                var savedUser = await clientInstance.instanceUserMethods.SaveUser(email, userRoles, guid, firstName, lastName);
                 Assert.IsNotNull(savedUser, $"Unable to save user with email: {email}, firstName: {firstName}, lastName {lastName}");
 
-                var userDelete = await userMethods.DeleteUser(savedUser.UserID);
+                var userDelete = await clientInstance.instanceUserMethods.DeleteUser(savedUser.UserID, guid);
                 Assert.IsNotNull(userDelete, $"Unable to delete user with userID {savedUser.UserID}");
 
-                var users = await userMethods.GetUsers();
+                var users = await clientInstance.instanceUserMethods.GetUsers(guid);
                 Assert.IsNotNull(users, "Unable to retrieve users.");
             }
             catch (Exception ex)

@@ -10,26 +10,21 @@ namespace management.api.sdk.tests
     [TestClass]
     public class PageTests
     {
-        ContentMethods contentMethods = null;
-        ModelMethods modelMethods = null;
-        ContainerMethods containerMethods = null;
         private agility.models.Options _options;
         private AuthUtil _authUtil = null;
-        PageMethods pageMethods = null;
+        ClientInstance clientInstance = null;
         ContentTests contentTests = null;   
         public PageTests()
         {
             _authUtil = new AuthUtil();
             _options = _authUtil.GetTokenResponseData();
-            contentMethods = new ContentMethods(_options);
-            modelMethods = new ModelMethods(_options);
-            containerMethods = new ContainerMethods(_options);
-            pageMethods = new PageMethods(_options);
+            clientInstance = new ClientInstance(_options);
             contentTests = new ContentTests();
         }
 
         private async Task<Model?> CreateModel()
         {
+            string? guid = Environment.GetEnvironmentVariable("Guid");
             Model model = new Model();
             model.id = 0;
             model.lastModifiedDate = DateTime.Now;
@@ -62,7 +57,7 @@ namespace management.api.sdk.tests
 
             model.fields = new List<ModelField?>();
             model.fields.Add(modelField);
-            var retModel = await modelMethods.SaveModel(model);
+            var retModel = await clientInstance.modelMethods.SaveModel(model, guid);
 
            
             return retModel;
@@ -70,6 +65,7 @@ namespace management.api.sdk.tests
 
         private async Task<Container> CreateContainer(Model model)
         {
+            string? guid = Environment.GetEnvironmentVariable("Guid");
             var container = new Container();
             container.ContentViewID = 0;
             container.ContentDefinitionID = model.id;
@@ -81,7 +77,7 @@ namespace management.api.sdk.tests
             container.IsShared = false;
             container.IsDynamicPageList = true;
             container.ContentViewCategoryID = null;
-            var retcontainer = await containerMethods.SaveContainer(container);
+            var retcontainer = await clientInstance.containerMethods.SaveContainer(container, guid);
             return retcontainer;
         }
 
@@ -90,6 +86,8 @@ namespace management.api.sdk.tests
         {
             try
             {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
                 var model = await CreateModel();
                 Assert.IsNotNull(model, "Unable to create model");
 
@@ -99,7 +97,7 @@ namespace management.api.sdk.tests
                 var contentObject = contentTests.GetContentObject(container);
                 Assert.IsNotNull(contentObject, "Unable to create content object");
 
-                var contentStr = await contentMethods.SaveContentItem(contentObject);
+                var contentStr = await clientInstance.contentMethods.SaveContentItem(contentObject, guid, locale);
                 int contentId = Convert.ToInt32(contentStr);
                 if (contentId < 1)
                 {
@@ -108,7 +106,7 @@ namespace management.api.sdk.tests
 
                 var pageItem = GetPageObject(model, contentId);
 
-                var page = await pageMethods.SavePage(pageItem, -1, -1);
+                var page = await clientInstance.pageMethods.SavePage(pageItem, guid, locale, -1, -1);
                 Assert.IsNotNull(page, $"Unable to create page for model referenceName {model.referenceName} and contentID {contentObject.contentID}");
 
                 var pageID = Convert.ToInt32(page);
@@ -174,7 +172,9 @@ namespace management.api.sdk.tests
         [TestMethod]
         public async Task<PageItem?> GetPage(int? pageID)
         {
-            var pageItem = await pageMethods.GetPage(pageID);
+            string? guid = Environment.GetEnvironmentVariable("Guid");
+            string? locale = Environment.GetEnvironmentVariable("Locale");
+            var pageItem = await clientInstance.pageMethods.GetPage(pageID, guid, locale);
             Assert.IsNotNull(pageItem, $"Unable to find Page for page id {pageID}.");
 
             return pageItem;
@@ -185,47 +185,50 @@ namespace management.api.sdk.tests
         {
             try
             {
+
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
                 var pageId = await SavPage();
 
                 var pageItem = await GetPage(pageId);
                 Assert.IsNotNull(pageItem, "Unable to retrieve content.");
 
-                var publishPage = await pageMethods.PublishPage(pageId, "Publish Page");
+                var publishPage = await clientInstance.pageMethods.PublishPage(pageId, guid, locale, "Publish Page");
                 Assert.IsNotNull(publishPage, $"In:PublishPage: Unable to generate batch for the pageId: {pageId}");
                 if (publishPage < 1)
                 {
                     Assert.Fail($"In:PublishPage: Unable to generate batch for the pageID: {pageId}. Negative value of the batchID");
                 }
 
-                var unpublishPage = await pageMethods.UnPublishPage(pageId, "Un-Publish Page");
+                var unpublishPage = await clientInstance.pageMethods.UnPublishPage(pageId, guid, locale, "Un-Publish Page");
                 Assert.IsNotNull(unpublishPage, $"In:UnPublishPage: Unable to generate batch for the pageId: {pageId}");
                 if (unpublishPage < 1)
                 {
                     Assert.Fail($"In:UnPublishPage: Unable to generate batch for the pageID: {pageId}. Negative value of the batchID");
                 }
 
-                var pageApprovalReq = await pageMethods.PageRequestApproval(pageId, "Request for Page Approval");
+                var pageApprovalReq = await clientInstance.pageMethods.PageRequestApproval(pageId, guid, locale, "Request for Page Approval");
                 Assert.IsNotNull(pageApprovalReq, $"In:PageApprovalRequest: Unable to generate batch for the pageId: {pageId}");
                 if (pageApprovalReq < 1)
                 {
                     Assert.Fail($"In:PageApprovalRequest: Unable to generate batch for the pageID: {pageId}. Negative value of the batchID");
                 }
 
-                var approvePage = await pageMethods.ApprovePage(pageId, "Page Approval");
+                var approvePage = await clientInstance.pageMethods.ApprovePage(pageId, guid, locale, "Page Approval");
                 Assert.IsNotNull(approvePage, $"In:ApprovePage: Unable to generate batch for the pageId: {pageId}");
                 if (approvePage < 1)
                 {
                     Assert.Fail($"In:ApprovePage: Unable to generate batch for the pageID: {pageId}. Negative value of the batchID");
                 }
 
-                var declinePage = await pageMethods.DeclinePage(pageId, "Page Declined");
+                var declinePage = await clientInstance.pageMethods.DeclinePage(pageId, guid, locale, "Page Declined");
                 Assert.IsNotNull(declinePage, $"In:DeclinePage: Unable to generate batch for the pageId: {pageId}");
                 if (declinePage < 1)
                 {
                     Assert.Fail($"In:DeclinePage: Unable to generate batch for the pageID: {pageId}. Negative value of the batchID");
                 }
 
-                var deletePage = await pageMethods.DeletePage(pageId, "Delete Page");
+                var deletePage = await clientInstance.pageMethods.DeletePage(pageId, guid, locale, "Delete Page");
                 Assert.IsNotNull(deletePage, $"In:DeletePage: Unable to generate batch for the pageId: {pageId}");
                 if (deletePage < 1)
                 {
@@ -241,7 +244,9 @@ namespace management.api.sdk.tests
         [TestMethod]
         public async Task GetSiteMap()
         {
-            var sitemap = await pageMethods.GetSiteMap();
+            string? guid = Environment.GetEnvironmentVariable("Guid");
+            string? locale = Environment.GetEnvironmentVariable("Locale");
+            var sitemap = await clientInstance.pageMethods.GetSiteMap(guid, locale);
             Assert.IsNotNull(sitemap, "Unable to get the sitemap");
         }
     }

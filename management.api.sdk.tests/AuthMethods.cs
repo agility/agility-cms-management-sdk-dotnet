@@ -12,12 +12,10 @@ namespace agility.utils
     public class AuthMethods
     {
         private agility.models.Options _options = null;
-        ClientInstance _clientInstance = null;
         private readonly AppSettings _appSettings;
         public AuthMethods(agility.models.Options options, IOptions<AppSettings> settings)
         {
             _options = options;
-            _clientInstance = new ClientInstance();
             _appSettings = settings.Value;
         }
 

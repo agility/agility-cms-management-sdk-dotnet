@@ -11,10 +11,8 @@ namespace management.api.sdk.tests
     [TestClass]
     public class ContentLoadTests
     {
-        ContentMethods contentMethods = null;
         ContentTests contentTests = null;
-        ContainerMethods containerMethods = null;
-        ModelMethods modelMethods = null;
+        ClientInstance clientInstance = null;
         private agility.models.Options _options;
         private AuthUtil _authUtil = null;
 
@@ -22,10 +20,8 @@ namespace management.api.sdk.tests
         {
             _authUtil = new AuthUtil();
             _options = _authUtil.GetTokenResponseData();
-            contentMethods = new ContentMethods(_options);
+            clientInstance = new ClientInstance(_options);
             contentTests = new ContentTests();
-            containerMethods = new ContainerMethods(_options);
-            modelMethods = new ModelMethods(_options);
         }
 
 
@@ -34,13 +30,15 @@ namespace management.api.sdk.tests
         {
             try
             {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
                 List<ContentItem> contentItems = new List<ContentItem>();
                 var container = await contentTests.SaveContainer();
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 250; i++)
                 {
                     contentItems.Add(contentTests.GetContentObject(container));
                 }
-                var items = await contentMethods.SaveContentItems(contentItems);
+                var items = await clientInstance.contentMethods.SaveContentItems(contentItems, guid, locale);
                 Assert.IsNotNull(items, "Processing the batches in background.");
 
                 if(items.Count != contentItems.Count)
@@ -54,11 +52,11 @@ namespace management.api.sdk.tests
 
                     if (isValid)
                     {
-                        var deleteContent = await contentMethods.DeleteContent(Convert.ToInt32(item), "Delete Content");
+                        var deleteContent = await clientInstance.contentMethods.DeleteContent(Convert.ToInt32(item), guid, locale, "Delete Content");
                     }
                 }
 
-                var containerStr = await containerMethods.DeleteContainer(container.ContentViewID);
+                var containerStr = await clientInstance.containerMethods.DeleteContainer(container.ContentViewID, guid);
 
                 Assert.IsNotNull(containerStr, "Unable to delete container.");
 
@@ -74,13 +72,15 @@ namespace management.api.sdk.tests
         {
             try
             {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
                 List<ContentItem> contentItems = new List<ContentItem>();
                 var container = await contentTests.SaveContainer();
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 250; i++)
                 {
                     contentItems.Add(contentTests.GetContentObject(container));
                 }
-                var items = await contentMethods.SaveContentItems(contentItems);
+                var items = await clientInstance.contentMethods.SaveContentItems(contentItems, guid, locale);
                 Assert.IsNotNull(items, "Processing the batches in background.");
 
                 if (items.Count != contentItems.Count)
@@ -95,7 +95,7 @@ namespace management.api.sdk.tests
 
                     if (isValid)
                     {
-                        var contentItem = await contentMethods.GetContentItem(Convert.ToInt32(item));
+                        var contentItem = await clientInstance.contentMethods.GetContentItem(Convert.ToInt32(item), guid, locale);
                         contentItem.fields = new Dictionary<string, object>();
                         contentItem.fields.Add("typeText", "Updated Test text for Content: From SDK");
                         updateItems.Add(contentItem);
@@ -103,7 +103,7 @@ namespace management.api.sdk.tests
                 }
 
  
-                var updatedItems = await contentMethods.SaveContentItems(updateItems);
+                var updatedItems = await clientInstance.contentMethods.SaveContentItems(updateItems, guid, locale);
 
                 Assert.IsNotNull(updatedItems, "Processing the batches in background.");
 
@@ -113,15 +113,15 @@ namespace management.api.sdk.tests
 
                     if (isValid)
                     {
-                        var deleteContent = await contentMethods.DeleteContent(Convert.ToInt32(item), "Delete Content");
+                        var deleteContent = await clientInstance.contentMethods.DeleteContent(Convert.ToInt32(item), guid, locale, "Delete Content");
                     }
                 }
 
-                var containerStr = await containerMethods.DeleteContainer(container.ContentViewID);
+                var containerStr = await clientInstance.containerMethods.DeleteContainer(container.ContentViewID, guid);
 
                 Assert.IsNotNull(containerStr, "Unable to delete container.");
 
-                var modelStr = await modelMethods.DeleteModel(container.ContentDefinitionID);
+                var modelStr = await clientInstance.modelMethods.DeleteModel(container.ContentDefinitionID, guid);
 
                 Assert.IsNotNull(modelStr, "Unable to delete container.");
 

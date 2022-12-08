@@ -2,10 +2,8 @@
 {
     public class Options
     {
-        public string? locale { get; set; }
         public string? token { get; set; }
         public string? baseUrl { get; set; }
-        public string? guid { get; set; }
 
         public string? refresh_token { get; set; }
 
