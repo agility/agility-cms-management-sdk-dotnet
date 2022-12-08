@@ -1,34 +1,32 @@
 ﻿using agility.models;
-using RestSharp;
 using System.Text.Json;
 
 namespace management.api.sdk
 {
     public class ContainerMethods
     {
-        ClientInstance _clientInstance = null;
-        public readonly RestClient client = null;
         private Options _options = null;
+        ExecuteMethods executeMethods = null;
         public ContainerMethods(Options options)
         {
             _options = options;
-            _clientInstance = new ClientInstance();
-            client = _clientInstance.CreateClient(_options);
+            executeMethods = new ExecuteMethods();
         }
 
         /// <summary>
         /// Method to Get Container by ID.
         /// </summary>
         /// <param name="id">The container id of the requested container.</param>
+        /// <param name="guid">Current website guid.</param>
         /// <returns>An object of the Container class.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<Container?> GetContainerById(int? id)
+        public async Task<Container?> GetContainerById(int? id, string guid)
         {
             try
             {
-                var request = new RestRequest($"/container/{id}");
-                var response = client.ExecuteAsync(request, Method.Get);
-
+                var apiPath = $"/container/{id}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+ 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new ApplicationException($"Unable to retreive the container for id: {id}. Additional Details: {response.Result.Content}");
@@ -50,14 +48,15 @@ namespace management.api.sdk
         /// Method to Get Container by Reference Name.
         /// </summary>
         /// <param name="referenceName">The container referenceName of the requested container.</param>
+        /// <param name="guid">Current website guid.</param>
         /// <returns>An object of the Container class.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<Container?> GetContainerByReferenceName(string? referenceName)
+        public async Task<Container?> GetContainerByReferenceName(string? referenceName, string guid)
         {
             try
             {
-                var request = new RestRequest($"/container/{referenceName}");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var apiPath = $"/container/{referenceName}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -80,15 +79,16 @@ namespace management.api.sdk
         /// Method to Get Container Security by container id.
         /// </summary>
         /// <param name="id">The container id of the requested container.</param>
+        /// <param name="guid">Current website guid.</param>
         /// <returns>An object of the Container class.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<Container?> GetContainerSecurity(int? id)
+        public async Task<Container?> GetContainerSecurity(int? id, string guid)
         {
             try
             {
-                var request = new RestRequest($"/container/{id}/security");
-                var response = client.ExecuteAsync(request, Method.Get);
-
+                var apiPath = $"/container/{id}/security";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+ 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     if(response.Result.StatusCode == System.Net.HttpStatusCode.NoContent)
@@ -113,14 +113,15 @@ namespace management.api.sdk
         /// <summary>
         /// Method to Get All Container List for the website.
         /// </summary>
+        /// <param name="guid">Current website guid.</param>
         /// <returns>An object collection of the Container class.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<List<Container?>> GetContainerList()
+        public async Task<List<Container?>> GetContainerList(string guid)
         {
             try
             {
-                var request = new RestRequest($"/container/list");
-                var response = client.ExecuteAsync(request, Method.Get);
+                var apiPath = $"/container/list";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -143,15 +144,16 @@ namespace management.api.sdk
         /// Method to Get Container Notifications by ID.
         /// </summary>
         /// <param name="id">The container id of the requested container.</param>
+        /// <param name="guid">Current website guid.</param>
         /// <returns>An object collection of the Notification class.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<List<Notification?>> GetNotificationList(int? id)
+        public async Task<List<Notification?>> GetNotificationList(int? id, string guid)
         {
             try
             {
-                var request = new RestRequest($"/container/{id}/notifications");
-                var response = client.ExecuteAsync(request, Method.Get);
-
+                var apiPath = $"/container/{id}/notifications";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+ 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new ApplicationException($"Unable to retreive the containers notifications for id {id}. Additional Details: {response.Result.Content}");
@@ -173,16 +175,16 @@ namespace management.api.sdk
         /// Method to save/update a container.
         /// </summary>
         /// <param name="container">An Container type object to create or update a container</param>
+        /// <param name="guid">Current website guid.</param>
         /// <returns>An object of the Container class.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<Container?> SaveContainer(Container container)
+        public async Task<Container?> SaveContainer(Container container, string guid)
         {
             try
             {
-                var request = new RestRequest($"/container");
-                request.AddJsonBody(container, "application/json");
-                var response = client.ExecuteAsync(request, Method.Post);
-
+                var apiPath = $"/container";
+                var response = executeMethods.ExecutePost(apiPath, guid, container, _options.token);
+ 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new ApplicationException($"Unable to retreive the containers. Additional Details: {response.Result.Content}");
@@ -204,14 +206,16 @@ namespace management.api.sdk
         /// Method to Delete a Container by ID.
         /// </summary>
         /// <param name="id">The container id of the requested container.</param>
+        /// <param name="guid">Current website guid.</param>
         /// <returns>Returns a string response if the container has been deleted.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<string?> DeleteContainer(int? id)
+        public async Task<string?> DeleteContainer(int? id, string guid)
         {
             try
             {
-                var request = new RestRequest($"/container/{id}");
-                var response = client.ExecuteAsync(request, Method.Delete);
+                var apiPath = $"/container/{id}";
+                var response = executeMethods.ExecuteDelete(apiPath, guid, _options.token);
+ 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new ApplicationException($"Unable to delete the container for containerID: {id}. Additional Details: {response.Result.Content}");

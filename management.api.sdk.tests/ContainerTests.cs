@@ -9,7 +9,7 @@ namespace management.api.sdk.tests
     [TestClass]
     public class ContainerTests
     {
-        ContainerMethods containerMethods = null;
+        ClientInstance clientInstance = null;
         private agility.models.Options _options;
         private AuthUtil _authUtil = null;
         ContentTests contentTests = null;
@@ -18,7 +18,7 @@ namespace management.api.sdk.tests
         {
             _authUtil = new AuthUtil();
             _options = _authUtil.GetTokenResponseData();
-            containerMethods = new ContainerMethods(_options);
+            clientInstance = new ClientInstance(_options);
             contentTests = new ContentTests();
         }
 
@@ -27,6 +27,7 @@ namespace management.api.sdk.tests
         {
             try
             {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
                 var model = await contentTests.SaveContentModel();
                 Assert.IsNotNull(model, $"Unable to create model.");
 
@@ -42,25 +43,25 @@ namespace management.api.sdk.tests
                 container.IsDynamicPageList = true;
                 container.ContentViewCategoryID = null;
 
-                var retcontainer = await containerMethods.SaveContainer(container);
+                var retcontainer = await clientInstance.containerMethods.SaveContainer(container,guid);
                 Assert.IsNotNull(retcontainer, $"Unable to create container for reference name {container.ReferenceName}");
 
-                var contByID = await containerMethods.GetContainerById(retcontainer.ContentViewID);
+                var contByID = await clientInstance.containerMethods.GetContainerById(retcontainer.ContentViewID, guid);
                 Assert.IsNotNull(contByID, $"Unable to retrieve container for containerID {retcontainer.ContentViewID}");
 
-                var contByRef = await containerMethods.GetContainerByReferenceName(retcontainer.ReferenceName);
+                var contByRef = await clientInstance.containerMethods.GetContainerByReferenceName(retcontainer.ReferenceName, guid);
                 Assert.IsNotNull(contByRef, $"Unable to retrieve container for reference name {retcontainer.ReferenceName}");
 
-                var contSecurity = await containerMethods.GetContainerSecurity(retcontainer.ContentViewID);
+                var contSecurity = await clientInstance.containerMethods.GetContainerSecurity(retcontainer.ContentViewID, guid);
                 Assert.IsNotNull(contSecurity, $"Unable to retrieve security for container for containerID {retcontainer.ContentViewID}");
 
-                var containerList = await containerMethods.GetContainerList();
+                var containerList = await clientInstance.containerMethods.GetContainerList(guid);
                 Assert.IsNotNull(containerList, $"Unable to retrieve container list");
 
-                var notificationList = await containerMethods.GetNotificationList(retcontainer.ContentViewID);
+                var notificationList = await clientInstance.containerMethods.GetNotificationList(retcontainer.ContentViewID, guid);
                 Assert.IsNotNull(notificationList, $"Unable to retrieve notifications for container for containerID {retcontainer.ContentViewID}");
 
-                var deleteContainer = await containerMethods.DeleteContainer(retcontainer.ContentViewID);
+                var deleteContainer = await clientInstance.containerMethods.DeleteContainer(retcontainer.ContentViewID, guid);
                 Assert.IsNotNull(deleteContainer, $"Unable to delete container for containerID {retcontainer.ContentViewID}");
             }
             catch (Exception ex)

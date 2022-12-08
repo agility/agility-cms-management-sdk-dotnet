@@ -31,14 +31,14 @@ using management.api.sdk;
 agility.models.Options options = new  agility.models.Options();
 
 options.token = "<<Provide Auth Token>>";
-options.guid = "<<Provide the Guid of the Website>>";
-options.locale = "<<Provide the locale of the Website>>"; //Example: en-us
 
-//Initialize the Method Class
-ContentMethods contentMethods = new ContentMethods(options);
+//Initialize the Client instance Class
+ClientInstance clientInstance = new ClientInstance(options);
 
 //make the request: get a content item with the ID '22'
-var contentItem = await contentMethods.GetContentItem(22);
+var locale = "<<Provide the locale of the Website>>"; //Example: en-us
+var guid = "<<Provide the Guid of the Website>>";
+var contentItem = await clientInstance.contentMethods.GetContentItem(22, guid, locale);
 ```
 ## Class AssetMethods
 This class is used to perform operations related to Assets. The following are the methods: - 
@@ -163,7 +163,7 @@ Returns: An object of ```ContentItem``` class.
 | `contentID` | `int` | The contentid of the requested content.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int contentID``` of the requested content.
+Returns: The ```contentID``` of the requested content.
 
 ### UnPublishContent
 | Parameter | Type     | Description                |
@@ -171,7 +171,7 @@ Returns: A ```int contentID``` of the requested content.
 | `contentID` | `int` | The contentid of the requested content.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int contentID``` of the requested content.
+Returns: The ```contentID``` of the requested content.
 
 ### ContentRequestApproval
 | Parameter | Type     | Description                |
@@ -179,7 +179,7 @@ Returns: A ```int contentID``` of the requested content.
 | `contentID` | `int` | The contentid of the requested content.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int contentID``` of the requested content.
+Returns: The ```contentID``` of the requested content.
 
 ### ApproveContent
 | Parameter | Type     | Description                |
@@ -187,7 +187,7 @@ Returns: A ```int contentID``` of the requested content.
 | `contentID` | `int` | The contentid of the requested content.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int contentID``` of the requested content.
+Returns: The ```contentID``` of the requested content.
 
 ### DeclineContent
 | Parameter | Type     | Description                |
@@ -195,14 +195,14 @@ Returns: A ```int contentID``` of the requested content.
 | `contentID` | `int` | The contentid of the requested content.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int contentID``` of the requested content.
+Returns: The ```contentID``` of the requested content.
 
 ### SaveContentItem
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `contentItem` | `ContentItem` | A contentItem object to create or update a content.|
 
-Returns: A ```int contentID``` of the requested content.
+Returns: The ```contentID``` of the requested content.
 
 ### SaveContentItems
 | Parameter | Type     | Description                |
@@ -217,7 +217,7 @@ Returns: A ```list of object``` which consists of the processed contentID's for 
 | `contentID` | `int` | The contentid of the requested content.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int contentID``` of the requested content.
+Returns: The ```contentID``` of the requested content.
 
 ### GetContentItems
 | Parameter | Type     | Description                |
@@ -313,7 +313,7 @@ Returns: An object of ```PageItem``` class.
 | `pageID` | `int` | The pageID of the requested page.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int pageID``` of the requested page.
+Returns: The ```pageID``` of the requested page.
 
 ### UnPublishPage
 | Parameter | Type     | Description                |
@@ -321,7 +321,7 @@ Returns: A ```int pageID``` of the requested page.
 | `pageID` | `int` | The pageID of the requested page.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int pageID``` of the requested page.
+Returns: The ```pageID``` of the requested page.
 
 ### DeletePage
 | Parameter | Type     | Description                |
@@ -329,7 +329,7 @@ Returns: A ```int pageID``` of the requested page.
 | `pageID` | `int` | The pageID of the requested page.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int pageID``` of the requested page.
+Returns: The ```pageID``` of the requested page.
 
 ### ApprovePage
 | Parameter | Type     | Description                |
@@ -337,7 +337,7 @@ Returns: A ```int pageID``` of the requested page.
 | `pageID` | `int` | The pageID of the requested page.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int pageID``` of the requested page.
+Returns: The ```pageID``` of the requested page.
 
 ### DeclinePage
 | Parameter | Type     | Description                |
@@ -345,7 +345,7 @@ Returns: A ```int pageID``` of the requested page.
 | `pageID` | `int` | The pageID of the requested page.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int pageID``` of the requested page.
+Returns: The ```pageID``` of the requested page.
 
 ### PageRequestApproval
 | Parameter | Type     | Description                |
@@ -353,7 +353,7 @@ Returns: A ```int pageID``` of the requested page.
 | `pageID` | `int` | The pageID of the requested page.|
 | `comments` | `string` | Additional comments for a batch request.|
 
-Returns: A ```int pageID``` of the requested page.
+Returns: The ```pageID``` of the requested page.
 
 ### SavePage
 | Parameter | Type     | Description                |
@@ -362,7 +362,7 @@ Returns: A ```int pageID``` of the requested page.
 | `parentPageID` | `int` | The id of the parent page.|
 | `placeBeforePageItemID` | `int` | The id of the page before the page.|
 
-Returns: A ```int pageID``` of the requested page.
+Returns: The ```pageID``` of the requested page.
 
 
 ## Running the SDK Locally
