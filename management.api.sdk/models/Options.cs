@@ -35,15 +35,15 @@
             {
                 return "https://mgmt.aglty.io";
             }
-            else if (guid.EndsWith("-ca"))
+            else if (guid.EndsWith("-c"))
             {
                 return "https://mgmt-ca.aglty.io";
             }
-            else if (guid.EndsWith("-eu"))
+            else if (guid.EndsWith("-e"))
             {
                 return "https://mgmt-eu.aglty.io";
             }
-            else if (guid.EndsWith("-aus"))
+            else if (guid.EndsWith("-a"))
             {
                 return "https://mgmt-aus.aglty.io";
             }

@@ -5,8 +5,8 @@ namespace management.api.sdk
 {
     public class InstanceUserMethods
     {
-        private Options _options = null;
-        ExecuteMethods executeMethods = null;
+        private Options _options;
+        ExecuteMethods executeMethods;
         public InstanceUserMethods(Options options)
         {
             _options = options;

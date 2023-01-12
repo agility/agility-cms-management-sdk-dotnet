@@ -6,9 +6,9 @@ namespace management.api.sdk
 {
     public class PageMethods
     {
-        BatchMethods _batchMethods = null;
-        private Options _options = null;
-        ExecuteMethods executeMethods = null;
+        BatchMethods _batchMethods;
+        private Options _options;
+        ExecuteMethods executeMethods;
         public PageMethods(Options options)
         {
             _options = options;
