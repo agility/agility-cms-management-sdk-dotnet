@@ -6,8 +6,8 @@ namespace management.api.sdk
 {
     public class AssetMethods
     {
-        private Options _options = null;
-        ExecuteMethods executeMethods = null;
+        private Options _options;
+        ExecuteMethods executeMethods;
         public AssetMethods(Options options)
         {
             _options = options;

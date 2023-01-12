@@ -5,8 +5,8 @@ namespace management.api.sdk
 {
     public class ContainerMethods
     {
-        private Options _options = null;
-        ExecuteMethods executeMethods = null;
+        private Options _options;
+        ExecuteMethods executeMethods;
         public ContainerMethods(Options options)
         {
             _options = options;

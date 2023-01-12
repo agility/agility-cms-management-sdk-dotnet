@@ -6,12 +6,12 @@ namespace management.api.sdk
 {
     public class ClientInstance
     {
-        private Options options = null;
+        private Options options;
         public ClientInstance(Options _options)
         {
             options = _options;
         }
-        private ContentMethods _contentMethods = null;
+        private ContentMethods _contentMethods;
         public ContentMethods contentMethods
         {
             get
@@ -25,7 +25,7 @@ namespace management.api.sdk
             set { _contentMethods = value; }
         }
 
-        private AssetMethods _assetMethods = null;
+        private AssetMethods _assetMethods;
         public AssetMethods assetMethods
         {
             get
@@ -39,7 +39,7 @@ namespace management.api.sdk
             set { _assetMethods = value; }
         }
 
-        private BatchMethods _batchMethods = null;
+        private BatchMethods _batchMethods;
         public BatchMethods batchMethods
         {
             get
@@ -53,7 +53,7 @@ namespace management.api.sdk
             set { _batchMethods = value; }
         }
 
-        private ContainerMethods _containerMethods = null;
+        private ContainerMethods _containerMethods;
         public ContainerMethods containerMethods
         {
             get
@@ -67,7 +67,7 @@ namespace management.api.sdk
             set { _containerMethods = value; }
         }
 
-        private InstanceUserMethods _instanceUserMethods = null;
+        private InstanceUserMethods _instanceUserMethods;
         public InstanceUserMethods instanceUserMethods
         {
             get
@@ -81,7 +81,7 @@ namespace management.api.sdk
             set { _instanceUserMethods = value; }
         }
 
-        private ModelMethods _modelMethods = null;
+        private ModelMethods _modelMethods;
         public ModelMethods modelMethods
         {
             get
@@ -95,7 +95,7 @@ namespace management.api.sdk
             set { _modelMethods = value; }
         }
 
-        private PageMethods _pageMethods = null;
+        private PageMethods _pageMethods;
         public PageMethods pageMethods
         {
             get
