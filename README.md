@@ -47,6 +47,7 @@ This class is used to perform operations related to Assets. The following are th
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `files` | `Dictionary<string,string>` | The key will be the file name and value will be the folder path of the files. The file should present at the local folder provided in the dictionary.  |
+| `guid` | `string` | Current website guid.|
 | `agilityFolderPath` | `string` | Path of the folder in Agility where the file(s) needs to be uploaded.|
 | `groupingID` | `int` | Path of the folder in Agility where the file(s) needs to be uploaded.|
 
@@ -56,6 +57,7 @@ Returns: A collection of ```Media``` class Object.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `mediaID` | `int` | The mediaID of the asset which needs to be deleted.|
+| `guid` | `string` | Current website guid.|
 Returns
 A ```string``` response if a file has been deleted.
 
@@ -64,6 +66,7 @@ A ```string``` response if a file has been deleted.
 | :-------- | :------- | :------------------------- |
 | `mediaID` | `int` | The mediaID of the file that needs to be moved.|
 | `newFolder` | `string` | The new location (in Agility) where the file needs to be moved.|
+| `guid` | `string` | Current website guid.|
 
 Returns: An object of ```Media``` class with the new location of the file.
 
@@ -72,6 +75,7 @@ Returns: An object of ```Media``` class with the new location of the file.
 | :-------- | :------- | :------------------------- |
 | `pageSize` | `int` | The page size on which the assets needs to selected.|
 | `recordOffset` | `int` | The record offset value to skip search results.|
+| `guid` | `string` | Current website guid.|
 
 Returns: An object of ```AssetMediaList``` class.
 
@@ -79,6 +83,7 @@ Returns: An object of ```AssetMediaList``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `mediaID` | `int` | The mediaID of the requested asset.|
+| `guid` | `string` | Current website guid.|
 
 Returns: An object of ```Media``` class with the information of the asset.
 
@@ -86,6 +91,7 @@ Returns: An object of ```Media``` class with the information of the asset.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `url` | `string` | The url of the requested asset.|
+| `guid` | `string` | Current website guid.|
 
 Returns: An object of ```Media``` class with the information of the asset.
 
@@ -96,6 +102,7 @@ This class is used to perform operations related to Batches. The following are t
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `id` | `int` | The batchID of the requested batch.|
+| `guid` | `string` | Current website guid.|
 
 Returns: A object of ```Batch``` class.
 
@@ -106,6 +113,7 @@ This class is used to perform operations related to Containers. The following ar
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `id` | `int` | The container id of the requested container.|
+| `guid` | `string` | Current website guid.|
 
 Returns: A object of ```Container``` class.
 
@@ -113,6 +121,7 @@ Returns: A object of ```Container``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `referenceName` | `string` | The container reference name of the requested container.|
+| `guid` | `string` | Current website guid.|
 
 Returns: A object of ```Container``` class.
 
@@ -120,16 +129,21 @@ Returns: A object of ```Container``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `id` | `int` | The container id of the requested container.|
+| `guid` | `string` | Current website guid.|
 
 Returns: A object of ```Container``` class.
 
 ### GetContainerList
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `guid` | `string` | Current website guid.|
 Returns: A collection object of ```Container``` class.
 
 ### GetNotificationList
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `id` | `int` | The container id of the requested container.|
+| `guid` | `string` | Current website guid.|
 
 Returns: A collection object of ```Notification``` class.
 
@@ -137,6 +151,7 @@ Returns: A collection object of ```Notification``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `container` | `Container` | A Container type object to create or update a container.|
+| `guid` | `string` | Current website guid.|
 
 Returns: An object of ```Container``` class.
 
@@ -144,6 +159,7 @@ Returns: An object of ```Container``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `id` | `int` | The container id of the requested container.|
+| `guid` | `string` | Current website guid.|
 
 Returns: A ```string``` response if a container has been deleted.
 
@@ -154,6 +170,8 @@ This class is used to perform operations related to Content. The following are t
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `contentID` | `int` | The contentid of the requested content.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 
 Returns: An object of ```ContentItem``` class.
 
@@ -161,6 +179,8 @@ Returns: An object of ```ContentItem``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `contentID` | `int` | The contentid of the requested content.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```contentID``` of the requested content.
@@ -169,6 +189,8 @@ Returns: The ```contentID``` of the requested content.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `contentID` | `int` | The contentid of the requested content.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```contentID``` of the requested content.
@@ -177,6 +199,8 @@ Returns: The ```contentID``` of the requested content.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `contentID` | `int` | The contentid of the requested content.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```contentID``` of the requested content.
@@ -185,6 +209,8 @@ Returns: The ```contentID``` of the requested content.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `contentID` | `int` | The contentid of the requested content.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```contentID``` of the requested content.
@@ -193,6 +219,8 @@ Returns: The ```contentID``` of the requested content.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `contentID` | `int` | The contentid of the requested content.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```contentID``` of the requested content.
@@ -201,6 +229,8 @@ Returns: The ```contentID``` of the requested content.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `contentItem` | `ContentItem` | A contentItem object to create or update a content.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 
 Returns: The ```contentID``` of the requested content.
 
@@ -208,6 +238,8 @@ Returns: The ```contentID``` of the requested content.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `contentItems` | `List<ContentItem>` | A collection of contentItems object to create or update multiple contents.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 
 Returns: A ```list of object``` which consists of the processed contentID's for the batch request.
 
@@ -215,6 +247,8 @@ Returns: A ```list of object``` which consists of the processed contentID's for 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `contentID` | `int` | The contentid of the requested content.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```contentID``` of the requested content.
@@ -223,6 +257,8 @@ Returns: The ```contentID``` of the requested content.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `referenceName` | `string` | The reference name of the container for the requested content.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `filter` | `string` | The filter condition for the requested content.|
 | `fields` | `string` | The fields mapped to the container.|
 | `sortDirection` | `string` | The direction to sort the result.|
@@ -236,6 +272,9 @@ Returns: An object of ```ContentList``` class of the requested content.
 This class is used to perform operations related to User. The following are the methods: - 
 
 ### GetUsers
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `guid` | `string` | Current website guid.|
 Returns: A collection of ```WebsiteUser``` class of the requested content.
 
 ### SaveUser
@@ -243,6 +282,7 @@ Returns: A collection of ```WebsiteUser``` class of the requested content.
 | :-------- | :------- | :------------------------- |
 | `emailAddress` | `string` | The email address of the requested user.|
 | `roles` | `List<InstanceRole>` | Collection object of InstanceRole class for the requested user.|
+| `guid` | `string` | Current website guid.|
 | `firstName` | `string` | The first name of the requested user.|
 | `lastName` | `string` | The last name of the requested user.|
 
@@ -252,6 +292,7 @@ Returns: An object of the ```InstanceUser``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `userID` | `int` | The userID of the requested user.|
+| `guid` | `string` | Current website guid.|
 
 Returns: A ```string``` response if a user has been deleted.
 
@@ -262,6 +303,15 @@ This class is used to perform operations related to Models. The following are th
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `id` | `int` | The id of the requested model.|
+| `guid` | `string` | Current website guid.|
+
+Returns: An object of ```Model``` class.
+
+### GetModelByReferenceName
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `referenceName` | `string` | The referenceName of the requested model.|
+| `guid` | `string` | The guid of the requested model.|
 
 Returns: An object of ```Model``` class.
 
@@ -269,6 +319,7 @@ Returns: An object of ```Model``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `includeDefaults` | `bool` | Boolean value to include defaults.|
+| `guid` | `string` | Current website guid.|
 | `includeModules` | `bool` | Boolean value to include modules.|
 
 Returns: A collection object of ```Model``` class.
@@ -276,6 +327,7 @@ Returns: A collection object of ```Model``` class.
 ### GetPageModules
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
+| `guid` | `string` | Current website guid.|
 | `includeDefault` | `bool` | Boolean value to include defaults.|
 
 Returns: A collection object of ```Model``` class.
@@ -284,6 +336,7 @@ Returns: A collection object of ```Model``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `model` | `Model` | The object of Model to for the requested model.|
+| `guid` | `string` | Current website guid.|
 
 Returns: An object of ```Model``` class.
 
@@ -291,6 +344,7 @@ Returns: An object of ```Model``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `id` | `int` | The id for the requested model.|
+| `guid` | `string` | Current website guid.|
 
 Returns: A ```string``` response if a model is deleted.
 
@@ -298,12 +352,18 @@ Returns: A ```string``` response if a model is deleted.
 This class is used to perform operations related to Pages. The following are the methods: - 
 
 ### GetSiteMap
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 Returns: A collection object of ```Sitemap``` class.
 
 ### GetPage
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `pageID` | `int` | The id of the requested page.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 
 Returns: An object of ```PageItem``` class.
 
@@ -311,6 +371,8 @@ Returns: An object of ```PageItem``` class.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `pageID` | `int` | The pageID of the requested page.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```pageID``` of the requested page.
@@ -319,6 +381,8 @@ Returns: The ```pageID``` of the requested page.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `pageID` | `int` | The pageID of the requested page.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```pageID``` of the requested page.
@@ -327,6 +391,8 @@ Returns: The ```pageID``` of the requested page.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `pageID` | `int` | The pageID of the requested page.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```pageID``` of the requested page.
@@ -335,6 +401,8 @@ Returns: The ```pageID``` of the requested page.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `pageID` | `int` | The pageID of the requested page.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```pageID``` of the requested page.
@@ -343,6 +411,8 @@ Returns: The ```pageID``` of the requested page.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `pageID` | `int` | The pageID of the requested page.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```pageID``` of the requested page.
@@ -351,6 +421,8 @@ Returns: The ```pageID``` of the requested page.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `pageID` | `int` | The pageID of the requested page.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `comments` | `string` | Additional comments for a batch request.|
 
 Returns: The ```pageID``` of the requested page.
@@ -359,6 +431,8 @@ Returns: The ```pageID``` of the requested page.
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `pageItem` | `PageItem` | The object of PageItem class for the requested Page.|
+| `guid` | `string` | Current website guid.|
+| `locale` | `string` | Current website locale.|
 | `parentPageID` | `int` | The id of the parent page.|
 | `placeBeforePageItemID` | `int` | The id of the page before the page.|
 

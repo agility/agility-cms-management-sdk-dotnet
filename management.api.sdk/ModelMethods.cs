@@ -45,6 +45,38 @@ namespace management.api.sdk
         }
 
         /// <summary>
+        /// Method to get the model by referenceName.
+        /// </summary>
+        /// <param name="referenceName">The referenceName of the requested model.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <returns>An object of Model class of the requested model.</returns>
+        /// <exception cref="ApplicationException"></exception>
+
+        public async Task<Model?> GetModelByReferenceName(string? referenceName, string guid)
+        {
+            try
+            {
+                var apiPath = $"/model/{referenceName}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retreive model for referenceName: {referenceName}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var model = JsonSerializer.Deserialize<Model>(response.Result.Content, options);
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// Method to list the content models.
         /// </summary>
         /// <param name="includeDefaults">Boolean value to include defaults.</param>
