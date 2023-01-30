@@ -46,6 +46,34 @@ namespace management.api.sdk
             }
         }
 
+        public async Task<Media?> CreateFolder(string originKey, string guid)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(originKey))
+                {
+                    throw new ApplicationException("Please provide the originKey to upload the folder.");
+                }
+                var apiPath = $"/asset/folder?originKey={originKey}";
+
+                var response = executeMethods.ExecutePost(apiPath, guid, null, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to create folder. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var media = JsonSerializer.Deserialize<Media?>(response.Result.Content, options);
+                return media;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// Method to delete a file on the basis of a valid mediaID.
         /// </summary>
