@@ -46,6 +46,14 @@ namespace management.api.sdk
             }
         }
 
+
+        /// <summary>
+        /// Method to create a folder
+        /// </summary>
+        /// <param name="originKey">The origin key of the requested folder.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<Media?> CreateFolder(string originKey, string guid)
         {
             try
@@ -161,6 +169,167 @@ namespace management.api.sdk
             }
         }
 
+        /// <summary>
+        /// Method to list galleries for the website.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="search">String to search a specific gallery item.</param>
+        /// <param name="pageSize">The pageSize on which the galleries needs to be selected.</param>
+        /// <param name="rowIndex">The rowIndex value for the resultant record set.</param>
+        /// <returns>An object of AssetGalleries class.</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<AssetGalleries> GetGalleries(string guid, string? search = null, int? pageSize = null, int? rowIndex = null)
+        {
+            try
+            {
+                var apiPath = $"/asset/galleries?search={search}&pageSize={pageSize}&rowIndex={rowIndex}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve galleries for the website. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var assetGalleries = JsonSerializer.Deserialize<AssetGalleries>(response.Result.Content, options);
+                return assetGalleries;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to get a galery for an id.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="id">The ID of the requested gallery.</param>
+        /// <returns>An object of AssetMediaGrouping class</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<AssetMediaGrouping> GetGalleryById(string guid, int id)
+        {
+            try
+            {
+                var apiPath = $"/asset/gallery/{id}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve gallery for id {id}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var gallery = JsonSerializer.Deserialize<AssetMediaGrouping>(response.Result.Content, options);
+                return gallery;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to get a galery for a name.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="galleryName">The name of the requested gallery.</param>
+        /// <returns>An object of AssetMediaGrouping class</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<AssetMediaGrouping> GetGalleryByName(string guid, string galleryName)
+        {
+            try
+            {
+                var apiPath = $"/asset/gallery?galleryName={galleryName}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve gallery for name {galleryName}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var gallery = JsonSerializer.Deserialize<AssetMediaGrouping>(response.Result.Content, options);
+                return gallery;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to get the default container.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <returns>An object of AssetContainer class.</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<AssetContainer> GetDefaultContainer(string guid)
+        {
+            try
+            {
+                var apiPath = $"/asset/container";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve container for guid {guid}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var container = JsonSerializer.Deserialize<AssetContainer>(response.Result.Content, options);
+                return container;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        /// <summary>
+        /// Method to save or update a gallery.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="gallery">Object of AssetMediaGrouping class.</param>
+        /// <returns>An object of AssetMediaGrouping class</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<AssetMediaGrouping> SaveGallery(string guid, AssetMediaGrouping gallery)
+        {
+            try
+            {
+                var apiPath = $"/asset/gallery";
+                var response = executeMethods.ExecutePost(apiPath, guid, gallery, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to save gallery. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var createdGallery = JsonSerializer.Deserialize<AssetMediaGrouping>(response.Result.Content, options);
+                return createdGallery;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<string?> DeleteGallery(string guid, int? id)
+        {
+            var apiPath = $"/asset/gallery/{id}";
+            var response = executeMethods.ExecuteDelete(apiPath, guid, _options.token);
+
+            if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                throw new ApplicationException($"Unable to delete gallery for id {id}. Additional Details: {response.Result.Content}");
+            }
+
+            return response.Result.Content;
+        }
 
         /// <summary>
         /// Method to get the information of an Asset on the basis of the mediaID.
