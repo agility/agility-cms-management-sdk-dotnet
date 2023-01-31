@@ -317,7 +317,13 @@ namespace management.api.sdk
                 throw ex;
             }
         }
-
+        /// <summary>
+        /// Method to delete a gallery.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="id">The id of the gallery to be deleted.</param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
         public async Task<string?> DeleteGallery(string guid, int? id)
         {
             var apiPath = $"/asset/gallery/{id}";
