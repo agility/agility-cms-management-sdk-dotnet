@@ -53,6 +53,14 @@ This class is used to perform operations related to Assets. The following are th
 
 Returns: A collection of ```Media``` class Object.
 
+### CreateFolder
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `originKey` | `Dictionary<string,string>` | The origin key of the requested folder.  |
+| `guid` | `string` | Current website guid.|
+
+Returns: A collection of ```Media``` class Object.
+
 ### DeleteFile
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
@@ -78,6 +86,55 @@ Returns: An object of ```Media``` class with the new location of the file.
 | `guid` | `string` | Current website guid.|
 
 Returns: An object of ```AssetMediaList``` class.
+
+### GetGalleryById
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `guid` | `string` | Current website guid.|
+| `id` | `int` | The ID of the requested gallery.|
+
+Returns: An object of ```AssetMediaGrouping``` class.
+
+### GetGalleryByName
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `guid` | `string` | Current website guid.|
+| `galleryName` | `string` | The name of the requested gallery.|
+
+Returns: An object of ```AssetMediaGrouping``` class.
+
+### GetDefaultContainer
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `guid` | `string` | Current website guid.|
+
+Returns: An object of ```AssetContainer``` class.
+
+### GetGalleries
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `guid` | `string` | Current website guid.|
+| `search` | `string` | String to search a specific gallery item.|
+| `pageSize` | `int` | The pageSize on which the galleries needs to be selected.|
+| `rowIndex` | `int` | The rowIndex value for the resultant record set.|
+
+Returns: An object of ```AssetGalleries``` class.
+
+### SaveGallery
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `guid` | `string` | Current website guid.|
+| `gallery` | `AssetMediaGrouping` | Object of AssetMediaGrouping class.|
+
+Returns: An object of ```AssetMediaGrouping``` class.
+
+### DeleteGallery
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `guid` | `string` | Current website guid.|
+| `id` | `int` | The id of the gallery to be deleted.|
+
+A ```string``` response if the gallery has been deleted.
 
 ### GetAssetByID
 | Parameter | Type     | Description                |
