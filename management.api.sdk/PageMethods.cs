@@ -49,6 +49,170 @@ namespace management.api.sdk
         }
 
         /// <summary>
+        /// Method to retrieve page templates for the website.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
+        /// <param name="includeModuleZones">To include zones in the result.</param>
+        /// <param name="searchFilter">Filter search results.</param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
+
+        public async Task<List<PageModel>?> GetPageTemplates(string guid, string locale, bool includeModuleZones, string? searchFilter = null)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/page/templates?includeModuleZones={includeModuleZones}&searchFilter={searchFilter}";
+
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retreive Page Templates for locale {locale}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var pageTemplates = JsonSerializer.Deserialize<List<PageModel>>(response.Result.Content, options);
+
+                return pageTemplates;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to get a page template.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
+        /// <param name="pageTemplateId">The id of the requested page template.</param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
+
+        public async Task<PageModel?> GetPageTemplate(string guid, string locale, int? pageTemplateId)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/page/template/{pageTemplateId}";
+
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retreive Page Template for Page Template ID {pageTemplateId}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var pageTemplate = JsonSerializer.Deserialize<PageModel>(response.Result.Content, options);
+
+                return pageTemplate;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to retrieve page template by name
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
+        /// <param name="templateName">Name of the requested page template.</param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
+
+        public async Task<PageModel?> GetPageTemplateByName(string guid, string locale, string? templateName)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/page/template/{templateName}";
+
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retreive Page Template for Name {templateName}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var pageTemplate = JsonSerializer.Deserialize<PageModel>(response.Result.Content, options);
+
+                return pageTemplate;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        /// <summary>
+        /// Method to delete a page template.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
+        /// <param name="pageTemplateId">The id of the requested page template.</param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<string?> DeletePageTemplate(string guid, string locale, int? pageTemplateId)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/page/template?pageTemplateId={pageTemplateId}";
+                var response = executeMethods.ExecuteDelete(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to Delete Page Template for Page Template ID {pageTemplateId}. Additional Details: {response.Result.Content}");
+                }
+                
+                return response.Result.Content;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to save a page template.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
+        /// <param name="pageModel">The object of the requested page template.</param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<PageModel?> SavePageTemplate(string guid, string locale, PageModel pageModel)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/page/template";
+                var response = executeMethods.ExecutePost(apiPath, guid, pageModel, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to Save Page Template. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var pageTemplate = JsonSerializer.Deserialize<PageModel>(response.Result.Content, options);
+
+                return pageTemplate;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// Method to Get a Page.
         /// </summary>
         /// <param name="pageID">The id of the requested page.</param>
