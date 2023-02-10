@@ -164,7 +164,7 @@ namespace management.api.sdk
         {
             try
             {
-                var apiPath = $"/{locale}/page/template?pageTemplateId={pageTemplateId}";
+                var apiPath = $"/{locale}/page/template/{pageTemplateId}";
                 var response = executeMethods.ExecuteDelete(apiPath, guid, _options.token);
 
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
