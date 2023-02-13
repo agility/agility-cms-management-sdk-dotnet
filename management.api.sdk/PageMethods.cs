@@ -180,6 +180,40 @@ namespace management.api.sdk
             }
         }
 
+
+        /// <summary>
+        /// Method to get Page Pemplate items for a pageTemplateId
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
+        /// <param name="id">The pageTemplateId for the reuqested page template.</param>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<List<ContentSectionDefinition?>> GetPageItemTemplates(string guid, string locale, int? id)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/page/template/items/{id}";
+
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retreive page item templates for template id {id}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var pageItemTemplate = JsonSerializer.Deserialize<List<ContentSectionDefinition>>(response.Result.Content, options);
+
+                return pageItemTemplate;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// Method to save a page template.
         /// </summary>
