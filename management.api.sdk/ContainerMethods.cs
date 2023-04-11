@@ -45,6 +45,37 @@ namespace management.api.sdk
         }
 
         /// <summary>
+        /// Method to Get Containers by Model.
+        /// </summary>
+        /// <param name="modelId">The Model ID for the requested container.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <returns>A list of Container object.</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<List<Container?>> GetContainersByModel(int? modelId, string guid)
+        {
+            try
+            {
+                var apiPath = $"/container/model/{modelId}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retreive the containers for id: {modelId}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var containers = JsonSerializer.Deserialize<List<Container>>(response.Result.Content, options);
+
+                return containers;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// Method to Get Container by Reference Name.
         /// </summary>
         /// <param name="referenceName">The container referenceName of the requested container.</param>
