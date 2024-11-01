@@ -16,9 +16,9 @@ namespace management.api.sdk
         {
             get
             {
-                if(_contentMethods == null)
+                if (_contentMethods == null)
                 {
-                    _contentMethods = new ContentMethods(options); 
+                    _contentMethods = new ContentMethods(options);
                 }
                 return _contentMethods;
             }
@@ -30,7 +30,7 @@ namespace management.api.sdk
         {
             get
             {
-                if(_assetMethods == null)
+                if (_assetMethods == null)
                 {
                     _assetMethods = new AssetMethods(options);
                 }
@@ -58,7 +58,7 @@ namespace management.api.sdk
         {
             get
             {
-                if(_containerMethods == null)
+                if (_containerMethods == null)
                 {
                     _containerMethods = new ContainerMethods(options);
                 }
@@ -72,7 +72,7 @@ namespace management.api.sdk
         {
             get
             {
-                if(_instanceUserMethods == null)
+                if (_instanceUserMethods == null)
                 {
                     _instanceUserMethods = new InstanceUserMethods(options);
                 }
@@ -86,7 +86,7 @@ namespace management.api.sdk
         {
             get
             {
-                if(_modelMethods == null)
+                if (_modelMethods == null)
                 {
                     _modelMethods = new ModelMethods(options);
                 }
@@ -100,7 +100,7 @@ namespace management.api.sdk
         {
             get
             {
-                if(_pageMethods == null)
+                if (_pageMethods == null)
                 {
                     _pageMethods = new PageMethods(options);
                 }
@@ -143,7 +143,7 @@ namespace management.api.sdk
             return response;
         }
 
-        public async Task<RestResponse> ExecutePostFiles(string apiPath, string guid, Dictionary<string, string> files, string token)
+        public async Task<RestResponse> ExecutePostFiles(string apiPath, string guid, List<string> files, string token)
         {
             var baseUrl = DetermineBaseURL(guid);
             var client = new RestClient($"{baseUrl}/api/v1/instance/{guid}");
@@ -153,11 +153,9 @@ namespace management.api.sdk
 
             var request = new RestRequest(apiPath, Method.Post) { RequestFormat = DataFormat.Json, AlwaysMultipartFormData = true };
 
-            foreach (var file in files)
+            foreach (var filePath in files)
             {
-                var fileName = file.Key;
-                var localPath = file.Value;
-                request.AddFile("files", $"{localPath}\\{fileName}");
+                request.AddFile("files", filePath);
             }
 
             var response = await client.ExecuteAsync(request);

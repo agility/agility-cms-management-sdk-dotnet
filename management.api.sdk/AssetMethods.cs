@@ -17,13 +17,13 @@ namespace management.api.sdk
         /// <summary>
         /// Method to upload multiple multiple files.
         /// </summary>
-        /// <param name="files">List of files with Key as file name and Value as the local path.</param>
+        /// <param name="files">List of file paths to update.</param>
         /// <param name="guid">Current website guid.</param>
         /// <param name="agilityFolderPath">Path of the folder in Agility where the file(s) needs to be uploaded.</param>
         /// <param name="groupingID">The groupingID to which the file belongs.</param>
         /// <returns>A collection of Media class Object.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<List<Media>?> Upload(Dictionary<string, string> files, string guid, string agilityFolderPath, int groupingID = -1)
+        public async Task<List<Media>?> Upload(List<string> files, string guid, string agilityFolderPath, int groupingID = -1)
         {
             try
             {
@@ -95,7 +95,7 @@ namespace management.api.sdk
             {
                 var apiPath = $"/asset/delete/{mediaID}";
                 var response = executeMethods.ExecuteDelete(apiPath, guid, _options.token);
-                if(response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new ApplicationException($"Unable to delete the media for mediaID: {mediaID}. Additional Details: {response.Result.Content}");
                 }
@@ -122,7 +122,7 @@ namespace management.api.sdk
             {
                 var apiPath = $"/asset/move/{mediaID}?newFolder={newFolder}";
                 var response = executeMethods.ExecutePost(apiPath, guid, null, _options.token);
- 
+
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new ApplicationException($"Unable to move the file for mediaID: {mediaID}. Additional Details: {response.Result.Content}");
@@ -152,12 +152,12 @@ namespace management.api.sdk
             {
                 var apiPath = $"/asset/list?pageSize={pageSize}&recordOffset={recordOffset}";
                 var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
- 
+
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new ApplicationException($"Unable to retrieve assets for the website. Additional Details: {response.Result.Content}");
                 }
-                
+
                 var options = new JsonSerializerOptions();
                 options.PropertyNameCaseInsensitive = true;
                 var mediaList = JsonSerializer.Deserialize<AssetMediaList>(response.Result.Content, options);
@@ -281,7 +281,7 @@ namespace management.api.sdk
                 var container = JsonSerializer.Deserialize<AssetContainer>(response.Result.Content, options);
                 return container;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -312,7 +312,7 @@ namespace management.api.sdk
                 var createdGallery = JsonSerializer.Deserialize<AssetMediaGrouping>(response.Result.Content, options);
                 return createdGallery;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -350,7 +350,7 @@ namespace management.api.sdk
             {
                 var apiPath = $"/asset/{mediaID}";
                 var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
- 
+
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new ApplicationException($"Unable to retrieve asset for mediaID {mediaID}. Additional Details: {response.Result.Content}");
