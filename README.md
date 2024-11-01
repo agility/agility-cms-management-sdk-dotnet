@@ -15,15 +15,17 @@ To start using the Agility CMS & .NET 5 Starter, [sign up](https://agilitycms.co
 ## Getting Started
 
 ### Prerequisites
+
 1. Clone the solution agility-cms-management-sdk-dotnet.
 2. Add namespace management.api.sdk to make use of the Options class.
-3. Create an object of the Options class to provide values of - 
-	- token -> Bearer token to authenticate a Rest Request to perform an operation.
-	- locale -> The locale under which your application is hosted. Example en-us.
-    - guid -> The guid under which your application is hosted.
+3. Create an object of the Options class to provide values of -
+   - token -> Bearer token to authenticate a Rest Request to perform an operation.
+   - locale -> The locale under which your application is hosted. Example en-us.
+   - guid -> The guid under which your application is hosted.
 4. Create an object of Method class(es), which can be used to create and perform operations. Following is the description of Classes and their respective methods -
 
 ### Making a Request
+
 ```C#
 using management.api.sdk;
 
@@ -40,461 +42,521 @@ var locale = "<<Provide the locale of the Website>>"; //Example: en-us
 var guid = "<<Provide the Guid of the Website>>";
 var contentItem = await clientInstance.contentMethods.GetContentItem(22, guid, locale);
 ```
+
 ## Class AssetMethods
-This class is used to perform operations related to Assets. The following are the methods: - 
+
+This class is used to perform operations related to Assets. The following are the methods: -
 
 ### Upload
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `files` | `Dictionary<string,string>` | The key will be the file name and value will be the folder path of the files. The file should present at the local folder provided in the dictionary.  |
-| `guid` | `string` | Current website guid.|
-| `agilityFolderPath` | `string` | Path of the folder in Agility where the file(s) needs to be uploaded.|
-| `groupingID` | `int` | Path of the folder in Agility where the file(s) needs to be uploaded.|
 
-Returns: A collection of ```Media``` class Object.
+| Parameter           | Type           | Description                                                           |
+| :------------------ | :------------- | :-------------------------------------------------------------------- |
+| `files`             | `List<string>` | A list of files to upload.                                            |
+| `guid`              | `string`       | Current website guid.                                                 |
+| `agilityFolderPath` | `string`       | Path of the folder in Agility where the file(s) needs to be uploaded. |
+| `groupingID`        | `int`          | Path of the folder in Agility where the file(s) needs to be uploaded. |
+
+Returns: A collection of `Media` class Object.
 
 ### CreateFolder
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `originKey` | `Dictionary<string,string>` | The origin key of the requested folder.  |
-| `guid` | `string` | Current website guid.|
 
-Returns: A collection of ```Media``` class Object.
+| Parameter   | Type                        | Description                             |
+| :---------- | :-------------------------- | :-------------------------------------- |
+| `originKey` | `Dictionary<string,string>` | The origin key of the requested folder. |
+| `guid`      | `string`                    | Current website guid.                   |
+
+Returns: A collection of `Media` class Object.
 
 ### DeleteFile
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `mediaID` | `int` | The mediaID of the asset which needs to be deleted.|
-| `guid` | `string` | Current website guid.|
+
+| Parameter | Type     | Description                                         |
+| :-------- | :------- | :-------------------------------------------------- |
+| `mediaID` | `int`    | The mediaID of the asset which needs to be deleted. |
+| `guid`    | `string` | Current website guid.                               |
+
 Returns
-A ```string``` response if a file has been deleted.
+A `string` response if a file has been deleted.
 
 ### MoveFile
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `mediaID` | `int` | The mediaID of the file that needs to be moved.|
-| `newFolder` | `string` | The new location (in Agility) where the file needs to be moved.|
-| `guid` | `string` | Current website guid.|
 
-Returns: An object of ```Media``` class with the new location of the file.
+| Parameter   | Type     | Description                                                     |
+| :---------- | :------- | :-------------------------------------------------------------- |
+| `mediaID`   | `int`    | The mediaID of the file that needs to be moved.                 |
+| `newFolder` | `string` | The new location (in Agility) where the file needs to be moved. |
+| `guid`      | `string` | Current website guid.                                           |
+
+Returns: An object of `Media` class with the new location of the file.
 
 ### GetMediaList
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `pageSize` | `int` | The page size on which the assets needs to selected.|
-| `recordOffset` | `int` | The record offset value to skip search results.|
-| `guid` | `string` | Current website guid.|
 
-Returns: An object of ```AssetMediaList``` class.
+| Parameter      | Type     | Description                                          |
+| :------------- | :------- | :--------------------------------------------------- |
+| `pageSize`     | `int`    | The page size on which the assets needs to selected. |
+| `recordOffset` | `int`    | The record offset value to skip search results.      |
+| `guid`         | `string` | Current website guid.                                |
+
+Returns: An object of `AssetMediaList` class.
 
 ### GetGalleryById
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `guid` | `string` | Current website guid.|
-| `id` | `int` | The ID of the requested gallery.|
 
-Returns: An object of ```AssetMediaGrouping``` class.
+| Parameter | Type     | Description                      |
+| :-------- | :------- | :------------------------------- |
+| `guid`    | `string` | Current website guid.            |
+| `id`      | `int`    | The ID of the requested gallery. |
+
+Returns: An object of `AssetMediaGrouping` class.
 
 ### GetGalleryByName
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `guid` | `string` | Current website guid.|
-| `galleryName` | `string` | The name of the requested gallery.|
 
-Returns: An object of ```AssetMediaGrouping``` class.
+| Parameter     | Type     | Description                        |
+| :------------ | :------- | :--------------------------------- |
+| `guid`        | `string` | Current website guid.              |
+| `galleryName` | `string` | The name of the requested gallery. |
+
+Returns: An object of `AssetMediaGrouping` class.
 
 ### GetDefaultContainer
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `guid` | `string` | Current website guid.|
 
-Returns: An object of ```AssetContainer``` class.
+| Parameter | Type     | Description           |
+| :-------- | :------- | :-------------------- |
+| `guid`    | `string` | Current website guid. |
+
+Returns: An object of `AssetContainer` class.
 
 ### GetGalleries
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `guid` | `string` | Current website guid.|
-| `search` | `string` | String to search a specific gallery item.|
-| `pageSize` | `int` | The pageSize on which the galleries needs to be selected.|
-| `rowIndex` | `int` | The rowIndex value for the resultant record set.|
 
-Returns: An object of ```AssetGalleries``` class.
+| Parameter  | Type     | Description                                               |
+| :--------- | :------- | :-------------------------------------------------------- |
+| `guid`     | `string` | Current website guid.                                     |
+| `search`   | `string` | String to search a specific gallery item.                 |
+| `pageSize` | `int`    | The pageSize on which the galleries needs to be selected. |
+| `rowIndex` | `int`    | The rowIndex value for the resultant record set.          |
+
+Returns: An object of `AssetGalleries` class.
 
 ### SaveGallery
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `guid` | `string` | Current website guid.|
-| `gallery` | `AssetMediaGrouping` | Object of AssetMediaGrouping class.|
 
-Returns: An object of ```AssetMediaGrouping``` class.
+| Parameter | Type                 | Description                         |
+| :-------- | :------------------- | :---------------------------------- |
+| `guid`    | `string`             | Current website guid.               |
+| `gallery` | `AssetMediaGrouping` | Object of AssetMediaGrouping class. |
+
+Returns: An object of `AssetMediaGrouping` class.
 
 ### DeleteGallery
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `guid` | `string` | Current website guid.|
-| `id` | `int` | The id of the gallery to be deleted.|
 
-A ```string``` response if the gallery has been deleted.
+| Parameter | Type     | Description                          |
+| :-------- | :------- | :----------------------------------- |
+| `guid`    | `string` | Current website guid.                |
+| `id`      | `int`    | The id of the gallery to be deleted. |
+
+A `string` response if the gallery has been deleted.
 
 ### GetAssetByID
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `mediaID` | `int` | The mediaID of the requested asset.|
-| `guid` | `string` | Current website guid.|
 
-Returns: An object of ```Media``` class with the information of the asset.
+| Parameter | Type     | Description                         |
+| :-------- | :------- | :---------------------------------- |
+| `mediaID` | `int`    | The mediaID of the requested asset. |
+| `guid`    | `string` | Current website guid.               |
+
+Returns: An object of `Media` class with the information of the asset.
 
 ### GetAssetByURL
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `url` | `string` | The url of the requested asset.|
-| `guid` | `string` | Current website guid.|
 
-Returns: An object of ```Media``` class with the information of the asset.
+| Parameter | Type     | Description                     |
+| :-------- | :------- | :------------------------------ |
+| `url`     | `string` | The url of the requested asset. |
+| `guid`    | `string` | Current website guid.           |
+
+Returns: An object of `Media` class with the information of the asset.
 
 ## Class BatchMethods
-This class is used to perform operations related to Batches. The following are the methods: - 
+
+This class is used to perform operations related to Batches. The following are the methods: -
 
 ### GetBatch
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `id` | `int` | The batchID of the requested batch.|
-| `guid` | `string` | Current website guid.|
 
-Returns: A object of ```Batch``` class.
+| Parameter | Type     | Description                         |
+| :-------- | :------- | :---------------------------------- |
+| `id`      | `int`    | The batchID of the requested batch. |
+| `guid`    | `string` | Current website guid.               |
+
+Returns: A object of `Batch` class.
 
 ## Class ContainerMethods
-This class is used to perform operations related to Containers. The following are the methods: - 
+
+This class is used to perform operations related to Containers. The following are the methods: -
 
 ### GetContainerById
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `id` | `int` | The container id of the requested container.|
-| `guid` | `string` | Current website guid.|
 
-Returns: A object of ```Container``` class.
+| Parameter | Type     | Description                                  |
+| :-------- | :------- | :------------------------------------------- |
+| `id`      | `int`    | The container id of the requested container. |
+| `guid`    | `string` | Current website guid.                        |
+
+Returns: A object of `Container` class.
 
 ### GetContainerByReferenceName
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `referenceName` | `string` | The container reference name of the requested container.|
-| `guid` | `string` | Current website guid.|
 
-Returns: A object of ```Container``` class.
+| Parameter       | Type     | Description                                              |
+| :-------------- | :------- | :------------------------------------------------------- |
+| `referenceName` | `string` | The container reference name of the requested container. |
+| `guid`          | `string` | Current website guid.                                    |
+
+Returns: A object of `Container` class.
 
 ### GetContainerSecurity
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `id` | `int` | The container id of the requested container.|
-| `guid` | `string` | Current website guid.|
 
-Returns: A object of ```Container``` class.
+| Parameter | Type     | Description                                  |
+| :-------- | :------- | :------------------------------------------- |
+| `id`      | `int`    | The container id of the requested container. |
+| `guid`    | `string` | Current website guid.                        |
+
+Returns: A object of `Container` class.
 
 ### GetContainerList
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `guid` | `string` | Current website guid.|
-Returns: A collection object of ```Container``` class.
+
+| Parameter | Type     | Description           |
+| :-------- | :------- | :-------------------- |
+| `guid`    | `string` | Current website guid. |
+
+Returns: A collection object of `Container` class.
 
 ### GetNotificationList
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `id` | `int` | The container id of the requested container.|
-| `guid` | `string` | Current website guid.|
 
-Returns: A collection object of ```Notification``` class.
+| Parameter | Type     | Description                                  |
+| :-------- | :------- | :------------------------------------------- |
+| `id`      | `int`    | The container id of the requested container. |
+| `guid`    | `string` | Current website guid.                        |
+
+Returns: A collection object of `Notification` class.
 
 ### SaveContainer
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `container` | `Container` | A Container type object to create or update a container.|
-| `guid` | `string` | Current website guid.|
 
-Returns: An object of ```Container``` class.
+| Parameter   | Type        | Description                                              |
+| :---------- | :---------- | :------------------------------------------------------- |
+| `container` | `Container` | A Container type object to create or update a container. |
+| `guid`      | `string`    | Current website guid.                                    |
+
+Returns: An object of `Container` class.
 
 ### DeleteContainer
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `id` | `int` | The container id of the requested container.|
-| `guid` | `string` | Current website guid.|
 
-Returns: A ```string``` response if a container has been deleted.
+| Parameter | Type     | Description                                  |
+| :-------- | :------- | :------------------------------------------- |
+| `id`      | `int`    | The container id of the requested container. |
+| `guid`    | `string` | Current website guid.                        |
+
+Returns: A `string` response if a container has been deleted.
 
 ## Class ContentMethods
-This class is used to perform operations related to Content. The following are the methods: - 
+
+This class is used to perform operations related to Content. The following are the methods: -
 
 ### GetContentItem
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `contentID` | `int` | The contentid of the requested content.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
 
-Returns: An object of ```ContentItem``` class.
+| Parameter   | Type     | Description                             |
+| :---------- | :------- | :-------------------------------------- |
+| `contentID` | `int`    | The contentid of the requested content. |
+| `guid`      | `string` | Current website guid.                   |
+| `locale`    | `string` | Current website locale.                 |
+
+Returns: An object of `ContentItem` class.
 
 ### PublishContent
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `contentID` | `int` | The contentid of the requested content.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```contentID``` of the requested content.
+| Parameter   | Type     | Description                              |
+| :---------- | :------- | :--------------------------------------- |
+| `contentID` | `int`    | The contentid of the requested content.  |
+| `guid`      | `string` | Current website guid.                    |
+| `locale`    | `string` | Current website locale.                  |
+| `comments`  | `string` | Additional comments for a batch request. |
+
+Returns: The `contentID` of the requested content.
 
 ### UnPublishContent
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `contentID` | `int` | The contentid of the requested content.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```contentID``` of the requested content.
+| Parameter   | Type     | Description                              |
+| :---------- | :------- | :--------------------------------------- |
+| `contentID` | `int`    | The contentid of the requested content.  |
+| `guid`      | `string` | Current website guid.                    |
+| `locale`    | `string` | Current website locale.                  |
+| `comments`  | `string` | Additional comments for a batch request. |
+
+Returns: The `contentID` of the requested content.
 
 ### ContentRequestApproval
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `contentID` | `int` | The contentid of the requested content.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```contentID``` of the requested content.
+| Parameter   | Type     | Description                              |
+| :---------- | :------- | :--------------------------------------- |
+| `contentID` | `int`    | The contentid of the requested content.  |
+| `guid`      | `string` | Current website guid.                    |
+| `locale`    | `string` | Current website locale.                  |
+| `comments`  | `string` | Additional comments for a batch request. |
+
+Returns: The `contentID` of the requested content.
 
 ### ApproveContent
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `contentID` | `int` | The contentid of the requested content.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```contentID``` of the requested content.
+| Parameter   | Type     | Description                              |
+| :---------- | :------- | :--------------------------------------- |
+| `contentID` | `int`    | The contentid of the requested content.  |
+| `guid`      | `string` | Current website guid.                    |
+| `locale`    | `string` | Current website locale.                  |
+| `comments`  | `string` | Additional comments for a batch request. |
+
+Returns: The `contentID` of the requested content.
 
 ### DeclineContent
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `contentID` | `int` | The contentid of the requested content.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```contentID``` of the requested content.
+| Parameter   | Type     | Description                              |
+| :---------- | :------- | :--------------------------------------- |
+| `contentID` | `int`    | The contentid of the requested content.  |
+| `guid`      | `string` | Current website guid.                    |
+| `locale`    | `string` | Current website locale.                  |
+| `comments`  | `string` | Additional comments for a batch request. |
+
+Returns: The `contentID` of the requested content.
 
 ### SaveContentItem
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `contentItem` | `ContentItem` | A contentItem object to create or update a content.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
 
-Returns: The ```contentID``` of the requested content.
+| Parameter     | Type          | Description                                         |
+| :------------ | :------------ | :-------------------------------------------------- |
+| `contentItem` | `ContentItem` | A contentItem object to create or update a content. |
+| `guid`        | `string`      | Current website guid.                               |
+| `locale`      | `string`      | Current website locale.                             |
+
+Returns: The `contentID` of the requested content.
 
 ### SaveContentItems
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `contentItems` | `List<ContentItem>` | A collection of contentItems object to create or update multiple contents.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
 
-Returns: A ```list of object``` which consists of the processed contentID's for the batch request.
+| Parameter      | Type                | Description                                                                |
+| :------------- | :------------------ | :------------------------------------------------------------------------- |
+| `contentItems` | `List<ContentItem>` | A collection of contentItems object to create or update multiple contents. |
+| `guid`         | `string`            | Current website guid.                                                      |
+| `locale`       | `string`            | Current website locale.                                                    |
+
+Returns: A `list of object` which consists of the processed contentID's for the batch request.
 
 ### DeleteContent
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `contentID` | `int` | The contentid of the requested content.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```contentID``` of the requested content.
+| Parameter   | Type     | Description                              |
+| :---------- | :------- | :--------------------------------------- |
+| `contentID` | `int`    | The contentid of the requested content.  |
+| `guid`      | `string` | Current website guid.                    |
+| `locale`    | `string` | Current website locale.                  |
+| `comments`  | `string` | Additional comments for a batch request. |
+
+Returns: The `contentID` of the requested content.
 
 ### GetContentItems
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `referenceName` | `string` | The reference name of the container for the requested content.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `filter` | `string` | The filter condition for the requested content.|
-| `fields` | `string` | The fields mapped to the container.|
-| `sortDirection` | `string` | The direction to sort the result.|
-| `sortField` | `string` | The field on which the sort needs to be performed.|
-| `take` | `int` | The page size for the result.|
-| `skip` | `int` | The record offset for the result.|
 
-Returns: An object of ```ContentList``` class of the requested content.
+| Parameter       | Type     | Description                                                    |
+| :-------------- | :------- | :------------------------------------------------------------- |
+| `referenceName` | `string` | The reference name of the container for the requested content. |
+| `guid`          | `string` | Current website guid.                                          |
+| `locale`        | `string` | Current website locale.                                        |
+| `filter`        | `string` | The filter condition for the requested content.                |
+| `fields`        | `string` | The fields mapped to the container.                            |
+| `sortDirection` | `string` | The direction to sort the result.                              |
+| `sortField`     | `string` | The field on which the sort needs to be performed.             |
+| `take`          | `int`    | The page size for the result.                                  |
+| `skip`          | `int`    | The record offset for the result.                              |
+
+Returns: An object of `ContentList` class of the requested content.
 
 ## Class InstanceUserMethods
-This class is used to perform operations related to User. The following are the methods: - 
+
+This class is used to perform operations related to User. The following are the methods: -
 
 ### GetUsers
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `guid` | `string` | Current website guid.|
-Returns: A collection of ```WebsiteUser``` class of the requested content.
+
+| Parameter | Type     | Description           |
+| :-------- | :------- | :-------------------- |
+| `guid`    | `string` | Current website guid. |
+
+Returns: A collection of `WebsiteUser` class of the requested content.
 
 ### SaveUser
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `emailAddress` | `string` | The email address of the requested user.|
-| `roles` | `List<InstanceRole>` | Collection object of InstanceRole class for the requested user.|
-| `guid` | `string` | Current website guid.|
-| `firstName` | `string` | The first name of the requested user.|
-| `lastName` | `string` | The last name of the requested user.|
 
-Returns: An object of the ```InstanceUser``` class.
+| Parameter      | Type                 | Description                                                     |
+| :------------- | :------------------- | :-------------------------------------------------------------- |
+| `emailAddress` | `string`             | The email address of the requested user.                        |
+| `roles`        | `List<InstanceRole>` | Collection object of InstanceRole class for the requested user. |
+| `guid`         | `string`             | Current website guid.                                           |
+| `firstName`    | `string`             | The first name of the requested user.                           |
+| `lastName`     | `string`             | The last name of the requested user.                            |
+
+Returns: An object of the `InstanceUser` class.
 
 ### DeleteUser
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `userID` | `int` | The userID of the requested user.|
-| `guid` | `string` | Current website guid.|
 
-Returns: A ```string``` response if a user has been deleted.
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userID`  | `int`    | The userID of the requested user. |
+| `guid`    | `string` | Current website guid.             |
+
+Returns: A `string` response if a user has been deleted.
 
 ## Class ModelMethods
-This class is used to perform operations related to Models. The following are the methods: - 
+
+This class is used to perform operations related to Models. The following are the methods: -
 
 ### GetContentModel
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `id` | `int` | The id of the requested model.|
-| `guid` | `string` | Current website guid.|
 
-Returns: An object of ```Model``` class.
+| Parameter | Type     | Description                    |
+| :-------- | :------- | :----------------------------- |
+| `id`      | `int`    | The id of the requested model. |
+| `guid`    | `string` | Current website guid.          |
+
+Returns: An object of `Model` class.
 
 ### GetModelByReferenceName
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `referenceName` | `string` | The referenceName of the requested model.|
-| `guid` | `string` | The guid of the requested model.|
 
-Returns: An object of ```Model``` class.
+| Parameter       | Type     | Description                               |
+| :-------------- | :------- | :---------------------------------------- |
+| `referenceName` | `string` | The referenceName of the requested model. |
+| `guid`          | `string` | The guid of the requested model.          |
+
+Returns: An object of `Model` class.
 
 ### GetContentModules
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `includeDefaults` | `bool` | Boolean value to include defaults.|
-| `guid` | `string` | Current website guid.|
-| `includeModules` | `bool` | Boolean value to include modules.|
 
-Returns: A collection object of ```Model``` class.
+| Parameter         | Type     | Description                        |
+| :---------------- | :------- | :--------------------------------- |
+| `includeDefaults` | `bool`   | Boolean value to include defaults. |
+| `guid`            | `string` | Current website guid.              |
+| `includeModules`  | `bool`   | Boolean value to include modules.  |
+
+Returns: A collection object of `Model` class.
 
 ### GetPageModules
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `guid` | `string` | Current website guid.|
-| `includeDefault` | `bool` | Boolean value to include defaults.|
 
-Returns: A collection object of ```Model``` class.
+| Parameter        | Type     | Description                        |
+| :--------------- | :------- | :--------------------------------- |
+| `guid`           | `string` | Current website guid.              |
+| `includeDefault` | `bool`   | Boolean value to include defaults. |
+
+Returns: A collection object of `Model` class.
 
 ### SaveModel
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `model` | `Model` | The object of Model to for the requested model.|
-| `guid` | `string` | Current website guid.|
 
-Returns: An object of ```Model``` class.
+| Parameter | Type     | Description                                     |
+| :-------- | :------- | :---------------------------------------------- |
+| `model`   | `Model`  | The object of Model to for the requested model. |
+| `guid`    | `string` | Current website guid.                           |
+
+Returns: An object of `Model` class.
 
 ### DeleteModel
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `id` | `int` | The id for the requested model.|
-| `guid` | `string` | Current website guid.|
 
-Returns: A ```string``` response if a model is deleted.
+| Parameter | Type     | Description                     |
+| :-------- | :------- | :------------------------------ |
+| `id`      | `int`    | The id for the requested model. |
+| `guid`    | `string` | Current website guid.           |
+
+Returns: A `string` response if a model is deleted.
 
 ## Class PageMethods
-This class is used to perform operations related to Pages. The following are the methods: - 
+
+This class is used to perform operations related to Pages. The following are the methods: -
 
 ### GetSiteMap
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-Returns: A collection object of ```Sitemap``` class.
+
+| Parameter | Type     | Description             |
+| :-------- | :------- | :---------------------- |
+| `guid`    | `string` | Current website guid.   |
+| `locale`  | `string` | Current website locale. |
+
+Returns: A collection object of `Sitemap` class.
 
 ### GetPage
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `pageID` | `int` | The id of the requested page.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
 
-Returns: An object of ```PageItem``` class.
+| Parameter | Type     | Description                   |
+| :-------- | :------- | :---------------------------- |
+| `pageID`  | `int`    | The id of the requested page. |
+| `guid`    | `string` | Current website guid.         |
+| `locale`  | `string` | Current website locale.       |
+
+Returns: An object of `PageItem` class.
 
 ### PublishPage
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `pageID` | `int` | The pageID of the requested page.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```pageID``` of the requested page.
+| Parameter  | Type     | Description                              |
+| :--------- | :------- | :--------------------------------------- |
+| `pageID`   | `int`    | The pageID of the requested page.        |
+| `guid`     | `string` | Current website guid.                    |
+| `locale`   | `string` | Current website locale.                  |
+| `comments` | `string` | Additional comments for a batch request. |
+
+Returns: The `pageID` of the requested page.
 
 ### UnPublishPage
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `pageID` | `int` | The pageID of the requested page.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```pageID``` of the requested page.
+| Parameter  | Type     | Description                              |
+| :--------- | :------- | :--------------------------------------- |
+| `pageID`   | `int`    | The pageID of the requested page.        |
+| `guid`     | `string` | Current website guid.                    |
+| `locale`   | `string` | Current website locale.                  |
+| `comments` | `string` | Additional comments for a batch request. |
+
+Returns: The `pageID` of the requested page.
 
 ### DeletePage
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `pageID` | `int` | The pageID of the requested page.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```pageID``` of the requested page.
+| Parameter  | Type     | Description                              |
+| :--------- | :------- | :--------------------------------------- |
+| `pageID`   | `int`    | The pageID of the requested page.        |
+| `guid`     | `string` | Current website guid.                    |
+| `locale`   | `string` | Current website locale.                  |
+| `comments` | `string` | Additional comments for a batch request. |
+
+Returns: The `pageID` of the requested page.
 
 ### ApprovePage
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `pageID` | `int` | The pageID of the requested page.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```pageID``` of the requested page.
+| Parameter  | Type     | Description                              |
+| :--------- | :------- | :--------------------------------------- |
+| `pageID`   | `int`    | The pageID of the requested page.        |
+| `guid`     | `string` | Current website guid.                    |
+| `locale`   | `string` | Current website locale.                  |
+| `comments` | `string` | Additional comments for a batch request. |
+
+Returns: The `pageID` of the requested page.
 
 ### DeclinePage
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `pageID` | `int` | The pageID of the requested page.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```pageID``` of the requested page.
+| Parameter  | Type     | Description                              |
+| :--------- | :------- | :--------------------------------------- |
+| `pageID`   | `int`    | The pageID of the requested page.        |
+| `guid`     | `string` | Current website guid.                    |
+| `locale`   | `string` | Current website locale.                  |
+| `comments` | `string` | Additional comments for a batch request. |
+
+Returns: The `pageID` of the requested page.
 
 ### PageRequestApproval
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `pageID` | `int` | The pageID of the requested page.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `comments` | `string` | Additional comments for a batch request.|
 
-Returns: The ```pageID``` of the requested page.
+| Parameter  | Type     | Description                              |
+| :--------- | :------- | :--------------------------------------- |
+| `pageID`   | `int`    | The pageID of the requested page.        |
+| `guid`     | `string` | Current website guid.                    |
+| `locale`   | `string` | Current website locale.                  |
+| `comments` | `string` | Additional comments for a batch request. |
+
+Returns: The `pageID` of the requested page.
 
 ### SavePage
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `pageItem` | `PageItem` | The object of PageItem class for the requested Page.|
-| `guid` | `string` | Current website guid.|
-| `locale` | `string` | Current website locale.|
-| `parentPageID` | `int` | The id of the parent page.|
-| `placeBeforePageItemID` | `int` | The id of the page before the page.|
 
-Returns: The ```pageID``` of the requested page.
+| Parameter               | Type       | Description                                          |
+| :---------------------- | :--------- | :--------------------------------------------------- |
+| `pageItem`              | `PageItem` | The object of PageItem class for the requested Page. |
+| `guid`                  | `string`   | Current website guid.                                |
+| `locale`                | `string`   | Current website locale.                              |
+| `parentPageID`          | `int`      | The id of the parent page.                           |
+| `placeBeforePageItemID` | `int`      | The id of the page before the page.                  |
 
+Returns: The `pageID` of the requested page.
 
 ## Running the SDK Locally
 
