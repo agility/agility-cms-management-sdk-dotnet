@@ -15,30 +15,194 @@ To start using the Agility CMS & .NET 5 Starter, [sign up](https://agilitycms.co
 ## Getting Started
 
 ### Prerequisites
+
 1. Clone the solution agility-cms-management-sdk-dotnet.
 2. Add namespace management.api.sdk to make use of the Options class.
-3. Create an object of the Options class to provide values of - 
-	- token -> Bearer token to authenticate a Rest Request to perform an operation.
-	- locale -> The locale under which your application is hosted. Example en-us.
-    - guid -> The guid under which your application is hosted.
-4. Create an object of Method class(es), which can be used to create and perform operations. Following is the description of Classes and their respective methods -
+3. You will need valid Agility CMS credentials to authenticate and obtain an access token.
 
-### Making a Request
-```C#
+### Authentication
+
+Before using the SDK, you must authenticate against the Agility Management API to obtain a valid access token. This token is required for all subsequent API requests.
+
+The authentication process uses OAuth 2.0 and requires multiple steps:
+
+#### Step 1: Authorization Request
+
+First, initiate the authorization flow by redirecting the user to the authorization endpoint. You can implement this in your .NET application:
+
+```csharp
+using System;
+using System.Web;
+
+public class AuthService 
+{
+    private const string AuthUrl = "https://mgmt.aglty.io/oauth/authorize";
+    private const string TokenUrl = "https://mgmt.aglty.io/oauth/token";
+    
+    public string GetAuthorizationUrl(string redirectUri, string state)
+    {
+        var queryParams = HttpUtility.ParseQueryString(string.Empty);
+        queryParams["response_type"] = "code";
+        queryParams["redirect_uri"] = redirectUri;
+        queryParams["state"] = state;
+        queryParams["scope"] = "openid profile email offline_access";
+        
+        return $"{AuthUrl}?{queryParams}";
+    }
+}
+
+// Usage: Redirect user to authorization URL
+var authService = new AuthService();
+var redirectUri = "YOUR_REDIRECT_URI"; // e.g., "https://yourapp.com/callback"
+var state = "YOUR_STATE"; // Generate a unique state value for security
+var authUrl = authService.GetAuthorizationUrl(redirectUri, state);
+
+// Redirect user to authUrl (implementation depends on your application type)
+```
+
+#### Step 2: Exchange Authorization Code for Access Token
+
+After successful authentication, you'll receive an authorization code at your redirect URI. Use this code to obtain an access token:
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+
+public class TokenResponse
+{
+    public string access_token { get; set; }
+    public string refresh_token { get; set; }
+    public int expires_in { get; set; }
+    public string token_type { get; set; }
+}
+
+public async Task<TokenResponse> ExchangeCodeForTokenAsync(string authorizationCode)
+{
+    using var httpClient = new HttpClient();
+    
+    var requestBody = new List<KeyValuePair<string, string>>
+    {
+        new("code", authorizationCode),
+        new("grant_type", "authorization_code")
+    };
+    
+    var request = new HttpRequestMessage(HttpMethod.Post, TokenUrl)
+    {
+        Content = new FormUrlEncodedContent(requestBody)
+    };
+    
+    var response = await httpClient.SendAsync(request);
+    var responseContent = await response.Content.ReadAsStringAsync();
+    
+    if (!response.IsSuccessStatusCode)
+    {
+        throw new HttpRequestException($"Token request failed: {responseContent}");
+    }
+    
+    return JsonConvert.DeserializeObject<TokenResponse>(responseContent);
+}
+
+// Usage: Exchange authorization code for tokens
+var tokenResponse = await ExchangeCodeForTokenAsync("YOUR_AUTHORIZATION_CODE");
+var accessToken = tokenResponse.access_token;
+```
+
+#### Step 3: Refresh Token (Optional)
+
+If you included `offline_access` in the scope, you can use the refresh token to obtain new access tokens:
+
+```csharp
+public async Task<TokenResponse> RefreshTokenAsync(string refreshToken)
+{
+    using var httpClient = new HttpClient();
+    
+    var requestBody = new List<KeyValuePair<string, string>>
+    {
+        new("refresh_token", refreshToken),
+        new("grant_type", "refresh_token")
+    };
+    
+    var request = new HttpRequestMessage(HttpMethod.Post, TokenUrl)
+    {
+        Content = new FormUrlEncodedContent(requestBody)
+    };
+    
+    var response = await httpClient.SendAsync(request);
+    var responseContent = await response.Content.ReadAsStringAsync();
+    
+    if (!response.IsSuccessStatusCode)
+    {
+        throw new HttpRequestException($"Token refresh failed: {responseContent}");
+    }
+    
+    return JsonConvert.DeserializeObject<TokenResponse>(responseContent);
+}
+```
+
+#### Step 4: Initialize the SDK
+
+Use the obtained access token to initialize the SDK:
+
+```csharp
 using management.api.sdk;
 
-//initialize the Options Class
-agility.models.Options options = new  agility.models.Options();
+// Initialize the Options Class with your obtained token
+var options = new agility.models.Options
+{
+    token = accessToken, // Use the access_token from Step 2
+    locale = "en-us",    // Your website locale
+    guid = "your-website-guid" // Your website GUID
+};
 
-options.token = "<<Provide Auth Token>>";
+// Initialize the Client instance Class
+var clientInstance = new ClientInstance(options);
+```
 
-//Initialize the Client instance Class
-ClientInstance clientInstance = new ClientInstance(options);
 
-//make the request: get a content item with the ID '22'
-var locale = "<<Provide the locale of the Website>>"; //Example: en-us
-var guid = "<<Provide the Guid of the Website>>";
-var contentItem = await clientInstance.contentMethods.GetContentItem(22, guid, locale);
+
+
+
+
+### Security Considerations
+
+- **State Parameter**: Always use a unique, unpredictable state parameter to prevent CSRF attacks
+- **HTTPS**: Ensure all redirect URIs use HTTPS in production
+- **Token Storage**: Store access and refresh tokens securely (encrypted storage, secure key management)
+- **Token Expiration**: Implement proper token refresh logic before tokens expire
+
+### Setup Options Class
+
+Create an object of the Options class to provide values of:
+- **token**: Bearer token obtained through the OAuth flow above
+- **locale**: The locale under which your application is hosted (Example: "en-us")
+- **guid**: The GUID under which your application is hosted
+
+### Method Classes
+
+Create an object of Method class(es), which can be used to create and perform operations. Following is the description of Classes and their respective methods:
+
+### Making a Request
+
+```csharp
+using management.api.sdk;
+
+// Initialize the Options Class with your authenticated token
+var options = new agility.models.Options
+{
+    token = accessToken, // Token obtained from authentication flow above
+    locale = "en-us",    // Your website locale
+    guid = "your-website-guid" // Your website GUID
+};
+
+// Initialize the Client instance Class
+var clientInstance = new ClientInstance(options);
+
+// Make the request: get a content item with the ID '22'
+var contentItem = await clientInstance.contentMethods.GetContentItem(22, options.guid, options.locale);
 ```
 ## Class AssetMethods
 This class is used to perform operations related to Assets. The following are the methods: - 
