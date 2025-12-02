@@ -57,9 +57,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> PublishContent(int? contentID, string guid, string locale, string? comments = null)
+        public async Task<int?> PublishContent(int? contentID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -74,6 +75,11 @@ namespace management.api.sdk
 
                 var batchID = JsonSerializer.Deserialize<int?>(id.Result.Content);
   
+                if (returnBatchId)
+                {
+                    return batchID;
+                }
+
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdContent = 0;
@@ -118,9 +124,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> UnPublishContent(int? contentID, string guid, string locale, string? comments = null)
+        public async Task<int?> UnPublishContent(int? contentID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -179,9 +186,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> ContentRequestApproval(int? contentID, string guid, string locale, string? comments = null)
+        public async Task<int?> ContentRequestApproval(int? contentID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -240,9 +248,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> ApproveContent(int? contentID, string guid, string locale, string? comments = null)
+        public async Task<int?> ApproveContent(int? contentID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -299,9 +308,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> DeclineContent(int? contentID, string guid, string locale, string? comments = null)
+        public async Task<int?> DeclineContent(int? contentID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -358,9 +368,10 @@ namespace management.api.sdk
         /// <param name="contentItem">A contentItem object to create or update a content.</param>
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int> SaveContentItem(ContentItem? contentItem, string guid, string locale)
+        public async Task<int> SaveContentItem(ContentItem? contentItem, string guid, string locale, bool returnBatchId = false)
         {
             try
             {
@@ -373,6 +384,11 @@ namespace management.api.sdk
                 }
                 var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
                 
+                if (returnBatchId)
+                {
+                    return batchID;
+                }
+
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdContent = 0;
@@ -435,9 +451,10 @@ namespace management.api.sdk
         /// <param name="contentItems">A collection of contentItems object to create or update multiple contents.</param>
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>A list of string which consists of the processed contentID's for the batch request.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<List<object?>> SaveContentItems(List<ContentItem?> contentItems, string guid, string locale)
+        public async Task<List<int>> SaveContentItems(List<ContentItem> contentItems, string guid, string locale, bool returnBatchId = false)
         {
             try
             {
@@ -450,9 +467,13 @@ namespace management.api.sdk
                 }
                 var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
   
+                if (returnBatchId)
+                {
+                    return new List<int> { batchID };
+                }
+
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
-                List<object> response = new List<object>();
-                string seperator = string.Empty;
+                List<int> response = new List<int>();
                 foreach (var item in batch.Items)
                 {
                     if (item.ItemID > 0)
@@ -463,7 +484,7 @@ namespace management.api.sdk
 
                 if (!string.IsNullOrWhiteSpace(batch.ErrorData))
                 {
-                    response.Add($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
+                    throw new ApplicationException($"Error(s) found while processing the batch. Additional details on error {batch.ErrorData}");
                 }
                 return response;
             }
@@ -480,9 +501,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string contentID of the requested content.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> DeleteContent(int? contentID, string guid, string locale, string? comments = null)
+        public async Task<int?> DeleteContent(int? contentID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -495,6 +517,11 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
+
+                if (returnBatchId)
+                {
+                    return batchID;
+                }
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
@@ -572,6 +599,134 @@ namespace management.api.sdk
                 var contentList = JsonSerializer.Deserialize<ContentList>(response.Result.Content, options);
 
                 return contentList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to get a filtered content list.
+        /// </summary>
+        /// <param name="referenceName">The reference name of the content list.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
+        /// <param name="listParams">List parameters for filtering and pagination.</param>
+        /// <param name="filterObject">Optional advanced filter object.</param>
+        /// <returns>An object of ContentList class.</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<ContentList?> GetContentList(string referenceName, string guid, string locale, ListParams listParams, ContentListFilterModel? filterObject = null)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/list/{referenceName}";
+                var queryParams = new List<string>();
+
+                if (!string.IsNullOrEmpty(listParams.Filter))
+                    queryParams.Add($"filter={listParams.Filter}");
+                if (!string.IsNullOrEmpty(listParams.Fields))
+                    queryParams.Add($"fields={listParams.Fields}");
+                if (!string.IsNullOrEmpty(listParams.SortDirection))
+                    queryParams.Add($"sortDirection={listParams.SortDirection}");
+                if (!string.IsNullOrEmpty(listParams.SortField))
+                    queryParams.Add($"sortField={listParams.SortField}");
+                if (listParams.ShowDeleted)
+                    queryParams.Add($"showDeleted={listParams.ShowDeleted}");
+                queryParams.Add($"take={listParams.Take}");
+                queryParams.Add($"skip={listParams.Skip}");
+
+                if (queryParams.Count > 0)
+                    apiPath += "?" + string.Join("&", queryParams);
+
+                RestSharp.RestResponse response;
+                if (filterObject != null)
+                {
+                    response = executeMethods.ExecutePost(apiPath, guid, filterObject, _options.token).Result;
+                }
+                else
+                {
+                    response = executeMethods.ExecuteGet(apiPath, guid, _options.token).Result;
+                }
+
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve the content details for reference name: {referenceName}. Additional Details: {response.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var contentList = JsonSerializer.Deserialize<ContentList>(response.Content, options);
+
+                return contentList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to get content item history.
+        /// </summary>
+        /// <param name="locale">Current website locale.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="contentID">The content ID.</param>
+        /// <param name="take">Number of records to retrieve (default 50).</param>
+        /// <param name="skip">Number of records to skip (default 0).</param>
+        /// <returns>ContentItemHistoryResponse containing history records.</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<ContentItemHistoryResponse?> GetContentHistory(string locale, string guid, int contentID, int take = 50, int skip = 0)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/item/{contentID}/history?take={take}&skip={skip}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve content history for contentID: {contentID}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var history = JsonSerializer.Deserialize<ContentItemHistoryResponse>(response.Result.Content, options);
+
+                return history;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to get content item comments.
+        /// </summary>
+        /// <param name="locale">Current website locale.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="contentID">The content ID.</param>
+        /// <param name="take">Number of records to retrieve (default 50).</param>
+        /// <param name="skip">Number of records to skip (default 0).</param>
+        /// <returns>ItemComments containing comment records.</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<ItemComments?> GetContentComments(string locale, string guid, int contentID, int take = 50, int skip = 0)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/item/{contentID}/comments?take={take}&skip={skip}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve content comments for contentID: {contentID}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var comments = JsonSerializer.Deserialize<ItemComments>(response.Result.Content, options);
+
+                return comments;
             }
             catch (Exception ex)
             {

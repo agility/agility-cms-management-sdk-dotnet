@@ -4,10 +4,22 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <!-- NuGet Package Metadata -->
     <PackageId>Agility.Management.SDK</PackageId>
-    <Version>1.0.9-beta</Version>
+    <Version>1.0.10-beta</Version>
     <Authors>mohit.vashishtha, joelvarty</Authors>
     <Company>Agility-Inc</Company>
+    <Description>Agility CMS Management API SDK for .NET - Provides methods to perform operations on Assets, Batches, Containers, Content, Models, Pages, and Users.</Description>
+    <PackageProjectUrl>https://github.com/agility/agility-cms-management-sdk-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/agility/agility-cms-management-sdk-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>agility;cms;management-api;sdk;dotnet</PackageTags>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    
+    <!-- Generate package on build (optional - can be set to false if you prefer manual packing) -->
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

@@ -396,5 +396,56 @@ namespace management.api.sdk
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// Method to delete a folder.
+        /// </summary>
+        /// <param name="originKey">The origin key of the folder to delete.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="mediaID">The mediaID parameter (default 0).</param>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task DeleteFolder(string originKey, string guid, int mediaID = 0)
+        {
+            try
+            {
+                var apiPath = $"/asset/folder/delete?originKey={originKey}&mediaID={mediaID}";
+                var response = executeMethods.ExecutePost(apiPath, guid, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to delete folder. Additional Details: {response.Result.Content}");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to rename a folder.
+        /// </summary>
+        /// <param name="folderName">The current folder name.</param>
+        /// <param name="newFolderName">The new folder name.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="mediaID">The mediaID parameter (default 0).</param>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task RenameFolder(string folderName, string newFolderName, string guid, int mediaID = 0)
+        {
+            try
+            {
+                var apiPath = $"/asset/folder/rename?folderName={folderName}&newFolderName={newFolderName}&mediaID={mediaID}";
+                var response = executeMethods.ExecutePost(apiPath, guid, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to rename folder. Additional Details: {response.Result.Content}");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
