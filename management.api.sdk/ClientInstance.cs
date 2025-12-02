@@ -117,7 +117,7 @@ namespace management.api.sdk
             var baseUrl = DetermineBaseURL(guid);
             var client = new RestClient($"{baseUrl}/api/v1/instance/{guid}");
 
-            client.AddDefaultHeader("Authorization", $"Bearer {token}");
+            client.AddDefaultHeader("Authorization", $"Bearer {token ?? ""}");
             client.AddDefaultHeader("Cache-Control", "no-cache");
 
             var request = new RestRequest(apiPath);
@@ -131,7 +131,7 @@ namespace management.api.sdk
             var baseUrl = DetermineBaseURL(guid);
             var client = new RestClient($"{baseUrl}/api/v1/instance/{guid}");
 
-            client.AddDefaultHeader("Authorization", $"Bearer {token}");
+            client.AddDefaultHeader("Authorization", $"Bearer {token ?? ""}");
             client.AddDefaultHeader("Cache-Control", "no-cache");
 
             var request = new RestRequest(apiPath);
@@ -148,7 +148,7 @@ namespace management.api.sdk
             var baseUrl = DetermineBaseURL(guid);
             var client = new RestClient($"{baseUrl}/api/v1/instance/{guid}");
 
-            client.AddDefaultHeader("Authorization", $"Bearer {token}");
+            client.AddDefaultHeader("Authorization", $"Bearer {token ?? ""}");
             client.AddDefaultHeader("Cache-Control", "no-cache");
 
             var request = new RestRequest(apiPath, Method.Post) { RequestFormat = DataFormat.Json, AlwaysMultipartFormData = true };
@@ -170,7 +170,7 @@ namespace management.api.sdk
             var baseUrl = DetermineBaseURL(guid);
             var client = new RestClient($"{baseUrl}/api/v1/instance/{guid}");
 
-            client.AddDefaultHeader("Authorization", $"Bearer {token}");
+            client.AddDefaultHeader("Authorization", $"Bearer {token ?? ""}");
             client.AddDefaultHeader("Cache-Control", "no-cache");
 
             var request = new RestRequest(apiPath);
