@@ -112,7 +112,7 @@ namespace management.api.sdk
 
     public class ExecuteMethods
     {
-        public async Task<RestResponse> ExecuteGet(string apiPath, string guid, string? token)
+        public async Task<RestResponse> ExecuteGet(string apiPath, string guid, string token)
         {
             var baseUrl = DetermineBaseURL(guid);
             var client = new RestClient($"{baseUrl}/api/v1/instance/{guid}");
@@ -126,7 +126,7 @@ namespace management.api.sdk
             return response;
         }
 
-        public async Task<RestResponse> ExecutePost(string apiPath, string guid, object? data, string? token)
+        public async Task<RestResponse> ExecutePost(string apiPath, string guid, object? data, string token)
         {
             var baseUrl = DetermineBaseURL(guid);
             var client = new RestClient($"{baseUrl}/api/v1/instance/{guid}");
@@ -143,7 +143,7 @@ namespace management.api.sdk
             return response;
         }
 
-        public async Task<RestResponse> ExecutePostFiles(string apiPath, string guid, Dictionary<string, string> files, string? token)
+        public async Task<RestResponse> ExecutePostFiles(string apiPath, string guid, Dictionary<string, string> files, string token)
         {
             var baseUrl = DetermineBaseURL(guid);
             var client = new RestClient($"{baseUrl}/api/v1/instance/{guid}");
@@ -165,7 +165,7 @@ namespace management.api.sdk
             return response;
         }
 
-        public async Task<RestResponse> ExecuteDelete(string apiPath, string guid, string? token)
+        public async Task<RestResponse> ExecuteDelete(string apiPath, string guid, string token)
         {
             var baseUrl = DetermineBaseURL(guid);
             var client = new RestClient($"{baseUrl}/api/v1/instance/{guid}");
