@@ -21,6 +21,6 @@
         public string? DynamicPageContentReferenceName { get; set; }
         public string? DynamicPageContentViewFieldName { get; set; }
         public string? URL { get; set; }
-        public List<SitemapItem?> ChildPages { get; set; } = new List<SitemapItem?>();
+        public List<SitemapItem?> ChildPages { get; set; }
     }
 }

@@ -11,11 +11,11 @@ namespace agility.models
 		{
 			get
 			{
-				return (int?)GroupingType;
+				return (int)GroupingType;
 			}
 			set
 			{
-				GroupingType = value.HasValue ? (AssetGroupingType)value.Value : null;
+				GroupingType = (AssetGroupingType)value;
 			}
 		}
 		public string? Name { get; set; }
@@ -26,7 +26,7 @@ namespace agility.models
 		public bool IsDeleted { get; set; }
 		public bool IsFolder { get; set; }
 
-		Dictionary<string, AssetMediaGroupingMetaData>? _metaData = null;
+		Dictionary<string, AssetMediaGroupingMetaData> _metaData = null;
 
 		public Dictionary<string, AssetMediaGroupingMetaData> MetaData
 		{

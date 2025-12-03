@@ -4,18 +4,18 @@ namespace agility.models
 {
     public class Media
     {
-		private string? _originKey;
+		private string _originKey;
 
 		public bool HasChildren { get; set; }
 
 		public int MediaID { get; set; }
-		public string? FileName { get; set; }
+		public string FileName { get; set; }
 
 		public int ContainerID { get; set; }
-		public string? ContainerOriginUrl { get; set; }
-		public string? ContainerEdgeUrl { get; set; }
+		public string ContainerOriginUrl { get; set; }
+		public string ContainerEdgeUrl { get; set; }
 
-		public string? OriginKey
+		public string OriginKey
 		{
 			get { return (_originKey != null) ? _originKey.TrimStart('/') : null; }
 			set { _originKey = value; }
@@ -34,7 +34,7 @@ namespace agility.models
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string? MediaGroupingName { get; set; }
 		public int MediaGroupingSortOrder { get; set; }
-		public string? ContentType { get; set; }
+		public string ContentType { get; set; }
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? GridThumbnailID { get; set; }
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -135,7 +135,7 @@ namespace agility.models
 	public class AssetMediaList
 	{
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-		public List<Media?> assetMedias { get; set; } = new List<Media?>();
+		public List<Media?> assetMedias { get; set; }
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? totalCount { get; set; }
 	}

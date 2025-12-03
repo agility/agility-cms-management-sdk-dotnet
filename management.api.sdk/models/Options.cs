@@ -22,7 +22,7 @@
                     if (runLocally == "True")
                     {
                         var baseUrl = Environment.GetEnvironmentVariable("BaseLocalURL");
-                        return baseUrl ?? "https://mgmt-dev.aglty.io";
+                        return baseUrl;
                     }
                     else
                     {
