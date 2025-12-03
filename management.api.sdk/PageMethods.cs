@@ -647,11 +647,15 @@ namespace management.api.sdk
         /// <param name="placeBeforePageItemID">The id of the page before the page.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> SavePage(PageItem? pageItem, string guid, string locale, int? parentPageID = -1, int? placeBeforePageItemID = -1)
+        public async Task<int?> SavePage(PageItem? pageItem, string guid, string locale, int? parentPageID = -1, int? placeBeforePageItemID = -1, int? pageIDInOtherLocale = -1, string? otherLocale = null)
         {
             try
             {
                 var apiPath = $"/{locale}/page?parentPageID={parentPageID}&placeBeforePageItemID={placeBeforePageItemID}";
+                if(pageIDInOtherLocale > 0)
+                {
+                    apiPath += $"&pageIDInOtherLocale={pageIDInOtherLocale}&otherLocale={otherLocale}";
+                }
 
                 var id = executeMethods.ExecutePost(apiPath, guid, pageItem, _options.token);
 
