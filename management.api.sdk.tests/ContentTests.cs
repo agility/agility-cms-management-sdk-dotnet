@@ -266,11 +266,12 @@ namespace management.api.sdk.tests
                 Assert.IsNotNull(container, "Unable to create container for GetContentList test.");
 
                 // Test getting content list with filter
+                var listParams = new ListParams { Take = 10 };
                 var contentList = await clientInstance.contentMethods.GetContentList(
                     container.ReferenceName,
                     guid,
                     locale,
-                    take: 10,
+                    listParams,
                     filterObject: null
                 );
 

@@ -5,12 +5,11 @@ namespace agility.models
     /// </summary>
     public class Webhook
     {
-        public string? Name { get; set; }
-        public string? Url { get; set; }
-        public string? InstanceGuid { get; set; }
-        public bool Enabled { get; set; }
-        public bool ContentWorkflowEvents { get; set; }
-        public bool ContentPublishEvents { get; set; }
-        public bool ContentSaveEvents { get; set; }
+        public string? webhookID { get; set; }
+        public string? name { get; set; }
+        public string? url { get; set; }
+        public string[]? events { get; set; }
+        public bool isActive { get; set; }
+        public string? instanceGuid { get; set; }
     }
 }

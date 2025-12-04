@@ -158,7 +158,7 @@ namespace management.api.sdk.tests
                 Assert.IsNotNull(savedGallery, "Unable to create gallery for deletion test.");
 
                 // Note: Adjust based on actual response structure
-                int galleryId = savedGallery.groupingID;
+                int galleryId = savedGallery.groupingID ?? 0;
                 
                 if (galleryId > 0)
                 {

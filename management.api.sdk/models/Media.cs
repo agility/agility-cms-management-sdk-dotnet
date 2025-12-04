@@ -9,6 +9,8 @@ namespace agility.models
 		public bool HasChildren { get; set; }
 
 		public int MediaID { get; set; }
+		// Alias for MediaID to support camelCase naming convention
+		public int mediaID { get => MediaID; set => MediaID = value; }
 		public string FileName { get; set; }
 
 		public int ContainerID { get; set; }

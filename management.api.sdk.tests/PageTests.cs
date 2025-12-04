@@ -258,7 +258,7 @@ namespace management.api.sdk.tests
                 string? guid = Environment.GetEnvironmentVariable("Guid");
                 string? locale = Environment.GetEnvironmentVariable("Locale");
                 
-                var templates = await clientInstance.pageMethods.GetPageTemplates(guid, locale);
+                var templates = await clientInstance.pageMethods.GetPageTemplates(guid, locale, includeModuleZones: false);
                 Assert.IsNotNull(templates, "Unable to retrieve page templates.");
             }
             catch (Exception ex)

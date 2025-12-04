@@ -164,7 +164,7 @@ namespace management.api.sdk.tests
                 if (batch != null)
                 {
                     // Test retry functionality
-                    var retriedBatch = await clientInstance.batchMethods.Retry(batch);
+                    var retriedBatch = await clientInstance.batchMethods.Retry(async () => await clientInstance.batchMethods.GetBatch(batch.BatchID, guid));
                     Assert.IsNotNull(retriedBatch, "Retry should return a batch object.");
                 }
             }

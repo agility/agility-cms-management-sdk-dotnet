@@ -128,7 +128,7 @@ namespace management.api.sdk.tests
                 var savedWebhook = await clientInstance.webhookMethods.SaveWebhook(guid, webhook);
                 Assert.IsNotNull(savedWebhook, "Unable to save webhook in operations test.");
 
-                var webhookID = savedWebhook.webhookID;
+                var webhookID = ((Webhook)savedWebhook).webhookID;
                 Assert.IsNotNull(webhookID, "Webhook ID should not be null after save.");
 
                 // Retrieve webhook

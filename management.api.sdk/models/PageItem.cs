@@ -17,7 +17,7 @@
 		public PageScripts? scripts { get; set; }
 		public PageDynamic? dynamic { get; set; }
 		public PageItemProperties? properties { get; set; }
-		public Dictionary<string?, List<PageModule?>>? zones { get; set; }
+		public Dictionary<string, List<PageModule?>>? zones { get; set; }
 		public int? parentPageID { get; set; }
 		public int? placeBeforePageItemID { get; set; }
 		public int? channelID { get; set; }
