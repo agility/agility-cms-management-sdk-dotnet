@@ -7,7 +7,7 @@
     
     <!-- NuGet Package Metadata -->
     <PackageId>Agility.Management.SDK</PackageId>
-    <Version>1.0.10-beta</Version>
+    <Version>1.0.11-beta</Version>
     <Authors>mohit.vashishtha, joelvarty</Authors>
     <Company>Agility-Inc</Company>
     <Description>Agility CMS Management API SDK for .NET - Provides methods to perform operations on Assets, Batches, Containers, Content, Models, Pages, and Users.</Description>

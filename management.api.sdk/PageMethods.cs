@@ -692,6 +692,10 @@ namespace management.api.sdk
             try
             {
                 var apiPath = $"/{locale}/page?parentPageID={parentPageID}&placeBeforePageItemID={placeBeforePageItemID}";
+                if(pageIDInOtherLocale > 0)
+                {
+                    apiPath += $"&pageIDInOtherLocale={pageIDInOtherLocale}&otherLocale={otherLocale}";
+                }
 
                 var id = executeMethods.ExecutePost(apiPath, guid, pageItem, _options.token);
 
