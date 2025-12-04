@@ -220,6 +220,126 @@ namespace management.api.sdk.tests
            
         }
 
+        [TestMethod]
+        public async Task TestGetContentItems()
+        {
+            try
+            {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
+                
+                // First create a container to test with
+                var container = await SaveContainer();
+                Assert.IsNotNull(container, "Unable to create container for GetContentItems test.");
+
+                // Test getting content items with various parameters
+                var contentItems = await clientInstance.contentMethods.GetContentItems(
+                    container.ReferenceName,
+                    guid,
+                    locale,
+                    filter: "",
+                    fields: "",
+                    sortDirection: "asc",
+                    sortField: "contentID",
+                    take: 10,
+                    skip: 0
+                );
+
+                Assert.IsNotNull(contentItems, "GetContentItems should return a result.");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"GetContentItems test failed: {ex.Message}");
+            }
+        }
+
+        [TestMethod]
+        public async Task TestGetContentList()
+        {
+            try
+            {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
+                
+                // Create a container to test with
+                var container = await SaveContainer();
+                Assert.IsNotNull(container, "Unable to create container for GetContentList test.");
+
+                // Test getting content list with filter
+                var contentList = await clientInstance.contentMethods.GetContentList(
+                    container.ReferenceName,
+                    guid,
+                    locale,
+                    take: 10,
+                    filterObject: null
+                );
+
+                Assert.IsNotNull(contentList, "GetContentList should return a result.");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"GetContentList test failed: {ex.Message}");
+            }
+        }
+
+        [TestMethod]
+        public async Task TestGetContentHistory()
+        {
+            try
+            {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
+                
+                // Create content first
+                var contentId = await SaveContent();
+                Assert.IsNotNull(contentId, "Unable to create content for history test.");
+
+                // Get content history
+                var history = await clientInstance.contentMethods.GetContentHistory(
+                    locale,
+                    guid,
+                    (int)contentId,
+                    take: 10,
+                    skip: 0
+                );
+
+                Assert.IsNotNull(history, "GetContentHistory should return a result.");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"GetContentHistory test failed: {ex.Message}");
+            }
+        }
+
+        [TestMethod]
+        public async Task TestGetContentComments()
+        {
+            try
+            {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
+                
+                // Create content first
+                var contentId = await SaveContent();
+                Assert.IsNotNull(contentId, "Unable to create content for comments test.");
+
+                // Get content comments
+                var comments = await clientInstance.contentMethods.GetContentComments(
+                    locale,
+                    guid,
+                    (int)contentId,
+                    take: 10,
+                    skip: 0
+                );
+
+                Assert.IsNotNull(comments, "GetContentComments should return a result.");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"GetContentComments test failed: {ex.Message}");
+            }
+        }
+      
         public bool isInteger(object value)
         {
             return value is int;

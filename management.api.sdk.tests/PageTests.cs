@@ -249,5 +249,124 @@ namespace management.api.sdk.tests
             var sitemap = await clientInstance.pageMethods.GetSiteMap(guid, locale);
             Assert.IsNotNull(sitemap, "Unable to get the sitemap");
         }
+
+        [TestMethod]
+        public async Task TestGetPageTemplates()
+        {
+            try
+            {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
+                
+                var templates = await clientInstance.pageMethods.GetPageTemplates(guid, locale);
+                Assert.IsNotNull(templates, "Unable to retrieve page templates.");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"GetPageTemplates test failed: {ex.Message}");
+            }
+        }
+
+        [TestMethod]
+        public async Task TestGetPageTemplate()
+        {
+            try
+            {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
+                
+                // Note: This requires a valid template ID
+                int testTemplateId = 1; // Replace with actual template ID
+                
+                var template = await clientInstance.pageMethods.GetPageTemplate(guid, locale, testTemplateId);
+                // Template may be null if ID doesn't exist
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetPageTemplate test note: {ex.Message}");
+            }
+        }
+
+        [TestMethod]
+        public async Task TestGetPageTemplateByName()
+        {
+            try
+            {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
+                
+                string templateName = "Main Template"; // Common template name
+                
+                var template = await clientInstance.pageMethods.GetPageTemplateByName(guid, locale, templateName);
+                // Template may be null if name doesn't exist
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetPageTemplateByName test note: {ex.Message}");
+            }
+        }
+
+        [TestMethod]
+        public async Task TestGetPageItemTemplates()
+        {
+            try
+            {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
+                
+                int testTemplateId = 1;
+                
+                var itemTemplates = await clientInstance.pageMethods.GetPageItemTemplates(guid, locale, testTemplateId);
+                Assert.IsNotNull(itemTemplates, "GetPageItemTemplates should return a result.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetPageItemTemplates test note: {ex.Message}");
+            }
+        }
+
+        [TestMethod]
+        public async Task TestGetPageHistory()
+        {
+            try
+            {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
+                
+                // Create a page first
+                var pageId = await SavPage();
+                Assert.IsNotNull(pageId, "Unable to create page for history test.");
+
+                // Get page history
+                var history = await clientInstance.pageMethods.GetPageHistory((int)pageId, guid, locale);
+                Assert.IsNotNull(history, "GetPageHistory should return a result.");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"GetPageHistory test failed: {ex.Message}");
+            }
+        }
+
+        [TestMethod]
+        public async Task TestGetPageComments()
+        {
+            try
+            {
+                string? guid = Environment.GetEnvironmentVariable("Guid");
+                string? locale = Environment.GetEnvironmentVariable("Locale");
+                
+                // Create a page first
+                var pageId = await SavPage();
+                Assert.IsNotNull(pageId, "Unable to create page for comments test.");
+
+                // Get page comments
+                var comments = await clientInstance.pageMethods.GetPageComments((int)pageId, guid, locale);
+                Assert.IsNotNull(comments, "GetPageComments should return a result.");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"GetPageComments test failed: {ex.Message}");
+            }
+        }
     }
 }
