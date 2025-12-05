@@ -4,31 +4,31 @@ namespace agility.models
 {
     public class AssetMediaGrouping
     {
-        public int? MediaGroupingID { get; set; }
-        public AssetGroupingType? GroupingType { get; set; }
+        public int? groupingID { get; set; }
+        public AssetGroupingType? groupingType { get; set; }
 
-		public int? GroupingTypeID
+		public int? groupingTypeID
 		{
 			get
 			{
-				return (int)GroupingType;
+				return (int?)groupingType;
 			}
 			set
 			{
-				GroupingType = (AssetGroupingType)value;
+				groupingType = (AssetGroupingType?)value;
 			}
 		}
-		public string? Name { get; set; }
-		public string? Description { get; set; }
-		public int? ModifiedBy { get; set; }
-		public string? ModifiedByName { get; set; }
-		public DateTime? ModifiedOn { get; set; }
-		public bool IsDeleted { get; set; }
-		public bool IsFolder { get; set; }
+		public string? name { get; set; }
+		public string? description { get; set; }
+		public int? modifiedBy { get; set; }
+		public string? modifiedByName { get; set; }
+		public DateTime? modifiedOn { get; set; }
+		public bool isDeleted { get; set; }
+		public bool isFolder { get; set; }
 
-		Dictionary<string, AssetMediaGroupingMetaData> _metaData = null;
+		Dictionary<string, AssetMediaGroupingMetaData>? _metaData = null;
 
-		public Dictionary<string, AssetMediaGroupingMetaData> MetaData
+		public Dictionary<string, AssetMediaGroupingMetaData> metaData
 		{
 			get
 			{

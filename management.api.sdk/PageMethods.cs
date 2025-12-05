@@ -286,9 +286,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> PublishPage(int? pageID, string guid, string locale, string? comments = null)
+        public async Task<int?> PublishPage(int? pageID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -302,6 +303,11 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+
+                if (returnBatchId)
+                {
+                    return batchID;
+                }
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
@@ -346,9 +352,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> UnPublishPage(int? pageID, string guid, string locale, string? comments = null)
+        public async Task<int?> UnPublishPage(int? pageID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -362,6 +369,11 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+
+                if (returnBatchId)
+                {
+                    return batchID;
+                }
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
@@ -407,9 +419,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> DeletePage(int? pageID, string guid, string locale, string? comments = null)
+        public async Task<int?> DeletePage(int? pageID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -423,6 +436,11 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+
+                if (returnBatchId)
+                {
+                    return batchID;
+                }
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
@@ -467,9 +485,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> ApprovePage(int? pageID, string guid, string locale, string? comments = null)
+        public async Task<int?> ApprovePage(int? pageID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -483,6 +502,12 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+
+                if (returnBatchId)
+                {
+                    return batchID;
+                }
+
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdPage = 0;
@@ -526,9 +551,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> DeclinePage(int? pageID, string guid, string locale, string? comments = null)
+        public async Task<int?> DeclinePage(int? pageID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -542,6 +568,12 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+
+                if (returnBatchId)
+                {
+                    return batchID;
+                }
+
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdPage = 0;
@@ -585,9 +617,10 @@ namespace management.api.sdk
         /// <param name="guid">Current website guid.</param>
         /// <param name="locale">Current website locale.</param>
         /// <param name="comments">Additional comments for a batch request.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> PageRequestApproval(int? pageID, string guid, string locale, string? comments = null)
+        public async Task<int?> PageRequestApproval(int? pageID, string guid, string locale, string? comments = null, bool returnBatchId = false)
         {
             try
             {
@@ -601,6 +634,12 @@ namespace management.api.sdk
                 }
 
                 var batchID = JsonSerializer.Deserialize<int?>(response.Result.Content);
+
+                if (returnBatchId)
+                {
+                    return batchID;
+                }
+
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
                 int createdPage = 0;
@@ -645,9 +684,10 @@ namespace management.api.sdk
         /// <param name="locale">Current website locale.</param>
         /// <param name="parentPageID">The id of the parent page.</param>
         /// <param name="placeBeforePageItemID">The id of the page before the page.</param>
+        /// <param name="returnBatchId">If true, returns batch ID immediately without waiting for completion.</param>
         /// <returns>Returns a string pageID of the requested page.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<int?> SavePage(PageItem? pageItem, string guid, string locale, int? parentPageID = -1, int? placeBeforePageItemID = -1, int? pageIDInOtherLocale = -1, string? otherLocale = null)
+        public async Task<int?> SavePage(PageItem? pageItem, string guid, string locale, int? parentPageID = -1, int? placeBeforePageItemID = -1, int? pageIDInOtherLocale = -1, string? otherLocale = null, bool returnBatchId = false)
         {
             try
             {
@@ -664,6 +704,11 @@ namespace management.api.sdk
                     throw new ApplicationException($"Unable to save page. Additional Details: {id.Result.Content}");
                 }
                 var batchID = JsonSerializer.Deserialize<int>(id.Result.Content);
+
+                if (returnBatchId)
+                {
+                    return batchID;
+                }
 
                 var batch = await _batchMethods.Retry(async () => await GetBatchObject(batchID, guid));
 
@@ -717,6 +762,72 @@ namespace management.api.sdk
             catch
             {
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Method to retrieve page history.
+        /// </summary>
+        /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
+        /// <returns>A collection of PageHistory objects.</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<List<PageHistory>?> GetPageHistory(int? pageID, string guid, string locale)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/page/{pageID}/history";
+
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve page history for pageID {pageID}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var history = JsonSerializer.Deserialize<List<PageHistory>>(response.Result.Content, options);
+
+                return history;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to retrieve page comments.
+        /// </summary>
+        /// <param name="pageID">The id of the requested page.</param>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="locale">Current website locale.</param>
+        /// <returns>An ItemComments object.</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<ItemComments?> GetPageComments(int? pageID, string guid, string locale)
+        {
+            try
+            {
+                var apiPath = $"/{locale}/page/{pageID}/comments";
+
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retrieve page comments for pageID {pageID}. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var comments = JsonSerializer.Deserialize<ItemComments>(response.Result.Content, options);
+
+                return comments;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

@@ -29,7 +29,7 @@
 			}
 		}
 
-		protected List<InstancePermission> _userPermissions;
+		protected List<InstancePermission> _userPermissions = new List<InstancePermission>();
 		public List<InstancePermission> UserPermissions
 		{
 			get

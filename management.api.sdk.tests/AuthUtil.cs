@@ -1,44 +1,33 @@
 ﻿using agility.models;
-using Microsoft.Extensions.Options;
 using System;
 
 namespace agility.utils
 {
     public class AuthUtil
     {
-        private readonly AppSettings _appSettings;
-        private readonly AuthMethods _authMethods;
         private readonly agility.models.Options _options;
+
         public AuthUtil()
         {
+            // Load environment variables from .env file if it exists
+            EnvLoader.Load();
+
             _options = new agility.models.Options();
-            _appSettings = new AppSettings();
-            IOptions<AppSettings> appSettingsOptions = Microsoft.Extensions.Options.Options.Create<AppSettings>(_appSettings);
-            _authMethods = new AuthMethods(_options, appSettingsOptions);
         }
+
         public agility.models.Options GetTokenResponseData()
         {
-            string? guid = Environment.GetEnvironmentVariable("Guid");
-            if (Environment.GetEnvironmentVariable("GenerateToken") != null && Environment.GetEnvironmentVariable("GenerateToken") == "True")
+            // Get the access token from environment variable
+            string? accessToken = Environment.GetEnvironmentVariable("AccessToken");
+            
+            if (string.IsNullOrEmpty(accessToken))
             {
-                _options.refresh_token = Environment.GetEnvironmentVariable("RefreshToken");
-                Environment.SetEnvironmentVariable("GenerateToken", "False");
+                throw new InvalidOperationException(
+                    "AccessToken environment variable is not set. " +
+                    "Please create a .env file based on .env.example and populate it with your PAT.");
             }
-            else
-            {
-                var tokenResponseData = _authMethods.GetCurrentToken(guid);
-                if (tokenResponseData != null)
-                {
-                    _options.refresh_token = tokenResponseData.refresh_token;
-                }
-                else
-                {
-                    _options.refresh_token = Environment.GetEnvironmentVariable("RefreshToken");
-                }
-            }
-            var _tokenResponseData = _authMethods.GetAuthorizationToken(guid);
-            _options.token = _tokenResponseData.access_token;
-            _options.refresh_token = _tokenResponseData.refresh_token;
+
+            _options.token = accessToken;
             return _options;
         }
     }

@@ -256,13 +256,18 @@ namespace management.api.sdk
         /// </summary>
         /// <param name="container">An Container type object to create or update a container</param>
         /// <param name="guid">Current website guid.</param>
+        /// <param name="forceReferenceName">If true, forces the reference name to be used as-is.</param>
         /// <returns>An object of the Container class.</returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<Container?> SaveContainer(Container container, string guid)
+        public async Task<Container?> SaveContainer(Container container, string guid, bool forceReferenceName = false)
         {
             try
             {
                 var apiPath = $"/container";
+                if (forceReferenceName)
+                {
+                    apiPath += "?forceReferenceName=true";
+                }
                 var response = executeMethods.ExecutePost(apiPath, guid, container, _options.token);
  
                 if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)

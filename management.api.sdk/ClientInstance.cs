@@ -108,6 +108,48 @@ namespace management.api.sdk
             }
             set { _pageMethods = value; }
         }
+
+        private InstanceMethods _instanceMethods;
+        public InstanceMethods instanceMethods
+        {
+            get
+            {
+                if(_instanceMethods == null)
+                {
+                    _instanceMethods = new InstanceMethods(options);
+                }
+                return _instanceMethods;
+            }
+            set { _instanceMethods = value; }
+        }
+
+        private ServerUserMethods _serverUserMethods;
+        public ServerUserMethods serverUserMethods
+        {
+            get
+            {
+                if(_serverUserMethods == null)
+                {
+                    _serverUserMethods = new ServerUserMethods(options);
+                }
+                return _serverUserMethods;
+            }
+            set { _serverUserMethods = value; }
+        }
+
+        private WebhookMethods _webhookMethods;
+        public WebhookMethods webhookMethods
+        {
+            get
+            {
+                if(_webhookMethods == null)
+                {
+                    _webhookMethods = new WebhookMethods(options);
+                }
+                return _webhookMethods;
+            }
+            set { _webhookMethods = value; }
+        }
     }
 
     public class ExecuteMethods
@@ -175,6 +217,20 @@ namespace management.api.sdk
 
             var request = new RestRequest(apiPath);
             var response = await client.ExecuteAsync(request, Method.Delete);
+
+            return response;
+        }
+
+        public async Task<RestResponse> ExecuteServerGet(string apiPath, string guid, string token)
+        {
+            var baseUrl = DetermineBaseURL(guid);
+            var client = new RestClient($"{baseUrl}/api/v1");
+
+            client.AddDefaultHeader("Authorization", $"Bearer {token}");
+            client.AddDefaultHeader("Cache-Control", "no-cache");
+
+            var request = new RestRequest(apiPath);
+            var response = await client.ExecuteAsync(request, Method.Get);
 
             return response;
         }
