@@ -1,4 +1,5 @@
 ﻿using agility.models;
+using agility.enums;
 using System.Text.Json;
 
 namespace management.api.sdk
@@ -164,6 +165,54 @@ namespace management.api.sdk
                 var containers = JsonSerializer.Deserialize<List<Container>>(response.Result.Content, options);
 
                 return containers;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Method to Get Paginated Container List for the website.
+        /// </summary>
+        /// <param name="guid">Current website guid.</param>
+        /// <param name="pageSize">The number of items to return per page. Default is 20.</param>
+        /// <param name="recordOffset">The number of records to skip. Default is 0.</param>
+        /// <param name="contentType">The type of containers to filter by. Default is All.</param>
+        /// <param name="includeModules">Whether to include modules in the results. Default is true.</param>
+        /// <param name="updatedSince">Optional date filter to get containers updated since a specific date.</param>
+        /// <returns>A paginated result containing container list and total count.</returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<PagedResult<Container>?> GetContainerListPaged(
+            string guid,
+            int pageSize = 20,
+            int recordOffset = 0,
+            ContentViewType contentType = ContentViewType.All,
+            bool includeModules = true,
+            DateTime? updatedSince = null)
+        {
+            try
+            {
+                var queryParams = $"pageSize={pageSize}&recordOffset={recordOffset}&contentType={contentType}&includeModules={includeModules}";
+
+                if (updatedSince.HasValue)
+                {
+                    queryParams += $"&updatedSince={updatedSince.Value:O}";
+                }
+
+                var apiPath = $"/container/list/paged?{queryParams}";
+                var response = executeMethods.ExecuteGet(apiPath, guid, _options.token);
+
+                if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new ApplicationException($"Unable to retreive the paged containers. Additional Details: {response.Result.Content}");
+                }
+
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                var pagedResult = JsonSerializer.Deserialize<PagedResult<Container>>(response.Result.Content, options);
+
+                return pagedResult;
             }
             catch (Exception ex)
             {
