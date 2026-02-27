@@ -162,8 +162,78 @@ var options = new agility.models.Options
 var clientInstance = new ClientInstance(options);
 ```
 
+---
 
+### Authentication with Personal Access Tokens (PAT)
 
+Personal Access Tokens are an alternative to OAuth 2.0 for server-to-server and automation use cases. They skip the redirect flow — once generated, use the token directly without any OAuth steps.
+
+**When to use PAT instead of OAuth 2.0:**
+- CI/CD pipelines and automation scripts
+- Server-side applications without an interactive user session
+- Integration tooling where OAuth redirect flows aren't practical
+
+#### Step 1: Generate a Personal Access Token
+
+PATs are created via the Management API itself. You must first obtain an OAuth 2.0 access token (Steps 1–3 above), then call the token creation endpoint using the [Swagger docs](https://mgmt.aglty.io) for your region:
+
+| Region | Swagger URL |
+|---|---|
+| US (default) | `https://mgmt.aglty.io` |
+| Canada | `https://mgmt-ca.aglty.io` |
+| Europe | `https://mgmt-eu.aglty.io` |
+| Australia | `https://mgmt-aus.aglty.io` |
+| Dev | `https://mgmt-dev.aglty.io` |
+
+In Swagger, authenticate with your OAuth 2.0 access token, then call:
+
+```
+POST /api/v1/tokens/create
+```
+
+```json
+{
+  "name": "my-automation-token",
+  "expiryDate": "2028-01-01T00:00:00Z"
+}
+```
+
+> **Note:** Swagger defaults `expiryDate` to the current timestamp, which would make the token expire immediately. Update the year to a future date — tokens can be set up to 2 years from the creation date.
+
+The response includes the token value — **copy it immediately, it will not be shown again**.
+
+#### Step 2: Initialize the SDK
+
+Pass the PAT directly as the `token` value. No OAuth flow or token exchange is required.
+
+```csharp
+using management.api.sdk;
+
+var options = new agility.models.Options
+{
+    token = "YOUR_PERSONAL_ACCESS_TOKEN",
+    locale = "en-us",
+    guid = "your-website-guid"
+};
+
+var clientInstance = new ClientInstance(options);
+```
+
+The API automatically identifies PATs by their token signature and routes them through the appropriate authentication path. Your code does not need to specify the authentication type.
+
+#### PAT Restrictions
+
+PATs cannot access the following endpoints. Use OAuth 2.0 for these operations:
+
+| Restricted Operation | Endpoints |
+|---|---|
+| User management | `POST/PUT/PATCH/DELETE /api/v*/instance/*/users` |
+| Token management | `POST/PUT/DELETE/GET /api/v*/tokens/*` |
+| Admin operations | `POST/PUT/DELETE /api/v*/admin/*` |
+
+Requests to restricted endpoints with a PAT return `403 access_denied`.
+
+---
 
 
 
