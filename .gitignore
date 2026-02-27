@@ -289,3 +289,4 @@ Website/wwwroot/dist/server.css
 Website/wwwroot/dist/server.js
 .DS_Store
 
+.claude/CODEBASE.md
