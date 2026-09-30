@@ -3,12 +3,13 @@ name: Integration tests
 # Runs the live suite against the QA test instance. Needs, in the "qa" environment:
 #   secret AGILITY_MGMT_TOKEN     a Personal Access Token for the test instance
 #   secret AGILITY_INSTANCE_GUID  the test instance's GUID (a secret so GitHub masks it in these public logs)
-# Pull requests from forks never get these secrets, so the suite runs only on trusted events.
+# It runs on pull requests from branches in this repository only: fork PRs never get the secrets.
 on:
   schedule:
     - cron: '0 9 * * *'
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -21,6 +22,7 @@ concurrency:
 
 jobs:
   live:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     environment: qa
     env:

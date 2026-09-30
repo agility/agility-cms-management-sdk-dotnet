@@ -66,7 +66,8 @@ export AGILITY_ALLOW_WRITES=true       # optional: also create, change and delet
 then run `tools/run-integration-tests.sh`. The write tests clean up after themselves, but only point them at an
 instance you can afford to change.
 
-In CI, the *Integration tests* workflow runs the same suite nightly, on pushes to `main`, and on demand, using the
+In CI, the *Integration tests* workflow runs the same suite nightly, on pushes to `main`, on pull requests from
+branches in this repository (not forks), and on demand, using the
 `AGILITY_MGMT_TOKEN` and `AGILITY_INSTANCE_GUID` secrets of the repository's `qa` environment (secrets, so
 GitHub masks them in the public logs).
 
