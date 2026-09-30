@@ -25,7 +25,13 @@ internal sealed class ManagementConnection
 {
     private const int MaxErrorBodyLength = 16 * 1024;
 
-    private static readonly string SdkUserAgent = BuildUserAgent();
+    private static readonly string SdkVersion = ReadSdkVersion();
+
+    /// <summary>The SDK's name and version, also sent as <c>X-Agility-SDK</c> so the API sees the same value from every SDK.</summary>
+    private static readonly string SdkProduct = $"agility-management-sdk-dotnet/{SdkVersion}";
+
+    private static readonly string SdkUserAgent =
+        $"{SdkProduct} ({RuntimeInformation.FrameworkDescription}; {RuntimeInformation.OSDescription})";
 
     private readonly HttpClient _http;
     private IAccessTokenProvider? _tokens;
@@ -139,6 +145,7 @@ internal sealed class ManagementConnection
         {
             using var request = new HttpRequestMessage(method, uri);
             request.Headers.TryAddWithoutValidation("User-Agent", _userAgent);
+            request.Headers.TryAddWithoutValidation("X-Agility-SDK", SdkProduct);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
             if (!anonymous)
@@ -337,12 +344,11 @@ internal sealed class ManagementConnection
     private static Uri Combine(Uri host, string path, Query? query) =>
         new($"{host.AbsoluteUri.TrimEnd('/')}/{path}{query}");
 
-    private static string BuildUserAgent()
+    private static string ReadSdkVersion()
     {
         var version = typeof(ManagementConnection).Assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.0.0";
         var plus = version.IndexOf('+', StringComparison.Ordinal);
-        if (plus >= 0) version = version[..plus];
-        return $"agility-management-sdk-dotnet/{version} ({RuntimeInformation.FrameworkDescription}; {RuntimeInformation.OSDescription})";
+        return plus >= 0 ? version[..plus] : version;
     }
 }

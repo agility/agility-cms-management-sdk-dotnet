@@ -7,7 +7,7 @@ namespace Agility.Management.Sdk.Tests;
 public sealed record RecordedRequest(HttpMethod Method, Uri Uri, HttpRequestHeadersSnapshot Headers, string? Body, string? ContentType);
 
 /// <summary>The request headers the tests look at.</summary>
-public sealed record HttpRequestHeadersSnapshot(string? Authorization, string? UserAgent, string? Accept);
+public sealed record HttpRequestHeadersSnapshot(string? Authorization, string? UserAgent, string? Accept, string? Sdk);
 
 /// <summary>
 /// Answers every request from a function and records it. No request leaves the process.
@@ -30,7 +30,8 @@ public sealed class FakeHandler : HttpMessageHandler
             new HttpRequestHeadersSnapshot(
                 request.Headers.Authorization?.ToString(),
                 request.Headers.TryGetValues("User-Agent", out var ua) ? string.Join(" ", ua) : null,
-                request.Headers.Accept.ToString()),
+                request.Headers.Accept.ToString(),
+                request.Headers.TryGetValues("X-Agility-SDK", out var sdk) ? string.Join(" ", sdk) : null),
             body,
             request.Content?.Headers.ContentType?.MediaType);
         lock (Requests) Requests.Add(recorded);

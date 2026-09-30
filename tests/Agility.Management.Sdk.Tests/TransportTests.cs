@@ -19,6 +19,7 @@ public class TransportTests
         Assert.Equal("Bearer test-token", headers.Authorization);
         Assert.Matches(@"^agility-management-sdk-dotnet/\d+\.\d+\.\d+\S* \(\.NET [^;]+; [^)]+\) my-job/1\.0$", headers.UserAgent);
         Assert.Contains("application/json", headers.Accept, StringComparison.Ordinal);
+        Assert.Matches(@"^agility-management-sdk-dotnet/\d+\.\d+\.\d+\S*$", headers.Sdk);
     }
 
     [Fact]

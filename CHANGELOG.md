@@ -21,7 +21,8 @@ A rewrite for .NET 10. See [MIGRATION.md](MIGRATION.md) for how to upgrade.
 - Token providers: `AccessToken`, `RefreshToken` (with automatic renewal), or your own `IAccessTokenProvider`.
 - Retries with backoff for reads on 408, 429, 500, 502, 503 and 504, and network errors; writes are never retried.
 - `CancellationToken` on every method.
-- An identifying `User-Agent` (`agility-management-sdk-dotnet/<version>`), with an optional application name.
+- An identifying `User-Agent` (`agility-management-sdk-dotnet/<version>`), with an optional application name, and
+  an `X-Agility-SDK` header with the same product token.
 - XML documentation on the whole public API; guides in `docs/`; compiled samples.
 - Source Link and symbol packages; the package is trimming- and AOT-compatible.
 

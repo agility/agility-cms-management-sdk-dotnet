@@ -199,4 +199,5 @@ region. Server-level calls (`client.Users`, `client.PersonalAccessTokens`, `clie
 | `Retry.MaxDelay` | 30 s | Longest single delay, including `Retry-After` |
 
 Every request sends `User-Agent: agility-management-sdk-dotnet/<version> (<runtime>; <OS>)`, followed by
-`ApplicationName` if you set one.
+`ApplicationName` if you set one, and `X-Agility-SDK: agility-management-sdk-dotnet/<version>`, the header every
+Agility SDK sends, because browsers don't let JavaScript set `User-Agent`.
