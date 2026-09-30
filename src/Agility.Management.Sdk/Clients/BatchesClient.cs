@@ -39,7 +39,7 @@ public sealed class BatchesClient
     public Task<BatchCreateResult> CreateBatchAsync(CreateBatchWithItemsRequest request, bool? processNow = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        // Unset, the API would read the operation as Publish (its first value): refuse rather than publish by accident.
+        // A non-nullable enum would have sent its zero value, Publish, for an unset operation: refuse instead.
         if (request.Operation is null)
             throw new ArgumentException($"Set {nameof(CreateBatchWithItemsRequest.Operation)}.", nameof(request));
         if (request.Items is null || request.Items.Count == 0 || request.Items.Any(i => i.ItemType is null))
