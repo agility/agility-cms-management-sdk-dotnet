@@ -54,7 +54,7 @@ CI fails if the generated models or `docs/api-coverage.md` don't match what's co
 ## Integration tests
 
 They run against a **test instance** and skip themselves without credentials. Put the credentials in
-`~/.config/agility/sdk-test.env` (`chmod 600`):
+`.env.integration` in the repository root (git-ignored) or `~/.config/agility/sdk-test.env`, with `chmod 600`:
 
 ```sh
 export AGILITY_MGMT_TOKEN=<personal access token>

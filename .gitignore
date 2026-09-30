@@ -291,3 +291,6 @@ Website/wwwroot/dist/server.js
 
 .claude/CODEBASE.md
 artifacts/
+
+# Local integration-test credentials (see tools/run-integration-tests.sh)
+.env.integration
