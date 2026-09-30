@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- Test names read better as sentences; async tests don't need ConfigureAwait. -->
+    <NoWarn>$(NoWarn);CA1707;CA2007;CA1515;CA1861</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Agility.Management.Sdk/Agility.Management.Sdk.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../spec/management-api.openapi.json" Link="spec/management-api.openapi.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

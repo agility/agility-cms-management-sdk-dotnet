@@ -290,3 +290,4 @@ Website/wwwroot/dist/server.js
 .DS_Store
 
 .claude/CODEBASE.md
+artifacts/
