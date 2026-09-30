@@ -1,17 +1,20 @@
 ﻿using agility.enums;
+using System.Text.Json.Serialization;
 namespace agility.models;
 public class ContentSectionDefinition
 {
-    private List<ContentSectionDefaultModule> _defaultModules = new List<ContentSectionDefaultModule>();
-    private List<SharedModule> _sharedModules = new List<SharedModule>();
-    public List<ContentSectionDefaultModule> DefaultModules
-    {
-        get { return _defaultModules; }
-    }
-    public List<SharedModule> SharedModules
-    {
-        get { return _sharedModules; }
-    }
+    /// <summary>
+    /// Default components for this zone. When saving a page template, null (the default) leaves the
+    /// zone's existing defaults unchanged, a list replaces them, and an empty list clears them.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<ContentSectionDefaultModule>? DefaultModules { get; set; }
+
+    /// <summary>
+    /// Shared components for this zone. Null (the default) is omitted from the request body.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<SharedModule>? SharedModules { get; set; }
 
     public int? PageItemTemplateID { get; set; }
     public int? PageTemplateID { get; set; }
