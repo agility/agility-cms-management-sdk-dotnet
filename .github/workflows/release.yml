@@ -1,0 +1,53 @@
+name: Release
+
+# Publishes Agility.Management.SDK to NuGet when a version tag is pushed, e.g. v1.0.12-beta.
+# The tag must match <Version> in management.api.sdk/management.api.sdk.csproj.
+#
+# Uses NuGet Trusted Publishing (OIDC): no API key is stored. The nuget.org policy (owner Agility-Inc) allows
+# this repository's release.yml in the "nuget" environment to push new versions of Agility.Management.SDK only.
+# The environment accepts only v* tags and waits for a reviewer's approval.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: nuget
+    env:
+      DOTNET_NOLOGO: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Check the tag matches the project version
+        run: |
+          version=$(dotnet msbuild management.api.sdk/management.api.sdk.csproj -getProperty:Version)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match project version $version."
+            exit 1
+          fi
+
+      # The 1.x suite is otherwise live-only; these offline tests cover the fix this release ships.
+      - name: Build and test
+        run: |
+          dotnet build -c Release
+          dotnet test management.api.sdk.tests -c Release --no-build --filter "FullyQualifiedName~ContentSectionDefinitionSerializationTests"
+
+      - name: Pack
+        run: dotnet pack management.api.sdk/management.api.sdk.csproj --no-build -c Release -o artifacts
+
+      - name: Get a short-lived NuGet API key
+        id: nuget
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      - name: Push
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key "${{ steps.nuget.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
