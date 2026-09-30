@@ -127,7 +127,11 @@ public sealed class LiveApiTests : IDisposable
                 .Select(z => $"{z.PageItemTemplateReferenceName}:{string.Join(",", (z.DefaultModules ?? []).Select(d => d.ContentDefinitionID))}"));
 
             var read = await client.Pages.GetPageTemplateAsync(InstanceGuid!, Locale, id, Ct);
-            Assert.Equal($"Main:{component.Id}", Defaults(read));
+            // If this fails with "Main:" (no defaults stored at all), the API itself isn't storing defaultModules:
+            // the deployed Management API build is missing management-api-dotnet PR 3109 (PROD-2376).
+            Assert.True($"Main:{component.Id}" == Defaults(read),
+                $"The API didn't store the default component on a new template (read back \"{Defaults(read)}\"). " +
+                "The SDK sent it; check that the Management API deployment includes PR 3109 (PROD-2376).");
 
             await client.Pages.SavePageTemplateAsync(InstanceGuid!, Locale, read, Ct);
             var afterRoundTrip = await client.Pages.GetPageTemplateAsync(InstanceGuid!, Locale, id, Ct);
