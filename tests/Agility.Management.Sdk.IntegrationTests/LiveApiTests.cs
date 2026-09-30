@@ -96,27 +96,55 @@ public sealed class LiveApiTests : IDisposable
     {
         // The 1.x SDK cleared every zone's default components on this round trip (PROD-2376).
         var instance = WritableInstance();
-        var templates = await instance.Pages.GetPageTemplatesAsync(Locale, includeModuleZones: true, cancellationToken: Ct);
-        PageModel? withDefaults = null;
-        foreach (var t in templates)
+        var component = (await instance.Models.GetComponentModelsAsync(includeDefault: true, Ct)).FirstOrDefault(m => m.Id > 0);
+        Assert.SkipWhen(component is null, "No component model on the instance to use as a default component.");
+
+        var suffix = DateTime.UtcNow.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+        PageModel? created = null;
+        try
         {
-            var full = await instance.Pages.GetPageTemplateAsync(Locale, t.PageTemplateID!.Value, Ct);
-            if (full.ContentSectionDefinitions?.Any(z => z.DefaultModules is { Count: > 0 }) == true)
+            created = await instance.Pages.SavePageTemplateAsync(Locale, new PageModel
             {
-                withDefaults = full;
-                break;
-            }
+                PageTemplateID = -1,
+                PageTemplateName = $"SDK Test {suffix}",
+                DigitalChannelTypeID = 1,
+                ContentSectionDefinitions =
+                [
+                    new ContentSectionDefinition
+                    {
+                        PageItemTemplateID = -1,
+                        PageItemTemplateName = "Main",
+                        PageItemTemplateReferenceName = "Main",
+                        ItemOrder = 0,
+                        DefaultModules = [new ContentSectionDefaultModule { ContentDefinitionID = component!.Id, Title = component.DisplayName }],
+                    },
+                ],
+            }, Ct);
+            var id = created.PageTemplateID!.Value;
+
+            static string Defaults(PageModel m) => string.Join("|", (m.ContentSectionDefinitions ?? [])
+                .Select(z => $"{z.PageItemTemplateReferenceName}:{string.Join(",", (z.DefaultModules ?? []).Select(d => d.ContentDefinitionID))}"));
+
+            var read = await instance.Pages.GetPageTemplateAsync(Locale, id, Ct);
+            Assert.Equal($"Main:{component.Id}", Defaults(read));
+
+            await instance.Pages.SavePageTemplateAsync(Locale, read, Ct);
+            var afterRoundTrip = await instance.Pages.GetPageTemplateAsync(Locale, id, Ct);
+            Assert.Equal($"Main:{component.Id}", Defaults(afterRoundTrip));
+
+            // A rename with no zone list keeps the zones and their defaults.
+            await instance.Pages.SavePageTemplateAsync(Locale, new PageModel
+            {
+                PageTemplateID = id,
+                PageTemplateName = $"SDK Test {suffix} renamed",
+                DigitalChannelTypeID = 1,
+            }, Ct);
+            Assert.Equal($"Main:{component.Id}", Defaults(await instance.Pages.GetPageTemplateAsync(Locale, id, Ct)));
         }
-        Assert.SkipWhen(withDefaults is null, "No page template with default components on the instance.");
-
-        static string Defaults(PageModel m) => string.Join("|", m.ContentSectionDefinitions!
-            .Select(z => $"{z.PageItemTemplateReferenceName}:{string.Join(",", (z.DefaultModules ?? []).Select(d => d.ContentDefinitionID))}"));
-        var before = Defaults(withDefaults!);
-
-        await instance.Pages.SavePageTemplateAsync(Locale, withDefaults!, Ct);
-        var after = await instance.Pages.GetPageTemplateAsync(Locale, withDefaults!.PageTemplateID!.Value, Ct);
-
-        Assert.Equal(before, Defaults(after));
+        finally
+        {
+            if (created?.PageTemplateID is int id) await instance.Pages.DeletePageTemplateAsync(Locale, id, CancellationToken.None);
+        }
     }
 
     [Fact]

@@ -15,15 +15,16 @@ namespace Agility.Management.Sdk.Serialization;
 /// Source-generated serialization for every type the SDK sends or receives.
 /// </summary>
 /// <remarks>
-/// Null properties are written, as the 1.x SDK did, except collections, which the generated models
-/// mark <c>WhenWritingNull</c>: the API treats a sent list as a replacement, so an unset list must be
-/// left out rather than sent as <c>null</c> or <c>[]</c>.
+/// Null properties are left out of requests. The API binds a missing property to its default, but it
+/// rejects an explicit <c>null</c> for many properties the spec marks nullable ("field is required"), and it
+/// treats a sent list as a replacement, so an unset list must never go out as <c>null</c> or <c>[]</c>.
+/// Nulls inside a <c>JsonObject</c> (a content item's field values) are data and are still sent.
 /// </remarks>
 [JsonSourceGenerationOptions(
     PropertyNameCaseInsensitive = true,
     NumberHandling = JsonNumberHandling.AllowReadingFromString,
     AllowTrailingCommas = true,
-    DefaultIgnoreCondition = JsonIgnoreCondition.Never)]
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(int?))]
 [JsonSerializable(typeof(string))]
 [JsonSerializable(typeof(JsonNode))]

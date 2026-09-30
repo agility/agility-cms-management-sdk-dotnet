@@ -109,9 +109,13 @@ rather than `GetPageTemplateZonesAsync` for that: the zones route always returns
 
 ## Unset, null and empty collections
 
-Because the API treats a sent list as a replacement, the SDK's models leave every collection and dictionary out
-of the request when it's `null`. Set a collection only when you mean to send it; set it to an empty list only when
-you mean "none". Other `null` properties are sent as `null`.
+The SDK leaves every `null` property out of the request. The API binds a missing property to its default, and:
+
+- it treats a sent list as a replacement, so an unset collection must not go out as `null` or `[]`. Set a
+  collection only when you mean to send it, and to an empty list only when you mean "none";
+- it rejects an explicit `null` for many properties the spec calls nullable, with "The X field is required".
+
+Values inside `ContentItem.Fields` are data, so a field set to `null` is still sent as `null`.
 
 ## Errors
 

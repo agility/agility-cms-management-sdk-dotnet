@@ -125,6 +125,21 @@ public class ContractTests
     }
 
     [Fact]
+    public async Task Null_properties_are_left_out_because_the_API_rejects_explicit_nulls()
+    {
+        // The live API answers {"genericSearch":null} with 400 "The GenericSearch field is required."
+        var handler = new FakeHandler(_ => FakeHandler.Json("""{"totalCount":0,"items":[]}"""));
+        var instance = TestClient.Instance(handler);
+
+        await instance.Content.GetContentListAsync("en-us", "posts", cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Equal("{}", handler.Requests.Single().Body);
+
+        await instance.Content.GetContentListAsync("en-us", "posts", new ContentListFilterModel { GenericSearch = "x" },
+            cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Equal("""{"genericSearch":"x"}""", handler.Requests.Last().Body);
+    }
+
+    [Fact]
     public async Task Workflow_operations_use_GET_as_the_API_requires()
     {
         var handler = new FakeHandler(r => r.Uri.AbsolutePath.EndsWith("/batch/41", StringComparison.Ordinal)

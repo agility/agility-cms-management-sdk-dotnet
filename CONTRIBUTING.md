@@ -53,17 +53,22 @@ CI fails if the generated models or `docs/api-coverage.md` don't match what's co
 
 ## Integration tests
 
-Point them at a **test instance**:
+They run against a **test instance** and skip themselves without credentials. Put the credentials in
+`~/.config/agility/sdk-test.env` (`chmod 600`):
 
 ```sh
 export AGILITY_MGMT_TOKEN=<personal access token>
 export AGILITY_INSTANCE_GUID=<instance guid>
 export AGILITY_LOCALE=en-us            # optional
 export AGILITY_ALLOW_WRITES=true       # optional: also create, change and delete things
-dotnet test --project tests/Agility.Management.Sdk.IntegrationTests
 ```
 
-The write tests clean up after themselves, but only run them against an instance you can afford to change.
+then run `tools/run-integration-tests.sh`. The write tests clean up after themselves, but only point them at an
+instance you can afford to change.
+
+In CI, the *Integration tests* workflow runs the same suite nightly, on pushes to `main`, and on demand, using the
+`AGILITY_MGMT_TOKEN` and `AGILITY_INSTANCE_GUID` secrets of the repository's `qa` environment (secrets, so
+GitHub masks them in the public logs).
 
 ## Releasing
 

@@ -303,6 +303,16 @@ internal sealed class ManagementConnection
                         problem = root.Deserialize(ManagementJsonContext.Default.ProblemDetails);
                     var message = Str(root, "detail") ?? Str(root, "error_description") ?? Str(root, "message")
                         ?? Str(root, "title") ?? Str(root, "error");
+                    // Validation problems list what's wrong per field; that's the useful part.
+                    if (root.TryGetProperty("errors", out var errors) && errors.ValueKind == JsonValueKind.Object)
+                    {
+                        var details = errors.EnumerateObject()
+                            .SelectMany(f => f.Value.ValueKind == JsonValueKind.Array
+                                ? f.Value.EnumerateArray().Where(e => e.ValueKind == JsonValueKind.String).Select(e => e.GetString())
+                                : [])
+                            .Take(5).ToList();
+                        if (details.Count > 0) message = $"{message} {string.Join(" ", details)}".Trim();
+                    }
                     return (message, problem);
                 }
             }

@@ -30,8 +30,8 @@ A rewrite for .NET 10. See [MIGRATION.md](MIGRATION.md) for how to upgrade.
 - Targets .NET 10 (was .NET 6).
 - Models are generated from the API's OpenAPI schemas (`tools/GenerateModels.cs`), so some are renamed
   (`Container` → `ContentContainer`, `Model` → `ContentModel`, `Media` → `AssetMedia`) and properties are PascalCase.
-- Collections on models are `null` until set, and a `null` collection is left out of the request, so the API keeps
-  the stored value.
+- Collections on models are `null` until set, and `null` properties are left out of requests: the API keeps a
+  stored list it isn't sent, and rejects an explicit `null` for many properties.
 - Content lists use the documented `POST {locale}/list/{referenceName}` route with a filter model.
 - Uses `System.Net.Http` and source-generated `System.Text.Json`; RestSharp is no longer a dependency.
 

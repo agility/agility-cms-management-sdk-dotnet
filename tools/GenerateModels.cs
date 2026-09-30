@@ -10,9 +10,9 @@
 //
 // Serialization rules that the SDK's contract depends on (see docs/concepts.md):
 // - every reference-typed property is nullable, because the API may omit or null it;
-// - collections and dictionaries are omitted from request bodies when null. The API reads a sent
-//   list as a replacement (e.g. a zone's defaultModules, where [] clears), so "not set" must never
-//   be written as [] or null;
+// - null properties are omitted from request bodies (the context's default), and collections also carry
+//   an explicit WhenWritingNull. The API reads a sent list as a replacement (e.g. a zone's defaultModules,
+//   where [] clears), so "not set" must never be written as [] or null;
 // - explicit [JsonPropertyName] keeps the wire names exact (abortYN, relativeURL, eTag...);
 // - enums on *Request models are nullable, so the client can refuse to send an unset one.
 
@@ -181,15 +181,16 @@ string GenerateContextRegistrations(IEnumerable<string> names)
         /// Source-generated serialization for every type the SDK sends or receives.
         /// </summary>
         /// <remarks>
-        /// Null properties are written, as the 1.x SDK did, except collections, which the generated models
-        /// mark <c>WhenWritingNull</c>: the API treats a sent list as a replacement, so an unset list must be
-        /// left out rather than sent as <c>null</c> or <c>[]</c>.
+        /// Null properties are left out of requests. The API binds a missing property to its default, but it
+        /// rejects an explicit <c>null</c> for many properties the spec marks nullable ("field is required"), and it
+        /// treats a sent list as a replacement, so an unset list must never go out as <c>null</c> or <c>[]</c>.
+        /// Nulls inside a <c>JsonObject</c> (a content item's field values) are data and are still sent.
         /// </remarks>
         [JsonSourceGenerationOptions(
             PropertyNameCaseInsensitive = true,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
             AllowTrailingCommas = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.Never)]
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
         """);
     // Types the clients use that aren't a schema of their own.
     string[] extras =

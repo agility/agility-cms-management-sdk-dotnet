@@ -1,0 +1,45 @@
+name: Integration tests
+
+# Runs the live suite against the QA test instance. Needs, in the "qa" environment:
+#   secret AGILITY_MGMT_TOKEN     a Personal Access Token for the test instance
+#   secret AGILITY_INSTANCE_GUID  the test instance's GUID (a secret so GitHub masks it in these public logs)
+# Pull requests from forks never get these secrets, so the suite runs only on trusted events.
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# The write tests create and delete content on one shared instance: run one suite at a time.
+concurrency:
+  group: integration-qa
+  cancel-in-progress: false
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    environment: qa
+    env:
+      CI: true
+      DOTNET_NOLOGO: true
+      AGILITY_MGMT_TOKEN: ${{ secrets.AGILITY_MGMT_TOKEN }}
+      AGILITY_INSTANCE_GUID: ${{ secrets.AGILITY_INSTANCE_GUID }}
+      AGILITY_LOCALE: en-us
+      AGILITY_ALLOW_WRITES: 'true'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Check the credentials are configured
+        run: |
+          if [ -z "$AGILITY_MGMT_TOKEN" ] || [ -z "$AGILITY_INSTANCE_GUID" ]; then
+            echo "::error::Set the AGILITY_MGMT_TOKEN and AGILITY_INSTANCE_GUID secrets in the qa environment."
+            exit 1
+          fi
+      - name: Live tests
+        run: tools/run-integration-tests.sh

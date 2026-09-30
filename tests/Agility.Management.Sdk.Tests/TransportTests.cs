@@ -184,6 +184,19 @@ public class TransportTests
     }
 
     [Fact]
+    public async Task Validation_errors_are_listed_in_the_message()
+    {
+        var handler = new FakeHandler(_ => FakeHandler.Json(
+            """{"title":"One or more validation errors occurred.","status":400,"errors":{"GenericSearch":["The GenericSearch field is required."]}}""",
+            HttpStatusCode.BadRequest));
+        var instance = TestClient.Instance(handler);
+
+        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => instance.Models.SaveModelAsync(new ContentModel(), Ct));
+
+        Assert.Equal("One or more validation errors occurred. The GenericSearch field is required.", ex.ApiMessage);
+    }
+
+    [Fact]
     public async Task Network_failures_are_wrapped_with_the_original_exception_kept()
     {
         var inner = new HttpRequestException("connection refused");
