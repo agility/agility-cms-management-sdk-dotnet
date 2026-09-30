@@ -2,7 +2,7 @@
 
 This project follows [Semantic Versioning](https://semver.org/). Breaking changes happen only in a major version.
 
-## [2.0.0] - Unreleased
+## [2.0.0]
 
 A rewrite for .NET 10. See [MIGRATION.md](MIGRATION.md) for how to upgrade.
 
