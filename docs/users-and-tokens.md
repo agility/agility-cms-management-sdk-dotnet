@@ -3,7 +3,7 @@
 ## The signed-in user
 
 ```csharp
-ServerUser me = await client.Users.GetCurrentUserAsync();
+ServerUser me = await client.ServerUsers.GetCurrentUserAsync();
 foreach (var site in me.WebsiteAccess ?? [])
     Console.WriteLine($"{site.WebsiteName}: {site.Guid}");
 ```
@@ -12,17 +12,17 @@ This is handy for finding the instance GUIDs a token can reach.
 
 ## Instance users
 
-`instance.Users` manages who can use an instance. These endpoints need an [OAuth token](authentication.md#oauth);
+`client.InstanceUsers` manages who can use an instance. These endpoints need an [OAuth token](authentication.md#oauth);
 Personal Access Tokens are refused.
 
 ```csharp
-List<WebsiteUser> users = await instance.Users.GetUsersAsync();
+List<WebsiteUser> users = await client.InstanceUsers.GetUsersAsync(guid);
 
 // Add a user, or replace an existing user's roles.
-InstanceUser user = await instance.Users.SaveUserAsync("editor@example.com",
+InstanceUser user = await client.InstanceUsers.SaveUserAsync(guid, "editor@example.com",
     [new InstanceRole { RoleID = editorRoleId }], firstName: "Sam", lastName: "Lee");
 
-await instance.Users.DeleteUserAsync(user.UserID);
+await client.InstanceUsers.DeleteUserAsync(guid, user.UserID);
 ```
 
 ## Personal Access Tokens
@@ -50,8 +50,8 @@ The API limits each user to 10 active tokens and 5 creations an hour, and return
 The Fetch API keys for an instance's published and preview content:
 
 ```csharp
-string fetchKey = await instance.GetFetchApiKeyAsync();
-string previewKey = await instance.GetPreviewApiKeyAsync();
+string fetchKey = await client.OAuth.GetFetchApiKeyAsync(guid);
+string previewKey = await client.OAuth.GetPreviewApiKeyAsync(guid);
 ```
 
 ## API enums

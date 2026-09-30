@@ -12,26 +12,26 @@ namespace Agility.Management.Sdk.Samples;
 
 internal static class ConceptsGuide
 {
-    public static async Task EditLiveItem(AgilityInstanceClient instance, int id)
+    public static async Task EditLiveItem(AgilityManagementClient client, string guid, int id)
     {
-        var item = await instance.Content.GetContentItemAsync("en-us", id);
+        var item = await client.Content.GetContentItemAsync(guid, "en-us", id);
         item.Fields!["title"] = "New title";
-        await instance.Content.SaveContentItemAsync("en-us", item);
-        await instance.Content.PublishContentItemAsync("en-us", id);
+        await client.Content.SaveContentItemAsync(guid, "en-us", item);
+        await client.Content.PublishContentItemAsync(guid, "en-us", id);
     }
 
-    public static async Task FireAndForget(AgilityInstanceClient instance, int id)
+    public static async Task FireAndForget(AgilityManagementClient client, string guid, int id)
     {
-        var queued = await instance.Content.PublishContentItemAsync("en-us", id, waitForBatch: false);
-        var batch = await instance.Batches.WaitForBatchAsync(queued.BatchId);
-        await instance.SyncStatus.WaitForFetchApiSyncAsync(SyncMode.Fetch);
+        var queued = await client.Content.PublishContentItemAsync(guid, "en-us", id, waitForBatch: false);
+        var batch = await client.Batches.WaitForBatchAsync(guid, queued.BatchId);
+        await client.SyncStatus.WaitForFetchApiSyncAsync(guid, SyncMode.Fetch);
     }
 
-    public static async Task HandleErrors(AgilityInstanceClient instance, ContentItem item)
+    public static async Task HandleErrors(AgilityManagementClient client, string guid, ContentItem item)
     {
         try
         {
-            await instance.Content.SaveContentItemAsync("en-us", item);
+            await client.Content.SaveContentItemAsync(guid, "en-us", item);
         }
         catch (AgilityBatchException ex)
         {
@@ -77,14 +77,14 @@ internal static class AuthenticationGuide
 
 internal static class ContentGuide
 {
-    public static async Task Examples(AgilityInstanceClient instance)
+    public static async Task Examples(AgilityManagementClient client, string guid)
     {
-        ContentItem item = await instance.Content.GetContentItemAsync("en-us", 42);
+        ContentItem item = await client.Content.GetContentItemAsync(guid, "en-us", 42);
         string? title = item.Fields?["title"]?.GetValue<string>();
-        List<ContentItem> items = await instance.Content.GetContentItemsByIdAsync("en-us", [42, 43, 44]);
+        List<ContentItem> items = await client.Content.GetContentItemsByIdAsync(guid, "en-us", [42, 43, 44]);
 
-        ContentList page = await instance.Content.GetContentListAsync("en-us", "blogposts", take: 50, skip: 0,
-            sortField: "title", sortDirection: "asc");
+        ContentList page = await client.Content.GetContentListAsync(guid, "en-us", "blogposts",
+            new ContentListOptions { Take = 50, Skip = 0, SortField = "title", SortDirection = "asc" });
         foreach (JsonNode? row in page.Items ?? [])
             Console.WriteLine(row?["contentID"]);
 
@@ -95,9 +95,10 @@ internal static class ContentGuide
             DateRange = new DateRangeFilter { StartDate = DateTime.UtcNow.AddDays(-30) },
             FieldFilters = [new FieldFilter { Field = "category", Value = new FieldFilterValue { StringValue = "news" } }],
         };
-        var recent = await instance.Content.GetContentListAsync("en-us", "blogposts", filter, take: 20);
+        var recent = await client.Content.GetContentListAsync(guid, "en-us", "blogposts",
+            new ContentListOptions { Filter = filter, Take = 20 });
 
-        var created = await instance.Content.SaveContentItemAsync("en-us", new ContentItem
+        var created = await client.Content.SaveContentItemAsync(guid, "en-us", new ContentItem
         {
             ContentID = -1,
             Properties = new ContentItemProperties { ReferenceName = "blogposts", DefinitionName = "BlogPost" },
@@ -105,26 +106,26 @@ internal static class ContentGuide
         });
         int newId = created.ItemId!.Value;
 
-        BatchResult result = await instance.Content.SaveContentItemsAsync("en-us", [item, item]);
+        BatchResult result = await client.Content.SaveContentItemsAsync(guid, "en-us", [item, item]);
         IReadOnlyList<int> ids = result.ItemIds;
 
-        await instance.Content.PublishContentItemAsync("en-us", 42, comments: "Launch");
-        await instance.Content.UnpublishContentItemAsync("en-us", 42);
-        await instance.Content.RequestApprovalContentItemAsync("en-us", 42);
-        await instance.Content.ApproveContentItemAsync("en-us", 42);
-        await instance.Content.DeclineContentItemAsync("en-us", 42, comments: "Needs a new image");
-        await instance.Content.DeleteContentItemAsync("en-us", 42);
-        await instance.Content.BatchWorkflowContentItemsAsync("en-us", [42, 43, 44], WorkflowOperationType.Publish);
+        await client.Content.PublishContentItemAsync(guid, "en-us", 42, comments: "Launch");
+        await client.Content.UnpublishContentItemAsync(guid, "en-us", 42);
+        await client.Content.RequestApprovalContentItemAsync(guid, "en-us", 42);
+        await client.Content.ApproveContentItemAsync(guid, "en-us", 42);
+        await client.Content.DeclineContentItemAsync(guid, "en-us", 42, comments: "Needs a new image");
+        await client.Content.DeleteContentItemAsync(guid, "en-us", 42);
+        await client.Content.BatchWorkflowContentItemsAsync(guid, "en-us", [42, 43, 44], WorkflowOperationType.Publish);
 
-        CascadeItem tree = await instance.Content.GetCascadeItemsAsync("en-us", 42);
-        BatchCreateResult cascade = await instance.Content.PublishContentItemCascadeAsync("en-us", 42);
+        CascadeItem tree = await client.Content.GetCascadeItemsAsync(guid, "en-us", 42);
+        BatchCreateResult cascade = await client.Content.PublishContentItemCascadeAsync(guid, "en-us", 42);
         foreach (var batchId in cascade.BatchIDs ?? [])
-            await instance.Batches.WaitForBatchAsync(batchId);
+            await client.Batches.WaitForBatchAsync(guid, batchId);
 
-        ContentItemHistoryResponse history = await instance.Content.GetContentItemHistoryAsync("en-us", 42, take: 20);
-        ItemCommentsResponse comments = await instance.Content.GetContentItemCommentsAsync("en-us", 42);
+        ContentItemHistoryResponse history = await client.Content.GetContentItemHistoryAsync(guid, "en-us", 42, take: 20);
+        ItemCommentsResponse comments = await client.Content.GetContentItemCommentsAsync(guid, "en-us", 42);
 
-        BatchCreateResult batch = await instance.Batches.CreateBatchAsync(new CreateBatchWithItemsRequest
+        BatchCreateResult batch = await client.Batches.CreateBatchAsync(guid, new CreateBatchWithItemsRequest
         {
             BatchName = "Spring launch",
             Operation = WorkflowOperationType.Publish,
@@ -139,49 +140,50 @@ internal static class ContentGuide
 
 internal static class PagesGuide
 {
-    public static async Task Examples(AgilityInstanceClient instance, int templateId)
+    public static async Task Examples(AgilityManagementClient client, string guid, int templateId)
     {
-        List<Sitemap> sitemap = await instance.Pages.GetSitemapAsync("en-us");
-        PageItem page = await instance.Pages.GetPageAsync("en-us", 7);
+        List<Sitemap> sitemap = await client.Pages.GetSitemapAsync(guid, "en-us");
+        PageItem page = await client.Pages.GetPageAsync(guid, "en-us", 7);
         foreach (var (zone, modules) in page.Zones ?? [])
             Console.WriteLine($"{zone}: {modules.Count} components");
 
         page.Title = "About us";
-        await instance.Pages.SavePageAsync("en-us", page);
-        await instance.Pages.PublishPageAsync("en-us", 7);
+        await client.Pages.SavePageAsync(guid, "en-us", page);
+        var created = await client.Pages.SavePageAsync(guid, "en-us", page, new SavePageOptions { ParentPageId = 7 });
+        await client.Pages.PublishPageAsync(guid, "en-us", 7);
 
-        List<PageModel> templates = await instance.Pages.GetPageTemplatesAsync("en-us", includeModuleZones: true);
-        PageModel byName = await instance.Pages.GetPageTemplateByNameAsync("en-us", "Main Template");
+        List<PageModel> templates = await client.Pages.GetPageTemplatesAsync(guid, "en-us", includeModuleZones: true);
+        PageModel byName = await client.Pages.GetPageTemplateByNameAsync(guid, "en-us", "Main Template");
 
-        var template = await instance.Pages.GetPageTemplateAsync("en-us", templateId);
+        var template = await client.Pages.GetPageTemplateAsync(guid, "en-us", templateId);
         template.PageTemplateName = "Landing Page";
         template.ContentSectionDefinitions = null;
-        await instance.Pages.SavePageTemplateAsync("en-us", template);
+        await client.Pages.SavePageTemplateAsync(guid, "en-us", template);
 
-        template = await instance.Pages.GetPageTemplateAsync("en-us", templateId);
+        template = await client.Pages.GetPageTemplateAsync(guid, "en-us", templateId);
         template.ContentSectionDefinitions!.Add(new ContentSectionDefinition
         {
             PageItemTemplateID = -1,
             PageItemTemplateName = "Sidebar",
             PageItemTemplateReferenceName = "Sidebar",
         });
-        await instance.Pages.SavePageTemplateAsync("en-us", template);
+        await client.Pages.SavePageTemplateAsync(guid, "en-us", template);
 
         template.ContentSectionDefinitions!.Single(z => z.PageItemTemplateReferenceName == "Sidebar").DefaultModules = [];
-        await instance.Pages.SavePageTemplateAsync("en-us", template);
+        await client.Pages.SavePageTemplateAsync(guid, "en-us", template);
     }
 }
 
 internal static class ModelsGuide
 {
-    public static async Task Examples(AgilityInstanceClient instance)
+    public static async Task Examples(AgilityManagementClient client, string guid)
     {
-        List<ContentModel> contentModels = await instance.Models.GetContentModelsAsync(includeDefaults: false);
-        List<ContentModel> componentModels = await instance.Models.GetComponentModelsAsync();
-        ContentModel model = await instance.Models.GetModelByReferenceNameAsync("BlogPost");
-        ContentModel byId = await instance.Models.GetModelAsync(model.Id!.Value);
+        List<ContentModel> contentModels = await client.Models.GetContentModelsAsync(guid, includeDefaults: false);
+        List<ContentModel> componentModels = await client.Models.GetComponentModelsAsync(guid);
+        ContentModel model = await client.Models.GetModelByReferenceNameAsync(guid, "BlogPost");
+        ContentModel byId = await client.Models.GetModelAsync(guid, model.Id!.Value);
 
-        var saved = await instance.Models.SaveModelAsync(new ContentModel
+        var saved = await client.Models.SaveModelAsync(guid, new ContentModel
         {
             Id = 0,
             DisplayName = "Blog Post",
@@ -196,12 +198,13 @@ internal static class ModelsGuide
             ],
         });
 
-        List<ContentContainer> all = await instance.Containers.GetContainerListAsync();
-        ContentContainer posts = await instance.Containers.GetContainerByReferenceNameAsync("blogposts");
-        List<ContentContainer> forModel = await instance.Containers.GetContainersByModelAsync(model.Id!.Value);
-        ContentContainerPagedResult page = await instance.Containers.GetContainerListPagedAsync(pageSize: 100, recordOffset: 0);
+        List<ContentContainer> all = await client.Containers.GetContainerListAsync(guid);
+        ContentContainer posts = await client.Containers.GetContainerByReferenceNameAsync(guid, "blogposts");
+        List<ContentContainer> forModel = await client.Containers.GetContainersByModelAsync(guid, model.Id!.Value);
+        ContentContainerPagedResult page = await client.Containers.GetContainerListPagedAsync(guid,
+            new ContainerListOptions { PageSize = 100, RecordOffset = 0 });
 
-        var container = await instance.Containers.SaveContainerAsync(new ContentContainer
+        var container = await client.Containers.SaveContainerAsync(guid, new ContentContainer
         {
             ContentViewID = 0,
             ContentDefinitionID = model.Id,
@@ -216,47 +219,47 @@ internal static class ModelsGuide
 
 internal static class AssetsGuide
 {
-    public static async Task Examples(AgilityInstanceClient instance, int mediaId, int galleryId)
+    public static async Task Examples(AgilityManagementClient client, string guid, int mediaId, int galleryId)
     {
         await using var file = File.OpenRead("hero.jpg");
-        List<AssetMedia> uploaded = await instance.Assets.UploadAsync("images/blog", [new AssetUpload("hero.jpg", file, "image/jpeg")]);
+        List<AssetMedia> uploaded = await client.Assets.UploadAsync(guid, "images/blog", [new AssetUpload("hero.jpg", file, "image/jpeg")]);
         Console.WriteLine(uploaded[0].EdgeUrl);
 
-        AssetMediaList page = await instance.Assets.GetMediaListAsync(pageSize: 100, recordOffset: 0);
-        AssetMedia asset = await instance.Assets.GetAssetAsync(mediaId);
-        AssetMedia byUrl = await instance.Assets.GetAssetByUrlAsync("https://cdn.aglty.io/abc/images/blog/hero.jpg");
-        AssetContainer container = await instance.Assets.GetDefaultContainerAsync();
+        AssetMediaList page = await client.Assets.GetMediaListAsync(guid, pageSize: 100, recordOffset: 0);
+        AssetMedia asset = await client.Assets.GetAssetAsync(guid, mediaId);
+        AssetMedia byUrl = await client.Assets.GetAssetByUrlAsync(guid, "https://cdn.aglty.io/abc/images/blog/hero.jpg");
+        AssetContainer container = await client.Assets.GetDefaultContainerAsync(guid);
 
-        await instance.Assets.CreateFolderAsync("images/blog/2026");
-        await instance.Assets.RenameFolderAsync("images/blog/2026", "images/blog/archive-2026");
-        await instance.Assets.DeleteFolderAsync("images/blog/archive-2026");
-        await instance.Assets.MoveAssetAsync(mediaId, "images/blog/archive-2026");
-        await instance.Assets.DeleteAssetAsync(mediaId);
+        await client.Assets.CreateFolderAsync(guid, "images/blog/2026");
+        await client.Assets.RenameFolderAsync(guid, "images/blog/2026", "images/blog/archive-2026");
+        await client.Assets.DeleteFolderAsync(guid, "images/blog/archive-2026");
+        await client.Assets.MoveAssetAsync(guid, mediaId, "images/blog/archive-2026");
+        await client.Assets.DeleteAssetAsync(guid, mediaId);
 
-        AssetGalleries galleries = await instance.Assets.GetGalleriesAsync(search: "team");
-        AssetMediaGrouping gallery = await instance.Assets.GetGalleryAsync(galleryId);
-        AssetMediaGrouping? byName = await instance.Assets.GetGalleryByNameAsync("Team photos");
-        var created = await instance.Assets.SaveGalleryAsync(new AssetMediaGrouping { MediaGroupingID = -1, Name = "Team photos", GroupingTypeID = 1 });
-        await instance.Assets.DeleteGalleryAsync(created.MediaGroupingID!.Value);
+        AssetGalleries galleries = await client.Assets.GetGalleriesAsync(guid, search: "team");
+        AssetMediaGrouping gallery = await client.Assets.GetGalleryAsync(guid, galleryId);
+        AssetMediaGrouping? byName = await client.Assets.GetGalleryByNameAsync(guid, "Team photos");
+        var created = await client.Assets.SaveGalleryAsync(guid, new AssetMediaGrouping { MediaGroupingID = -1, Name = "Team photos", GroupingTypeID = 1 });
+        await client.Assets.DeleteGalleryAsync(guid, created.MediaGroupingID!.Value);
     }
 }
 
 internal static class LocalizationGuide
 {
-    public static async Task Examples(AgilityInstanceClient instance, int localeId)
+    public static async Task Examples(AgilityManagementClient client, string guid, int localeId)
     {
-        List<Locale> enabled = await instance.Locales.GetLocalesAsync();
-        LocalesResponse all = await instance.Locales.GetAllLocalesAsync();
-        Locale fr = await instance.Locales.GetLocaleAsync(localeId);
+        List<Locale> enabled = await client.Locales.GetLocalesAsync(guid);
+        LocalesResponse all = await client.Locales.GetAllLocalesAsync(guid);
+        Locale fr = await client.Locales.GetLocaleAsync(guid, localeId);
 
-        var added = await instance.Locales.SaveLocaleAsync(new Locale { LocaleName = "French (Canada)", LocaleCode = "fr-ca" })
+        var added = await client.Locales.SaveLocaleAsync(guid, new Locale { LocaleName = "French (Canada)", LocaleCode = "fr-ca" })
             ?? throw new InvalidOperationException("The API didn't return the saved locale.");
-        await instance.Locales.EnableLocaleAsync(added.LocaleID!.Value);
-        await instance.Locales.DisableLocaleAsync(added.LocaleID!.Value);
-        await instance.Locales.SetSortOrderAsync([1, added.LocaleID!.Value, 3]);
+        await client.Locales.EnableLocaleAsync(guid, added.LocaleID!.Value);
+        await client.Locales.DisableLocaleAsync(guid, added.LocaleID!.Value);
+        await client.Locales.SetSortOrderAsync(guid, [1, added.LocaleID!.Value, 3]);
 
-        var item = await instance.Content.GetContentItemAsync("en-us", 42);
-        await instance.Localization.TranslateContentItemsAsync(new TranslateContentRequest
+        var item = await client.Content.GetContentItemAsync(guid, "en-us", 42);
+        await client.Localization.TranslateContentItemsAsync(guid, new TranslateContentRequest
         {
             LanguageCodeSource = "en-us",
             LanguageCodeTargets = ["fr-ca", "es-us"],
@@ -267,9 +270,9 @@ internal static class LocalizationGuide
 
 internal static class WebhooksGuide
 {
-    public static async Task Examples(AgilityInstanceClient instance)
+    public static async Task Examples(AgilityManagementClient client, string guid)
     {
-        var webhook = await instance.Webhooks.SaveWebhookAsync(new Webhook
+        var webhook = await client.Webhooks.SaveWebhookAsync(guid, new Webhook
         {
             Name = "Rebuild site",
             Url = "https://build.example.com/hooks/agility",
@@ -281,54 +284,54 @@ internal static class WebhooksGuide
         });
         if (webhook.SigningSecretJustCreated) Console.WriteLine(webhook.SigningSecret!.Length);
 
-        var rotated = await instance.Webhooks.RotateSigningSecretAsync(webhook.RowKey!);
+        var rotated = await client.Webhooks.RotateSigningSecretAsync(guid, webhook.RowKey!);
 
         string? token = null;
         do
         {
-            var page = await instance.Webhooks.GetWebhooksAsync(take: 50, continuationToken: token);
+            var page = await client.Webhooks.GetWebhooksAsync(guid, take: 50, continuationToken: token);
             foreach (var hook in page.Items ?? []) Console.WriteLine(hook.Name);
             token = page.Token;
         }
         while (token is not null);
 
-        var history = await instance.Webhooks.GetWebhookHistoryAsync(webhook.RowKey!, fromDate: DateTime.UtcNow.AddDays(-1));
-        await instance.Webhooks.DeleteWebhookAsync(webhook.RowKey!);
+        var history = await client.Webhooks.GetWebhookHistoryAsync(guid, webhook.RowKey!, fromDate: DateTime.UtcNow.AddDays(-1));
+        await client.Webhooks.DeleteWebhookAsync(guid, webhook.RowKey!);
     }
 }
 
 internal static class UrlRedirectionsGuide
 {
-    public static async Task Examples(AgilityInstanceClient instance)
+    public static async Task Examples(AgilityManagementClient client, string guid)
     {
-        UrlRedirectionSaveResult saved = await instance.UrlRedirections.SaveUrlRedirectionsAsync(
+        UrlRedirectionSaveResult saved = await client.UrlRedirections.SaveUrlRedirectionsAsync(guid,
         [
             new UrlRedirection { UrlRedirectionID = 0, OriginUrl = "/old-page", DestinationUrl = "/new-page", HttpCode = 301 },
             new UrlRedirection { UrlRedirectionID = 0, OriginUrl = "/promo", DestinationUrl = "https://example.com/sale", HttpCode = 302 },
         ]);
-        UrlRedirectionDeleteResult deleted = await instance.UrlRedirections.DeleteUrlRedirectionsAsync([12, 13]);
+        UrlRedirectionDeleteResult deleted = await client.UrlRedirections.DeleteUrlRedirectionsAsync(guid, [12, 13]);
 
-        await using (var export = await instance.UrlRedirections.ExportUrlRedirectionsAsync())
+        await using (var export = await client.UrlRedirections.ExportUrlRedirectionsAsync(guid))
         await using (var file = File.Create("redirections.xlsx"))
             await export.CopyToAsync(file);
 
         await using var edited = File.OpenRead("redirections.xlsx");
-        UrlRedirectionSaveResult imported = await instance.UrlRedirections.ImportUrlRedirectionsAsync(edited);
+        UrlRedirectionSaveResult imported = await client.UrlRedirections.ImportUrlRedirectionsAsync(guid, edited);
     }
 }
 
 internal static class UsersGuide
 {
-    public static async Task Examples(AgilityManagementClient client, AgilityInstanceClient instance, int editorRoleId)
+    public static async Task Examples(AgilityManagementClient client, string guid, int editorRoleId)
     {
-        ServerUser me = await client.Users.GetCurrentUserAsync();
+        ServerUser me = await client.ServerUsers.GetCurrentUserAsync();
         foreach (var site in me.WebsiteAccess ?? [])
             Console.WriteLine($"{site.WebsiteName}: {site.Guid}");
 
-        List<WebsiteUser> users = await instance.Users.GetUsersAsync();
-        InstanceUser user = await instance.Users.SaveUserAsync("editor@example.com",
+        List<WebsiteUser> users = await client.InstanceUsers.GetUsersAsync(guid);
+        InstanceUser user = await client.InstanceUsers.SaveUserAsync(guid, "editor@example.com",
             [new InstanceRole { RoleID = editorRoleId }], firstName: "Sam", lastName: "Lee");
-        await instance.Users.DeleteUserAsync(user.UserID);
+        await client.InstanceUsers.DeleteUserAsync(guid, user.UserID);
 
         var created = await client.PersonalAccessTokens.CreateTokenAsync(new PersonalAccessTokenRequest
         {
@@ -339,8 +342,8 @@ internal static class UsersGuide
         await client.PersonalAccessTokens.UpdateTokenAsync(created.TokenID, new PersonalAccessTokenUpdateRequest { Enabled = false });
         await client.PersonalAccessTokens.RevokeTokenAsync(created.TokenID);
 
-        string fetchKey = await instance.GetFetchApiKeyAsync();
-        string previewKey = await instance.GetPreviewApiKeyAsync();
+        string fetchKey = await client.OAuth.GetFetchApiKeyAsync(guid);
+        string previewKey = await client.OAuth.GetPreviewApiKeyAsync(guid);
         AllTypesResponse types = await client.Types.GetAllTypesAsync();
     }
 }

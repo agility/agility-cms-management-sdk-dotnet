@@ -5,11 +5,11 @@ using Agility.Management.Sdk.Serialization;
 namespace Agility.Management.Sdk.Clients;
 
 /// <summary>The signed-in user.</summary>
-public sealed class UsersClient
+public sealed class ServerUsersClient
 {
     private readonly ManagementConnection _connection;
 
-    internal UsersClient(ManagementConnection connection) => _connection = connection;
+    internal ServerUsersClient(ManagementConnection connection) => _connection = connection;
 
     /// <summary>Gets the user the access token belongs to, with their instances. <c>GET /api/v1/users/me</c></summary>
     /// <param name="cancellationToken">Cancels the request.</param>

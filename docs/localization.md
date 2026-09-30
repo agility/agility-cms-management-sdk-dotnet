@@ -2,33 +2,33 @@
 
 ## Locales
 
-`instance.Locales` manages the instance's locales.
+`client.Locales` manages the instance's locales.
 
 ```csharp
-List<Locale> enabled = await instance.Locales.GetLocalesAsync();
-LocalesResponse all = await instance.Locales.GetAllLocalesAsync();   // enabled or not
-Locale fr = await instance.Locales.GetLocaleAsync(localeId);
+List<Locale> enabled = await client.Locales.GetLocalesAsync(guid);
+LocalesResponse all = await client.Locales.GetAllLocalesAsync(guid);   // enabled or not
+Locale fr = await client.Locales.GetLocaleAsync(guid, localeId);
 
-var added = await instance.Locales.SaveLocaleAsync(new Locale { LocaleName = "French (Canada)", LocaleCode = "fr-ca" })
+var added = await client.Locales.SaveLocaleAsync(guid, new Locale { LocaleName = "French (Canada)", LocaleCode = "fr-ca" })
     ?? throw new InvalidOperationException("The API didn't return the saved locale.");
-await instance.Locales.EnableLocaleAsync(added.LocaleID!.Value);
-await instance.Locales.DisableLocaleAsync(added.LocaleID!.Value);
+await client.Locales.EnableLocaleAsync(guid, added.LocaleID!.Value);
+await client.Locales.DisableLocaleAsync(guid, added.LocaleID!.Value);
 
-await instance.Locales.SetSortOrderAsync([1, added.LocaleID!.Value, 3]);   // every locale ID, in order
+await client.Locales.SetSortOrderAsync(guid, [1, added.LocaleID!.Value, 3]);   // every locale ID, in order
 ```
 
 ## Copying content into other locales
 
-`instance.Localization` copies pages, content lists and content items from one locale to others, as a batch.
+`client.Localization` copies pages, content lists and content items from one locale to others, as a batch.
 **Initialize** copies them as they are; **translate** also machine-translates them.
 
 The requests take **version IDs** (`PageVersionIds`, `ContentVersionIds`), not page or content IDs. They're the
 `VersionID` on an item's `Properties`, or the version in its history.
 
 ```csharp
-var item = await instance.Content.GetContentItemAsync("en-us", 42);
+var item = await client.Content.GetContentItemAsync(guid, "en-us", 42);
 
-await instance.Localization.TranslateContentItemsAsync(new TranslateContentRequest
+await client.Localization.TranslateContentItemsAsync(guid, new TranslateContentRequest
 {
     LanguageCodeSource = "en-us",
     LanguageCodeTargets = ["fr-ca", "es-us"],

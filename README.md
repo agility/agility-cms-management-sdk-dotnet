@@ -29,17 +29,18 @@ using var client = new AgilityManagementClient(new AgilityManagementOptions
     AccessToken = Environment.GetEnvironmentVariable("AGILITY_TOKEN"), // a Personal Access Token
 });
 
-var instance = client.ForInstance("1234abcd-u");   // your instance GUID
+var guid = "1234abcd-u";   // your instance GUID: every instance-level call takes it first
 
 // Read, change and save a content item, then publish it.
-var item = await instance.Content.GetContentItemAsync("en-us", 42);
+var item = await client.Content.GetContentItemAsync(guid, "en-us", 42);
 item.Fields!["title"] = "Updated from .NET";
 
-var saved = await instance.Content.SaveContentItemAsync("en-us", item);      // waits for the save to finish
-await instance.Content.PublishContentItemAsync("en-us", saved.ItemId!.Value); // saves land in Staging
+var saved = await client.Content.SaveContentItemAsync(guid, "en-us", item);      // waits for the save to finish
+await client.Content.PublishContentItemAsync(guid, "en-us", saved.ItemId!.Value); // saves land in Staging
 ```
 
-`client.ForInstance(guid)` returns an `AgilityInstanceClient` with one property per area:
+The client has one property per area. Instance-level methods take the instance GUID first, then the locale where
+the route has one, then IDs, then optional settings:
 
 | Property | What it covers | Guide |
 |---|---|---|
@@ -51,11 +52,11 @@ await instance.Content.PublishContentItemAsync("en-us", saved.ItemId!.Value); //
 | `Locales`, `Localization` | locales; copying and translating into other locales | [localization](docs/localization.md) |
 | `Webhooks` | webhooks, delivery history, signing secrets | [webhooks](docs/webhooks.md) |
 | `UrlRedirections` | redirections, spreadsheet import and export | [URL redirections](docs/url-redirections.md) |
-| `Users` | the instance's users and roles | [users and tokens](docs/users-and-tokens.md) |
+| `InstanceUsers` | the instance's users and roles | [users and tokens](docs/users-and-tokens.md) |
 | `SyncStatus` | whether published changes have reached the Fetch API | [concepts](docs/concepts.md#waiting-for-the-fetch-api) |
 
-Server-level areas are on the client itself: `client.Users` (the signed-in user), `client.PersonalAccessTokens`,
-`client.OAuth` and `client.Types`.
+Server-level areas don't take a GUID: `client.ServerUsers` (the signed-in user), `client.PersonalAccessTokens`,
+`client.OAuth` and `client.Types`. The method names and argument order line up with the TypeScript Management SDK.
 
 ## Authentication
 

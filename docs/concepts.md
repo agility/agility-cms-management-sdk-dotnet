@@ -2,7 +2,7 @@
 
 How the Management API behaves, and what the SDK does about it. Read this before your first write.
 
-- [Clients and instances](#clients-and-instances)
+- [The client and instance GUIDs](#the-client-and-instance-guids)
 - [Batches](#batches)
 - [Saves land in Staging](#saves-land-in-staging)
 - [Saves replace the whole item](#saves-replace-the-whole-item)
@@ -14,17 +14,18 @@ How the Management API behaves, and what the SDK does about it. Read this before
 - [Regions](#regions)
 - [Options reference](#options-reference)
 
-## Clients and instances
+## The client and instance GUIDs
 
-Create one `AgilityManagementClient` and reuse it; it's thread-safe. `client.ForInstance(guid)` is cheap and
-returns an `AgilityInstanceClient` for one instance. Methods take the locale first where the API needs one:
+Create one `AgilityManagementClient` and reuse it; it's thread-safe. Every instance-level method takes the
+instance GUID first, then the locale where the route has one, then IDs, then optional settings:
 
 ```csharp
-var instance = client.ForInstance("1234abcd-u");
-var page = await instance.Pages.GetPageAsync("en-us", pageId);
+var page = await client.Pages.GetPageAsync("1234abcd-u", "en-us", pageId);
 ```
 
-To work across several instances, call `ForInstance` for each; they share the client's connection pool.
+One client works with any number of instances: pass a different GUID. Methods with many optional settings take an
+options object (`ContentListOptions`, `SavePageOptions`, `ContainerListOptions`); the rest take named optional
+parameters.
 
 ## Batches
 
@@ -36,7 +37,7 @@ The SDK waits for you. Every batch-producing method has a `waitForBatch` paramet
 `BatchResult`:
 
 ```csharp
-var result = await instance.Content.SaveContentItemAsync("en-us", item);
+var result = await client.Content.SaveContentItemAsync(guid, "en-us", item);
 result.BatchId;   // the batch
 result.ItemId;    // the saved item's content ID (new items get one here)
 result.ItemIds;   // every item's ID, for multi-item saves
@@ -57,9 +58,9 @@ While waiting, the SDK polls `GET batch/{id}` every `BatchPolling.Interval` (3 s
 To fire and forget, or to wait later:
 
 ```csharp
-var queued = await instance.Content.PublishContentItemAsync("en-us", id, waitForBatch: false);
+var queued = await client.Content.PublishContentItemAsync(guid, "en-us", id, waitForBatch: false);
 // ... later
-var batch = await instance.Batches.WaitForBatchAsync(queued.BatchId);
+var batch = await client.Batches.WaitForBatchAsync(guid, queued.BatchId);
 ```
 
 `PublishContentItemCascadeAsync` and `PublishPageCascadeAsync` can create several batches and return
@@ -71,10 +72,10 @@ Saving a published item moves it back to Staging. The live site keeps serving th
 publish again. Changing one field on a live item takes two batches:
 
 ```csharp
-var item = await instance.Content.GetContentItemAsync("en-us", id);
+var item = await client.Content.GetContentItemAsync(guid, "en-us", id);
 item.Fields!["title"] = "New title";
-await instance.Content.SaveContentItemAsync("en-us", item);
-await instance.Content.PublishContentItemAsync("en-us", id);
+await client.Content.SaveContentItemAsync(guid, "en-us", item);
+await client.Content.PublishContentItemAsync(guid, "en-us", id);
 ```
 
 ## Saves replace the whole item
@@ -132,7 +133,7 @@ Values inside `ContentItem.Fields` are data, so a field set to `null` is still s
 ```csharp
 try
 {
-    await instance.Content.SaveContentItemAsync("en-us", item);
+    await client.Content.SaveContentItemAsync(guid, "en-us", item);
 }
 catch (AgilityBatchException ex)
 {
@@ -161,7 +162,7 @@ A processed publish batch means the Management API has published the item. The F
 syncs shortly after. To wait for that too:
 
 ```csharp
-await instance.SyncStatus.WaitForFetchApiSyncAsync(SyncMode.Fetch);
+await client.SyncStatus.WaitForFetchApiSyncAsync(guid, SyncMode.Fetch);
 ```
 
 ## Regions
@@ -177,8 +178,8 @@ The instance GUID's suffix selects the API host:
 | `-a` | `https://mgmt-aus.aglty.io` |
 | `-d` | `https://mgmt-dev.aglty.io` |
 
-An unknown suffix throws an `ArgumentException` from `ForInstance`, rather than sending requests to the wrong
-region. Server-level calls (`client.Users`, `client.PersonalAccessTokens`, `client.OAuth`) go to
+An unknown suffix throws an `ArgumentException` before any request is sent, rather than sending requests to the
+wrong region. Server-level calls (`client.Users`, `client.PersonalAccessTokens`, `client.OAuth`) go to
 `https://mgmt.aglty.io`. `BaseUrl` overrides all of this, for a local or test deployment of the API.
 
 ## Options reference

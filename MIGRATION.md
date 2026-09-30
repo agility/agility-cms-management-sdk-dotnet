@@ -1,6 +1,6 @@
 # Migrating from 1.x to 2.0
 
-2.0 is a rewrite. The API it calls is the same, but the SDK's shape changed: an instance-scoped client, async
+2.0 is a rewrite. The API it calls is the same, but the SDK's shape changed: one consistent argument order, async
 methods with cancellation, models named after the API's schemas, typed errors, and saves that wait for their
 batch. This guide maps each 1.x call to its 2.0 replacement.
 
@@ -16,13 +16,17 @@ var item = await clientInstance.contentMethods.GetContentItem(42, guid, "en-us")
 
 // 2.0
 using var client = new AgilityManagementClient(new AgilityManagementOptions { AccessToken = token });
-var instance = client.ForInstance(guid);
-var item = await instance.Content.GetContentItemAsync("en-us", 42);
+var item = await client.Content.GetContentItemAsync(guid, "en-us", 42);
 ```
 
 - Namespaces: `management.api.sdk` is now `Agility.Management.Sdk` (the area clients are in
   `Agility.Management.Sdk.Clients`), and `agility.models` and `agility.enums` are both `Agility.Management.Sdk.Models`.
-- The instance GUID moves from every call to `client.ForInstance(guid)`. The locale is now the first parameter.
+- Every instance-level method takes the arguments in one order: instance GUID, then locale (where the route has
+  one), then IDs, then optional settings. 1.x mixed `(id, guid, locale)` and `(guid, locale, id)`.
+- The `*Methods` properties become area properties: `contentMethods` → `client.Content`, `pageMethods` →
+  `client.Pages`, and so on.
+- The three methods with many optional settings take an options object: `GetContentListAsync`
+  (`ContentListOptions`), `SavePageAsync` (`SavePageOptions`) and `GetContainerListPagedAsync` (`ContainerListOptions`).
 - Every method ends in `Async` and takes a `CancellationToken`.
 - With dependency injection, use `services.AddAgilityManagement(...)`.
 
@@ -73,98 +77,98 @@ new object, create it: `zone.DefaultModules ??= [];`. Leaving a collection `null
 
 ## Method map
 
-`instance` is `client.ForInstance(guid)`. Methods marked † return a `BatchResult` instead of an ID: use
+Every 2.0 method below also takes the instance GUID as its first argument (shown as `guid`). Methods marked † return a `BatchResult` instead of an ID: use
 `result.ItemId` for the old return value.
 
-### Assets (`assetMethods` → `instance.Assets`)
+### Assets (`assetMethods` → `client.Assets`)
 
 | 1.x | 2.0 |
 |---|---|
-| `Upload(files, guid, folderPath, groupingID)` | `UploadAsync(folderPath, [new AssetUpload(name, stream)], galleryId)` |
-| `CreateFolder(originKey, guid)` | `CreateFolderAsync(originKey)` |
-| `DeleteFile(mediaID, guid)` | `DeleteAssetAsync(mediaId)` |
-| `MoveFile(mediaID, newFolder, guid)` | `MoveAssetAsync(mediaId, newFolder)` |
-| `GetMediaList(pageSize, recordOffset, guid)` | `GetMediaListAsync(pageSize, recordOffset)` |
-| `GetGalleries(guid, search, pageSize, rowIndex)` | `GetGalleriesAsync(search, pageSize, rowIndex)` |
-| `GetGalleryById(guid, id)` | `GetGalleryAsync(galleryId)` |
-| `GetGalleryByName(guid, name)` | `GetGalleryByNameAsync(galleryName)` |
-| `GetDefaultContainer(guid)` | `GetDefaultContainerAsync()` |
-| `SaveGallery(guid, gallery)` | `SaveGalleryAsync(gallery)` |
-| `DeleteGallery(guid, id)` | `DeleteGalleryAsync(galleryId)` |
-| `GetAssetByID(mediaID, guid)` | `GetAssetAsync(mediaId)` |
-| `GetAssetByURL(url, guid)` | `GetAssetByUrlAsync(url)` |
+| `Upload(files, guid, folderPath, groupingID)` | `UploadAsync(guid, folderPath, [new AssetUpload(name, stream)], galleryId)` |
+| `CreateFolder(originKey, guid)` | `CreateFolderAsync(guid, originKey)` |
+| `DeleteFile(mediaID, guid)` | `DeleteAssetAsync(guid, mediaId)` |
+| `MoveFile(mediaID, newFolder, guid)` | `MoveAssetAsync(guid, mediaId, newFolder)` |
+| `GetMediaList(pageSize, recordOffset, guid)` | `GetMediaListAsync(guid, pageSize, recordOffset)` |
+| `GetGalleries(guid, search, pageSize, rowIndex)` | `GetGalleriesAsync(guid, search, pageSize, rowIndex)` |
+| `GetGalleryById(guid, id)` | `GetGalleryAsync(guid, galleryId)` |
+| `GetGalleryByName(guid, name)` | `GetGalleryByNameAsync(guid, galleryName)` |
+| `GetDefaultContainer(guid)` | `GetDefaultContainerAsync(guid)` |
+| `SaveGallery(guid, gallery)` | `SaveGalleryAsync(guid, gallery)` |
+| `DeleteGallery(guid, id)` | `DeleteGalleryAsync(guid, galleryId)` |
+| `GetAssetByID(mediaID, guid)` | `GetAssetAsync(guid, mediaId)` |
+| `GetAssetByURL(url, guid)` | `GetAssetByUrlAsync(guid, url)` |
 
-### Batches (`batchMethods` → `instance.Batches`)
-
-| 1.x | 2.0 |
-|---|---|
-| `GetBatch(id, guid)` | `GetBatchAsync(batchId)` |
-| `Retry(func)` | `WaitForBatchAsync(batchId)`; batch operations wait on their own |
-| `contentMethods.GetBatchObject` / `pageMethods.GetBatchObject` | `GetBatchAsync(batchId)` |
-
-### Containers (`containerMethods` → `instance.Containers`)
+### Batches (`batchMethods` → `client.Batches`)
 
 | 1.x | 2.0 |
 |---|---|
-| `GetContainerById(id, guid)` | `GetContainerAsync(containerId)` |
-| `GetContainerByReferenceName(name, guid)` | `GetContainerByReferenceNameAsync(referenceName)` |
-| `GetContainersByModel(modelId, guid)` | `GetContainersByModelAsync(modelId)` |
-| `GetContainerSecurity(id, guid)` | `GetContainerSecurityAsync(containerId)` |
-| `GetContainerList(guid)` | `GetContainerListAsync()` |
-| `GetContainerListPaged(guid, ...)` | `GetContainerListPagedAsync(...)` |
-| `GetNotificationList(id, guid)` | `GetNotificationsAsync(containerId)` |
-| `SaveContainer(container, guid)` | `SaveContainerAsync(container)` |
-| `DeleteContainer(id, guid)` | `DeleteContainerAsync(containerId)` |
+| `GetBatch(id, guid)` | `GetBatchAsync(guid, batchId)` |
+| `Retry(func)` | `WaitForBatchAsync(guid, batchId)`; batch operations wait on their own |
+| `contentMethods.GetBatchObject` / `pageMethods.GetBatchObject` | `GetBatchAsync(guid, batchId)` |
 
-### Content (`contentMethods` → `instance.Content`)
+### Containers (`containerMethods` → `client.Containers`)
 
 | 1.x | 2.0 |
 |---|---|
-| `GetContentItem(contentID, guid, locale)` | `GetContentItemAsync(locale, contentId)` |
-| `GetContentItems(referenceName, guid, locale, filter, fields, sortDirection, sortField, take, skip)` | `GetContentListAsync(locale, referenceName, ContentListFilterModel, take, skip, fields: ..., sortField: ..., sortDirection: ...)` |
-| `SaveContentItem(item, guid, locale)` † | `SaveContentItemAsync(locale, item)` |
-| `SaveContentItems(items, guid, locale)` | `SaveContentItemsAsync(locale, items)`: `result.ItemIds`; failures throw instead of appearing as strings in the list |
-| `DeleteContent(contentID, guid, locale, comments)` † | `DeleteContentItemAsync(locale, contentId, comments)` |
-| `PublishContent(...)` † | `PublishContentItemAsync(locale, contentId, comments)` |
-| `UnPublishContent(...)` † | `UnpublishContentItemAsync(locale, contentId, comments)` |
-| `ApproveContent(...)` † | `ApproveContentItemAsync(locale, contentId, comments)` |
-| `DeclineContent(...)` † | `DeclineContentItemAsync(locale, contentId, comments)` |
-| `ContentRequestApproval(...)` † | `RequestApprovalContentItemAsync(locale, contentId, comments)` |
+| `GetContainerById(id, guid)` | `GetContainerAsync(guid, containerId)` |
+| `GetContainerByReferenceName(name, guid)` | `GetContainerByReferenceNameAsync(guid, referenceName)` |
+| `GetContainersByModel(modelId, guid)` | `GetContainersByModelAsync(guid, modelId)` |
+| `GetContainerSecurity(id, guid)` | `GetContainerSecurityAsync(guid, containerId)` |
+| `GetContainerList(guid)` | `GetContainerListAsync(guid)` |
+| `GetContainerListPaged(guid, ...)` | `GetContainerListPagedAsync(guid, new ContainerListOptions { ... })` |
+| `GetNotificationList(id, guid)` | `GetNotificationsAsync(guid, containerId)` |
+| `SaveContainer(container, guid)` | `SaveContainerAsync(guid, container)` |
+| `DeleteContainer(id, guid)` | `DeleteContainerAsync(guid, containerId)` |
 
-### Instance users (`instanceUserMethods` → `instance.Users`)
-
-| 1.x | 2.0 |
-|---|---|
-| `GetUsers(guid)` | `GetUsersAsync()` |
-| `SaveUser(email, roles, guid, first, last)` | `SaveUserAsync(email, roles, firstName, lastName)` |
-| `DeleteUser(userID, guid)` | `DeleteUserAsync(userId)` |
-
-### Models (`modelMethods` → `instance.Models`)
+### Content (`contentMethods` → `client.Content`)
 
 | 1.x | 2.0 |
 |---|---|
-| `GetContentModel(id, guid)` | `GetModelAsync(modelId)` |
-| `GetModelByReferenceName(name, guid)` | `GetModelByReferenceNameAsync(referenceName)` |
-| `GetContentModules(includeDefaults, guid, includeModules)` | `GetContentModelsAsync(includeDefaults, includeModules)` |
-| `GetPageModules(guid, includeDefault)` | `GetComponentModelsAsync(includeDefault)` |
-| `SaveModel(model, guid)` | `SaveModelAsync(model)` |
-| `DeleteModel(id, guid)` | `DeleteModelAsync(modelId)` |
+| `GetContentItem(contentID, guid, locale)` | `GetContentItemAsync(guid, locale, contentId)` |
+| `GetContentItems(referenceName, guid, locale, filter, fields, sortDirection, sortField, take, skip)` | `GetContentListAsync(guid, locale, referenceName, new ContentListOptions { Filter, Take, Skip, Fields, SortField, SortDirection })` |
+| `SaveContentItem(item, guid, locale)` † | `SaveContentItemAsync(guid, locale, item)` |
+| `SaveContentItems(items, guid, locale)` | `SaveContentItemsAsync(guid, locale, items)`: `result.ItemIds`; failures throw instead of appearing as strings in the list |
+| `DeleteContent(contentID, guid, locale, comments)` † | `DeleteContentItemAsync(guid, locale, contentId, comments)` |
+| `PublishContent(...)` † | `PublishContentItemAsync(guid, locale, contentId, comments)` |
+| `UnPublishContent(...)` † | `UnpublishContentItemAsync(guid, locale, contentId, comments)` |
+| `ApproveContent(...)` † | `ApproveContentItemAsync(guid, locale, contentId, comments)` |
+| `DeclineContent(...)` † | `DeclineContentItemAsync(guid, locale, contentId, comments)` |
+| `ContentRequestApproval(...)` † | `RequestApprovalContentItemAsync(guid, locale, contentId, comments)` |
 
-### Pages (`pageMethods` → `instance.Pages`)
+### Instance users (`instanceUserMethods` → `client.InstanceUsers`)
 
 | 1.x | 2.0 |
 |---|---|
-| `GetSiteMap(guid, locale)` | `GetSitemapAsync(locale)` |
-| `GetPage(pageID, guid, locale)` | `GetPageAsync(locale, pageId)` |
-| `SavePage(page, guid, locale, parentPageID, placeBeforePageItemID, pageIDInOtherLocale, otherLocale)` † | `SavePageAsync(locale, page, parentPageId, placeBeforePageId, otherLocale, pageIdInOtherLocale)`: parameters left `null` use the API's defaults |
-| `DeletePage(...)` † | `DeletePageAsync(locale, pageId, comments)` |
+| `GetUsers(guid)` | `GetUsersAsync(guid)` |
+| `SaveUser(email, roles, guid, first, last)` | `SaveUserAsync(guid, email, roles, firstName, lastName)` |
+| `DeleteUser(userID, guid)` | `DeleteUserAsync(guid, userId)` |
+
+### Models (`modelMethods` → `client.Models`)
+
+| 1.x | 2.0 |
+|---|---|
+| `GetContentModel(id, guid)` | `GetModelAsync(guid, modelId)` |
+| `GetModelByReferenceName(name, guid)` | `GetModelByReferenceNameAsync(guid, referenceName)` |
+| `GetContentModules(includeDefaults, guid, includeModules)` | `GetContentModelsAsync(guid, includeDefaults, includeModules)` |
+| `GetPageModules(guid, includeDefault)` | `GetComponentModelsAsync(guid, includeDefault)` |
+| `SaveModel(model, guid)` | `SaveModelAsync(guid, model)` |
+| `DeleteModel(id, guid)` | `DeleteModelAsync(guid, modelId)` |
+
+### Pages (`pageMethods` → `client.Pages`)
+
+| 1.x | 2.0 |
+|---|---|
+| `GetSiteMap(guid, locale)` | `GetSitemapAsync(guid, locale)` |
+| `GetPage(pageID, guid, locale)` | `GetPageAsync(guid, locale, pageId)` |
+| `SavePage(page, guid, locale, parentPageID, placeBeforePageItemID, pageIDInOtherLocale, otherLocale)` † | `SavePageAsync(guid, locale, page, new SavePageOptions { ParentPageId, PlaceBeforePageId, OtherLocale, PageIdInOtherLocale })`: settings left `null` use the API's defaults |
+| `DeletePage(...)` † | `DeletePageAsync(guid, locale, pageId, comments)` |
 | `PublishPage` / `UnPublishPage` / `ApprovePage` / `DeclinePage` / `PageRequestApproval` † | `PublishPageAsync` / `UnpublishPageAsync` / `ApprovePageAsync` / `DeclinePageAsync` / `RequestApprovalPageAsync`, each `(locale, pageId, comments)` |
-| `GetPageTemplates(guid, locale, includeModuleZones, searchFilter)` | `GetPageTemplatesAsync(locale, includeModuleZones, searchFilter)` |
-| `GetPageTemplate(guid, locale, id)` | `GetPageTemplateAsync(locale, pageTemplateId)` |
-| `GetPageTemplateByName(guid, locale, name)` | `GetPageTemplateByNameAsync(locale, templateName)` |
-| `GetPageItemTemplates(guid, locale, id)` | `GetPageTemplateZonesAsync(locale, pageTemplateId)` |
-| `SavePageTemplate(guid, locale, template)` | `SavePageTemplateAsync(locale, template)` |
-| `DeletePageTemplate(guid, locale, id)` | `DeletePageTemplateAsync(locale, pageTemplateId)` |
+| `GetPageTemplates(guid, locale, includeModuleZones, searchFilter)` | `GetPageTemplatesAsync(guid, locale, includeModuleZones, searchFilter)` |
+| `GetPageTemplate(guid, locale, id)` | `GetPageTemplateAsync(guid, locale, pageTemplateId)` |
+| `GetPageTemplateByName(guid, locale, name)` | `GetPageTemplateByNameAsync(guid, locale, templateName)` |
+| `GetPageItemTemplates(guid, locale, id)` | `GetPageTemplateZonesAsync(guid, locale, pageTemplateId)` |
+| `SavePageTemplate(guid, locale, template)` | `SavePageTemplateAsync(guid, locale, template)` |
+| `DeletePageTemplate(guid, locale, id)` | `DeletePageTemplateAsync(guid, locale, pageTemplateId)` |
 
 Delete methods that returned the API's message string now return `Task`; a failure throws.
 

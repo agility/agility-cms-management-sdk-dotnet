@@ -64,8 +64,6 @@ public static class TestClient
         return new AgilityManagementClient(options, new HttpClient(handler));
     }
 
-    public static AgilityInstanceClient Instance(FakeHandler handler, Action<AgilityManagementOptions>? configure = null) =>
-        Create(handler, configure).ForInstance(InstanceGuid);
 
     /// <summary>A processed batch with one successful item.</summary>
     public static string ProcessedBatch(int batchId, int itemId = 555) =>

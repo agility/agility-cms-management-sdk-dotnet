@@ -20,9 +20,9 @@ public class BatchTests
                 ? FakeHandler.Json("""{"batchID":88,"batchState":2}""")
                 : FakeHandler.Json(TestClient.ProcessedBatch(88, itemId: 1001));
         });
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var result = await instance.Content.SaveContentItemAsync("en-us", new Models.ContentItem(), cancellationToken: Ct);
+        var result = await client.Content.SaveContentItemAsync(TestClient.InstanceGuid, "en-us", new Models.ContentItem(), cancellationToken: Ct);
 
         Assert.Equal(88, result.BatchId);
         Assert.True(result.IsProcessed);
@@ -35,9 +35,9 @@ public class BatchTests
     public async Task waitForBatch_false_returns_the_batch_ID_without_polling()
     {
         var handler = new FakeHandler(_ => FakeHandler.Json("88"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var result = await instance.Pages.PublishPageAsync("en-us", 5, waitForBatch: false, cancellationToken: Ct);
+        var result = await client.Pages.PublishPageAsync(TestClient.InstanceGuid, "en-us", 5, waitForBatch: false, cancellationToken: Ct);
 
         Assert.Equal(88, result.BatchId);
         Assert.Null(result.Batch);
@@ -54,9 +54,9 @@ public class BatchTests
             if (!IsBatchGet(r)) return FakeHandler.Json("88");
             return ++polls <= 2 ? FakeHandler.Text("not found", HttpStatusCode.NotFound) : FakeHandler.Json(TestClient.ProcessedBatch(88));
         });
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var result = await instance.Content.PublishContentItemAsync("en-us", 7, cancellationToken: Ct);
+        var result = await client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 7, cancellationToken: Ct);
 
         Assert.True(result.IsProcessed);
     }
@@ -65,9 +65,9 @@ public class BatchTests
     public async Task A_batch_that_stays_404_past_the_grace_period_reports_the_404()
     {
         var handler = new FakeHandler(r => IsBatchGet(r) ? FakeHandler.Text("nope", HttpStatusCode.NotFound) : FakeHandler.Json("88"));
-        var instance = TestClient.Instance(handler, o => o.BatchPolling.NotFoundGracePeriod = TimeSpan.FromMilliseconds(20));
+        var client = TestClient.Create(handler, o => o.BatchPolling.NotFoundGracePeriod = TimeSpan.FromMilliseconds(20));
 
-        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => instance.Content.PublishContentItemAsync("en-us", 7, cancellationToken: Ct));
+        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 7, cancellationToken: Ct));
 
         Assert.Equal(HttpStatusCode.NotFound, ex.StatusCode);
     }
@@ -76,9 +76,9 @@ public class BatchTests
     public async Task A_batch_that_never_finishes_times_out_with_its_ID_and_last_state()
     {
         var handler = new FakeHandler(r => IsBatchGet(r) ? FakeHandler.Json("""{"batchID":88,"batchState":2}""") : FakeHandler.Json("88"));
-        var instance = TestClient.Instance(handler, o => o.BatchPolling.Timeout = TimeSpan.FromMilliseconds(50));
+        var client = TestClient.Create(handler, o => o.BatchPolling.Timeout = TimeSpan.FromMilliseconds(50));
 
-        var ex = await Assert.ThrowsAsync<AgilityBatchTimeoutException>(() => instance.Content.PublishContentItemAsync("en-us", 7, cancellationToken: Ct));
+        var ex = await Assert.ThrowsAsync<AgilityBatchTimeoutException>(() => client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 7, cancellationToken: Ct));
 
         Assert.Equal(88, ex.BatchId);
         Assert.Equal(Models.BatchState.InProcess, ex.Batch?.BatchState);
@@ -90,13 +90,13 @@ public class BatchTests
     {
         // 1.x decremented its retry counter twice per poll, so it gave up at half the configured budget.
         var handler = new FakeHandler(r => IsBatchGet(r) ? FakeHandler.Json("""{"batchID":88,"batchState":1}""") : FakeHandler.Json("88"));
-        var instance = TestClient.Instance(handler, o =>
+        var client = TestClient.Create(handler, o =>
         {
             o.BatchPolling.Interval = TimeSpan.FromMilliseconds(20);
             o.BatchPolling.Timeout = TimeSpan.FromMilliseconds(400);
         });
 
-        var ex = await Assert.ThrowsAsync<AgilityBatchTimeoutException>(() => instance.Content.PublishContentItemAsync("en-us", 7, cancellationToken: Ct));
+        var ex = await Assert.ThrowsAsync<AgilityBatchTimeoutException>(() => client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 7, cancellationToken: Ct));
 
         Assert.True(ex.Waited >= TimeSpan.FromMilliseconds(400), $"waited {ex.Waited}");
     }
@@ -109,9 +109,9 @@ public class BatchTests
              "items":[{"itemID":1,"errorMessage":null},{"itemID":2,"errorMessage":"{\"Message\":\"Field 'title' is required\"}"}]}
             """;
         var handler = new FakeHandler(r => IsBatchGet(r) ? FakeHandler.Json(failed) : FakeHandler.Json("88"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var ex = await Assert.ThrowsAsync<AgilityBatchException>(() => instance.Content.SaveContentItemsAsync("en-us", [new(), new()], cancellationToken: Ct));
+        var ex = await Assert.ThrowsAsync<AgilityBatchException>(() => client.Content.SaveContentItemsAsync(TestClient.InstanceGuid, "en-us", [new(), new()], cancellationToken: Ct));
 
         Assert.Equal(88, ex.BatchId);
         Assert.Contains("1 failed item", ex.Message, StringComparison.Ordinal);
@@ -125,9 +125,9 @@ public class BatchTests
         var handler = new FakeHandler(r => IsBatchGet(r)
             ? FakeHandler.Json("""{"batchID":88,"batchState":3,"abortYN":true,"errorData":"Batch aborted.","items":[]}""")
             : FakeHandler.Json("88"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var ex = await Assert.ThrowsAsync<AgilityBatchException>(() => instance.Content.PublishContentItemAsync("en-us", 7, cancellationToken: Ct));
+        var ex = await Assert.ThrowsAsync<AgilityBatchException>(() => client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 7, cancellationToken: Ct));
 
         Assert.Contains("aborted", ex.Message, StringComparison.Ordinal);
     }
@@ -136,9 +136,9 @@ public class BatchTests
     public async Task A_missing_batch_ID_is_reported_rather_than_polled()
     {
         var handler = new FakeHandler(_ => FakeHandler.Json("null"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => instance.Content.PublishContentItemAsync("en-us", 7, cancellationToken: Ct));
+        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 7, cancellationToken: Ct));
 
         Assert.Contains("didn't return a batch ID", ex.Message, StringComparison.Ordinal);
         Assert.Single(handler.Requests);
@@ -149,8 +149,8 @@ public class BatchTests
     {
         using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
         var handler = new FakeHandler(r => IsBatchGet(r) ? FakeHandler.Json("""{"batchID":88,"batchState":1}""") : FakeHandler.Json("88"));
-        var instance = TestClient.Instance(handler, o => o.BatchPolling.Timeout = TimeSpan.FromMinutes(5));
+        var client = TestClient.Create(handler, o => o.BatchPolling.Timeout = TimeSpan.FromMinutes(5));
 
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => instance.Batches.WaitForBatchAsync(88, cts.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => client.Batches.WaitForBatchAsync(TestClient.InstanceGuid, 88, cts.Token));
     }
 }

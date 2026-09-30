@@ -9,12 +9,12 @@ namespace Agility.Management.Sdk;
 /// <example>
 /// <code>
 /// var client = new AgilityManagementClient(new AgilityManagementOptions { AccessToken = pat });
-/// var instance = client.ForInstance("1234abcd-u");
-/// var item = await instance.Content.GetContentItemAsync("en-us", 42);
+/// var item = await client.Content.GetContentItemAsync("1234abcd-u", "en-us", 42);
 /// </code>
 /// </example>
 /// <remarks>
-/// Create one client and reuse it. It's safe to share across threads. With dependency injection, use
+/// Every instance-level method takes the instance GUID first, then the locale where the route has one, then IDs.
+/// Create one client and reuse it for any number of instances. It's safe to share across threads. With dependency injection, use
 /// <c>services.AddAgilityManagement(...)</c> instead of constructing it.
 /// </remarks>
 public sealed class AgilityManagementClient : IDisposable
@@ -50,31 +50,71 @@ public sealed class AgilityManagementClient : IDisposable
             if (options.RefreshTokenChanged is { } changed) _ownedTokenProvider.RefreshTokenChanged += (_, token) => changed(token);
             _connection.UseTokenProvider(_ownedTokenProvider);
         }
-        Users = new UsersClient(_connection);
+        ServerUsers = new ServerUsersClient(_connection);
         PersonalAccessTokens = new PersonalAccessTokensClient(_connection);
         Types = new TypesClient(_connection);
+
+        Batches = new BatchesClient(_connection);
+        Assets = new AssetsClient(_connection);
+        Containers = new ContainersClient(_connection);
+        Content = new ContentClient(_connection, Batches);
+        Pages = new PagesClient(_connection, Batches);
+        Models = new ModelsClient(_connection);
+        Locales = new LocalesClient(_connection);
+        Localization = new LocalizationClient(_connection, Batches);
+        InstanceUsers = new InstanceUsersClient(_connection);
+        UrlRedirections = new UrlRedirectionsClient(_connection);
+        Webhooks = new WebhooksClient(_connection);
+        SyncStatus = new SyncStatusClient(_connection);
     }
 
-    /// <summary>OAuth sign-in and token refresh.</summary>
+    /// <summary>Assets (media), folders and galleries.</summary>
+    public AssetsClient Assets { get; }
+
+    /// <summary>Batches, and waiting for them.</summary>
+    public BatchesClient Batches { get; }
+
+    /// <summary>Containers.</summary>
+    public ContainersClient Containers { get; }
+
+    /// <summary>Content items.</summary>
+    public ContentClient Content { get; }
+
+    /// <summary>Pages, the sitemap and page templates.</summary>
+    public PagesClient Pages { get; }
+
+    /// <summary>Content and component models.</summary>
+    public ModelsClient Models { get; }
+
+    /// <summary>Locales.</summary>
+    public LocalesClient Locales { get; }
+
+    /// <summary>Copying and translating pages and content into other locales.</summary>
+    public LocalizationClient Localization { get; }
+
+    /// <summary>An instance's users and roles.</summary>
+    public InstanceUsersClient InstanceUsers { get; }
+
+    /// <summary>URL redirections.</summary>
+    public UrlRedirectionsClient UrlRedirections { get; }
+
+    /// <summary>Webhooks.</summary>
+    public WebhooksClient Webhooks { get; }
+
+    /// <summary>Fetch API sync status.</summary>
+    public SyncStatusClient SyncStatus { get; }
+
+    /// <summary>OAuth sign-in and token refresh, and an instance's Fetch API keys.</summary>
     public OAuthClient OAuth { get; }
 
     /// <summary>The signed-in user.</summary>
-    public UsersClient Users { get; }
+    public ServerUsersClient ServerUsers { get; }
 
     /// <summary>Personal Access Tokens.</summary>
     public PersonalAccessTokensClient PersonalAccessTokens { get; }
 
     /// <summary>The API's enum values.</summary>
     public TypesClient Types { get; }
-
-    /// <summary>Returns a client for one instance.</summary>
-    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
-    /// <exception cref="ArgumentException">The GUID's region suffix isn't known and no base URL is configured.</exception>
-    public AgilityInstanceClient ForInstance(string instanceGuid)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(instanceGuid);
-        return new AgilityInstanceClient(_connection, instanceGuid.Trim());
-    }
 
     /// <inheritdoc/>
     public void Dispose()

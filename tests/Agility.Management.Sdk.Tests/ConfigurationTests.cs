@@ -28,17 +28,25 @@ public class RegionTests
     }
 
     [Fact]
-    public void ForInstance_fails_fast_on_a_bad_GUID()
+    public async Task A_bad_GUID_fails_before_any_request_is_sent()
     {
-        using var client = new AgilityManagementClient(new AgilityManagementOptions { AccessToken = "t" });
-        Assert.Throws<ArgumentException>(() => client.ForInstance("1234abcd-x"));
+        var handler = new FakeHandler(_ => FakeHandler.Json("[]"));
+        using var client = TestClient.Create(handler);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => client.Models.GetFieldTypesAsync("1234abcd-x", TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ArgumentException>(() => client.Models.GetFieldTypesAsync(" ", TestContext.Current.CancellationToken));
+        Assert.Empty(handler.Requests);
     }
 
     [Fact]
-    public void ForInstance_accepts_any_suffix_when_a_BaseUrl_is_set()
+    public async Task Any_suffix_is_accepted_when_a_BaseUrl_is_set()
     {
-        using var client = new AgilityManagementClient(new AgilityManagementOptions { AccessToken = "t", BaseUrl = new Uri("http://localhost:1") });
-        Assert.Equal(new Uri("http://localhost:1"), client.ForInstance("1234abcd-x").BaseUrl);
+        var handler = new FakeHandler(_ => FakeHandler.Json("[]"));
+        using var client = TestClient.Create(handler, o => o.BaseUrl = new Uri("http://localhost:1"));
+
+        await client.Models.GetFieldTypesAsync("1234abcd-x", TestContext.Current.CancellationToken);
+
+        Assert.Equal("http://localhost:1/api/v1/instance/1234abcd-x/model/field-types", handler.Requests.Single().Uri.ToString());
     }
 }
 
@@ -66,7 +74,7 @@ public class OptionsTests
         var ct = TestContext.Current.CancellationToken;
 
         await client.Types.GetAllTypesAsync(ct);
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => client.Users.GetCurrentUserAsync(ct));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => client.ServerUsers.GetCurrentUserAsync(ct));
 
         Assert.Contains("AccessToken", ex.Message, StringComparison.Ordinal);
         Assert.Single(handler.Requests);
@@ -82,7 +90,7 @@ public class OptionsTests
         using var client = new AgilityManagementClient(
             new AgilityManagementOptions { RefreshToken = "original", RefreshTokenChanged = t => stored = t }, new HttpClient(handler));
 
-        await client.Users.GetCurrentUserAsync(TestContext.Current.CancellationToken);
+        await client.ServerUsers.GetCurrentUserAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal("refresh_token=original", handler.Requests[0].Body);
         Assert.Equal("Bearer fresh", handler.Requests[1].Headers.Authorization);
@@ -111,7 +119,7 @@ public class DependencyInjectionTests
         await using var provider = services.BuildServiceProvider();
 
         var client = provider.GetRequiredService<AgilityManagementClient>();
-        await client.ForInstance(TestClient.InstanceGuid).Models.GetFieldTypesAsync(TestContext.Current.CancellationToken);
+        await client.Models.GetFieldTypesAsync(TestClient.InstanceGuid, TestContext.Current.CancellationToken);
 
         Assert.Equal("Bearer di-token", handler.Requests.Single().Headers.Authorization);
     }
@@ -126,7 +134,7 @@ public class DependencyInjectionTests
         await using var provider = services.BuildServiceProvider();
 
         await provider.GetRequiredService<AgilityManagementClient>()
-            .ForInstance(TestClient.InstanceGuid).Models.GetFieldTypesAsync(TestContext.Current.CancellationToken);
+            .Models.GetFieldTypesAsync(TestClient.InstanceGuid, TestContext.Current.CancellationToken);
 
         Assert.Equal("Bearer from-di", handler.Requests.Single().Headers.Authorization);
     }

@@ -11,9 +11,9 @@ public class TransportTests
     public async Task Requests_carry_the_bearer_token_an_identifying_user_agent_and_accept_json()
     {
         var handler = new FakeHandler(_ => FakeHandler.Json("[]"));
-        var instance = TestClient.Instance(handler, o => o.ApplicationName = "my-job/1.0");
+        var client = TestClient.Create(handler, o => o.ApplicationName = "my-job/1.0");
 
-        await instance.Models.GetFieldTypesAsync(Ct);
+        await client.Models.GetFieldTypesAsync(TestClient.InstanceGuid, Ct);
 
         var headers = handler.Requests.Single().Headers;
         Assert.Equal("Bearer test-token", headers.Authorization);
@@ -27,10 +27,10 @@ public class TransportTests
     {
         var provider = new CountingTokenProvider();
         var handler = new FakeHandler(_ => FakeHandler.Json("[]"));
-        var instance = TestClient.Instance(handler, o => o.AccessTokenProvider = provider);
+        var client = TestClient.Create(handler, o => o.AccessTokenProvider = provider);
 
-        await instance.Models.GetFieldTypesAsync(Ct);
-        await instance.Models.GetFieldTypesAsync(Ct);
+        await client.Models.GetFieldTypesAsync(TestClient.InstanceGuid, Ct);
+        await client.Models.GetFieldTypesAsync(TestClient.InstanceGuid, Ct);
 
         Assert.Equal(["Bearer token-1", "Bearer token-2"], handler.Requests.Select(r => r.Headers.Authorization));
     }
@@ -39,9 +39,9 @@ public class TransportTests
     public async Task Path_values_are_escaped_as_single_segments()
     {
         var handler = new FakeHandler(_ => FakeHandler.Json("{}"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        await instance.Containers.GetContainerByReferenceNameAsync("a b/../c?d", Ct);
+        await client.Containers.GetContainerByReferenceNameAsync(TestClient.InstanceGuid, "a b/../c?d", Ct);
 
         Assert.Equal($"/api/v1/instance/{TestClient.InstanceGuid}/container/a%20b%2F..%2Fc%3Fd", handler.Requests.Single().Uri.AbsolutePath);
     }
@@ -50,9 +50,9 @@ public class TransportTests
     public async Task Query_values_are_escaped_and_null_parameters_are_left_out()
     {
         var handler = new FakeHandler(_ => FakeHandler.Json("{}"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        await instance.Users.SaveUserAsync("a+b@example.com", [], firstName: "Ann Marie", cancellationToken: Ct);
+        await client.InstanceUsers.SaveUserAsync(TestClient.InstanceGuid, "a+b@example.com", [], firstName: "Ann Marie", cancellationToken: Ct);
 
         Assert.Equal("?emailAddress=a%2Bb%40example.com&firstName=Ann%20Marie", handler.Requests.Single().Uri.Query);
     }
@@ -61,9 +61,9 @@ public class TransportTests
     public async Task Query_booleans_are_lowercase_and_dates_are_ISO_8601()
     {
         var handler = new FakeHandler(_ => FakeHandler.Json("[]"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        await instance.Models.GetContentModelsAsync(includeDefaults: true, includeModules: false,
+        await client.Models.GetContentModelsAsync(TestClient.InstanceGuid, includeDefaults: true, includeModules: false,
             updatedSince: new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc), cancellationToken: Ct);
 
         var uri = handler.Requests.Single().Uri;
@@ -79,9 +79,9 @@ public class TransportTests
     {
         var calls = 0;
         var handler = new FakeHandler(_ => ++calls < 3 ? FakeHandler.Text("busy", status) : FakeHandler.Json("""["Text"]"""));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var types = await instance.Models.GetFieldTypesAsync(Ct);
+        var types = await client.Models.GetFieldTypesAsync(TestClient.InstanceGuid, Ct);
 
         Assert.Equal(["Text"], types);
         Assert.Equal(3, handler.Requests.Count);
@@ -91,9 +91,9 @@ public class TransportTests
     public async Task Reads_stop_retrying_after_MaxRetries_and_report_the_last_error()
     {
         var handler = new FakeHandler(_ => FakeHandler.Text("down for maintenance", HttpStatusCode.ServiceUnavailable));
-        var instance = TestClient.Instance(handler, o => o.Retry.MaxRetries = 2);
+        var client = TestClient.Create(handler, o => o.Retry.MaxRetries = 2);
 
-        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => instance.Models.GetFieldTypesAsync(Ct));
+        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => client.Models.GetFieldTypesAsync(TestClient.InstanceGuid, Ct));
 
         Assert.Equal(3, handler.Requests.Count);
         Assert.Equal(HttpStatusCode.ServiceUnavailable, ex.StatusCode);
@@ -104,10 +104,10 @@ public class TransportTests
     public async Task A_workflow_GET_is_never_retried_because_repeating_it_repeats_the_change()
     {
         var handler = new FakeHandler(_ => FakeHandler.Text("busy", HttpStatusCode.ServiceUnavailable));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
         await Assert.ThrowsAsync<AgilityManagementException>(() =>
-            instance.Content.PublishContentItemAsync("en-us", 7, cancellationToken: Ct));
+            client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 7, cancellationToken: Ct));
 
         Assert.Single(handler.Requests);
     }
@@ -116,10 +116,10 @@ public class TransportTests
     public async Task A_save_is_never_retried()
     {
         var handler = new FakeHandler(_ => FakeHandler.Text("busy", HttpStatusCode.ServiceUnavailable));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
         await Assert.ThrowsAsync<AgilityManagementException>(() =>
-            instance.Content.SaveContentItemAsync("en-us", new ContentItem(), cancellationToken: Ct));
+            client.Content.SaveContentItemAsync(TestClient.InstanceGuid, "en-us", new ContentItem(), cancellationToken: Ct));
 
         Assert.Single(handler.Requests);
     }
@@ -129,9 +129,9 @@ public class TransportTests
     {
         var calls = 0;
         var handler = new FakeHandler(_ => ++calls == 1 ? FakeHandler.Text("busy", HttpStatusCode.ServiceUnavailable) : FakeHandler.Json("""{"totalCount":0,"items":[]}"""));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        await instance.Content.GetContentListAsync("en-us", "posts", cancellationToken: Ct);
+        await client.Content.GetContentListAsync(TestClient.InstanceGuid, "en-us", "posts", cancellationToken: Ct);
 
         Assert.Equal(2, handler.Requests.Count);
         Assert.All(handler.Requests, r => Assert.Equal(HttpMethod.Post, r.Method));
@@ -141,9 +141,9 @@ public class TransportTests
     public async Task Plain_text_errors_become_the_exception_message()
     {
         var handler = new FakeHandler(_ => FakeHandler.Text("Locale with ID 9 was not found.", HttpStatusCode.NotFound));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => instance.Locales.GetLocaleAsync(9, Ct));
+        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => client.Locales.GetLocaleAsync(TestClient.InstanceGuid, 9, Ct));
 
         Assert.Equal(HttpStatusCode.NotFound, ex.StatusCode);
         Assert.Equal("Locale with ID 9 was not found.", ex.ApiMessage);
@@ -175,10 +175,10 @@ public class TransportTests
             };
             return r;
         });
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
         var ex = await Assert.ThrowsAsync<AgilityManagementException>(() =>
-            instance.Models.SaveModelAsync(new ContentModel(), Ct));
+            client.Models.SaveModelAsync(TestClient.InstanceGuid, new ContentModel(), Ct));
 
         Assert.Equal("One or more validation errors occurred.", ex.Problem?.Title);
         Assert.Equal("00-abc-01", ex.RequestId);
@@ -190,9 +190,9 @@ public class TransportTests
         var handler = new FakeHandler(_ => FakeHandler.Json(
             """{"title":"One or more validation errors occurred.","status":400,"errors":{"GenericSearch":["The GenericSearch field is required."]}}""",
             HttpStatusCode.BadRequest));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => instance.Models.SaveModelAsync(new ContentModel(), Ct));
+        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => client.Models.SaveModelAsync(TestClient.InstanceGuid, new ContentModel(), Ct));
 
         Assert.Equal("One or more validation errors occurred. The GenericSearch field is required.", ex.ApiMessage);
     }
@@ -202,9 +202,9 @@ public class TransportTests
     {
         var inner = new HttpRequestException("connection refused");
         var handler = new FakeHandler(_ => throw inner);
-        var instance = TestClient.Instance(handler, o => o.Retry.MaxRetries = 1);
+        var client = TestClient.Create(handler, o => o.Retry.MaxRetries = 1);
 
-        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => instance.Models.GetFieldTypesAsync(Ct));
+        var ex = await Assert.ThrowsAsync<AgilityManagementException>(() => client.Models.GetFieldTypesAsync(TestClient.InstanceGuid, Ct));
 
         Assert.Same(inner, ex.InnerException);
         Assert.Equal(2, handler.Requests.Count);
@@ -216,18 +216,18 @@ public class TransportTests
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
         var handler = new FakeHandler(_ => FakeHandler.Json("[]"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => instance.Models.GetFieldTypesAsync(cts.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => client.Models.GetFieldTypesAsync(TestClient.InstanceGuid, cts.Token));
     }
 
     [Fact]
     public async Task An_empty_body_where_a_value_is_required_is_an_error_not_a_null()
     {
         var handler = new FakeHandler(_ => new HttpResponseMessage(HttpStatusCode.OK));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        await Assert.ThrowsAsync<AgilityManagementException>(() => instance.Pages.GetPageAsync("en-us", 1, Ct));
+        await Assert.ThrowsAsync<AgilityManagementException>(() => client.Pages.GetPageAsync(TestClient.InstanceGuid, "en-us", 1, Ct));
     }
 
     [Fact]
@@ -236,8 +236,8 @@ public class TransportTests
         var handler = new FakeHandler(_ => FakeHandler.Json("{}"));
         var client = TestClient.Create(handler, o => o.BaseUrl = new Uri("http://localhost:5050/"));
 
-        await client.ForInstance("1234abcd-zz").Assets.GetDefaultContainerAsync(Ct);
-        await client.Users.GetCurrentUserAsync(Ct);
+        await client.Assets.GetDefaultContainerAsync("1234abcd-zz", Ct);
+        await client.ServerUsers.GetCurrentUserAsync(Ct);
 
         Assert.Equal("http://localhost:5050/api/v1/instance/1234abcd-zz/asset/container", handler.Requests[0].Uri.ToString());
         Assert.Equal("http://localhost:5050/api/v1/users/me", handler.Requests[1].Uri.ToString());

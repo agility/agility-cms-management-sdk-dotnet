@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json.Nodes;
+using Agility.Management.Sdk.Clients;
 using Agility.Management.Sdk.Models;
 
 namespace Agility.Management.Sdk.IntegrationTests;
@@ -37,49 +38,49 @@ public sealed class LiveApiTests : IDisposable
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
-    private AgilityInstanceClient Instance()
+    private AgilityManagementClient Client()
     {
         Assert.SkipWhen(_client is null, "Set AGILITY_MGMT_TOKEN and AGILITY_INSTANCE_GUID to run live tests.");
-        return _client!.ForInstance(InstanceGuid!);
+        return _client!;
     }
 
-    private AgilityInstanceClient WritableInstance()
+    private AgilityManagementClient WritableClient()
     {
-        var instance = Instance();
+        var client = Client();
         Assert.SkipUnless(AllowWrites, "Set AGILITY_ALLOW_WRITES=true to run tests that change the instance.");
-        return instance;
+        return client;
     }
 
     [Fact]
     public async Task Reads_the_instance_structure()
     {
-        var instance = Instance();
+        var client = Client();
 
-        var locales = await instance.Locales.GetLocalesAsync(Ct);
+        var locales = await client.Locales.GetLocalesAsync(InstanceGuid!, Ct);
         Assert.Contains(locales, l => string.Equals(l.LocaleCode, Locale, StringComparison.OrdinalIgnoreCase));
 
-        var models = await instance.Models.GetContentModelsAsync(includeDefaults: true, cancellationToken: Ct);
+        var models = await client.Models.GetContentModelsAsync(InstanceGuid!, includeDefaults: true, cancellationToken: Ct);
         Assert.NotEmpty(models);
 
-        var containers = await instance.Containers.GetContainerListAsync(cancellationToken: Ct);
+        var containers = await client.Containers.GetContainerListAsync(InstanceGuid!, cancellationToken: Ct);
         Assert.NotEmpty(containers);
 
-        var sitemap = await instance.Pages.GetSitemapAsync(Locale, Ct);
+        var sitemap = await client.Pages.GetSitemapAsync(InstanceGuid!, Locale, Ct);
         Assert.NotNull(sitemap);
 
-        var templates = await instance.Pages.GetPageTemplatesAsync(Locale, includeModuleZones: true, cancellationToken: Ct);
+        var templates = await client.Pages.GetPageTemplatesAsync(InstanceGuid!, Locale, includeModuleZones: true, cancellationToken: Ct);
         Assert.NotNull(templates);
     }
 
     [Fact]
     public async Task Reads_a_content_list_with_the_documented_POST_route()
     {
-        var instance = Instance();
-        var containers = await instance.Containers.GetContainerListAsync(cancellationToken: Ct);
+        var client = Client();
+        var containers = await client.Containers.GetContainerListAsync(InstanceGuid!, cancellationToken: Ct);
         var list = containers.FirstOrDefault(c => c.IsListItem != true && !string.IsNullOrEmpty(c.ReferenceName) && c.ContentDefinitionType == 1);
         Assert.SkipWhen(list is null, "No content list on the instance.");
 
-        var result = await instance.Content.GetContentListAsync(Locale, list!.ReferenceName!, take: 5, cancellationToken: Ct);
+        var result = await client.Content.GetContentListAsync(InstanceGuid!, Locale, list!.ReferenceName!, new ContentListOptions { Take = 5 }, Ct);
 
         Assert.True(result.Items is null || result.Items.Count <= 5);
     }
@@ -87,7 +88,7 @@ public sealed class LiveApiTests : IDisposable
     [Fact]
     public async Task Reports_the_fetch_API_sync_status()
     {
-        var status = await Instance().SyncStatus.GetFetchApiStatusAsync(SyncMode.Fetch, Ct);
+        var status = await Client().SyncStatus.GetFetchApiStatusAsync(InstanceGuid!, SyncMode.Fetch, Ct);
         Assert.NotNull(status);
     }
 
@@ -95,15 +96,15 @@ public sealed class LiveApiTests : IDisposable
     public async Task Page_template_read_then_save_keeps_every_zones_default_components()
     {
         // The 1.x SDK cleared every zone's default components on this round trip (PROD-2376).
-        var instance = WritableInstance();
-        var component = (await instance.Models.GetComponentModelsAsync(includeDefault: true, Ct)).FirstOrDefault(m => m.Id > 0);
+        var client = WritableClient();
+        var component = (await client.Models.GetComponentModelsAsync(InstanceGuid!, includeDefault: true, Ct)).FirstOrDefault(m => m.Id > 0);
         Assert.SkipWhen(component is null, "No component model on the instance to use as a default component.");
 
         var suffix = DateTime.UtcNow.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
         PageModel? created = null;
         try
         {
-            created = await instance.Pages.SavePageTemplateAsync(Locale, new PageModel
+            created = await client.Pages.SavePageTemplateAsync(InstanceGuid!, Locale, new PageModel
             {
                 PageTemplateID = -1,
                 PageTemplateName = $"SDK Test {suffix}",
@@ -125,39 +126,39 @@ public sealed class LiveApiTests : IDisposable
             static string Defaults(PageModel m) => string.Join("|", (m.ContentSectionDefinitions ?? [])
                 .Select(z => $"{z.PageItemTemplateReferenceName}:{string.Join(",", (z.DefaultModules ?? []).Select(d => d.ContentDefinitionID))}"));
 
-            var read = await instance.Pages.GetPageTemplateAsync(Locale, id, Ct);
+            var read = await client.Pages.GetPageTemplateAsync(InstanceGuid!, Locale, id, Ct);
             Assert.Equal($"Main:{component.Id}", Defaults(read));
 
-            await instance.Pages.SavePageTemplateAsync(Locale, read, Ct);
-            var afterRoundTrip = await instance.Pages.GetPageTemplateAsync(Locale, id, Ct);
+            await client.Pages.SavePageTemplateAsync(InstanceGuid!, Locale, read, Ct);
+            var afterRoundTrip = await client.Pages.GetPageTemplateAsync(InstanceGuid!, Locale, id, Ct);
             Assert.Equal($"Main:{component.Id}", Defaults(afterRoundTrip));
 
             // A rename with no zone list keeps the zones and their defaults.
-            await instance.Pages.SavePageTemplateAsync(Locale, new PageModel
+            await client.Pages.SavePageTemplateAsync(InstanceGuid!, Locale, new PageModel
             {
                 PageTemplateID = id,
                 PageTemplateName = $"SDK Test {suffix} renamed",
                 DigitalChannelTypeID = 1,
             }, Ct);
-            Assert.Equal($"Main:{component.Id}", Defaults(await instance.Pages.GetPageTemplateAsync(Locale, id, Ct)));
+            Assert.Equal($"Main:{component.Id}", Defaults(await client.Pages.GetPageTemplateAsync(InstanceGuid!, Locale, id, Ct)));
         }
         finally
         {
-            if (created?.PageTemplateID is int id) await instance.Pages.DeletePageTemplateAsync(Locale, id, CancellationToken.None);
+            if (created?.PageTemplateID is int id) await client.Pages.DeletePageTemplateAsync(InstanceGuid!, Locale, id, CancellationToken.None);
         }
     }
 
     [Fact]
     public async Task Creates_saves_publishes_and_deletes_content_through_batches()
     {
-        var instance = WritableInstance();
+        var client = WritableClient();
         var suffix = DateTime.UtcNow.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
         ContentModel? model = null;
         ContentContainer? container = null;
         int? contentId = null;
         try
         {
-            model = await instance.Models.SaveModelAsync(new ContentModel
+            model = await client.Models.SaveModelAsync(InstanceGuid!, new ContentModel
             {
                 Id = 0,
                 DisplayName = $"SDK Test {suffix}",
@@ -173,7 +174,7 @@ public sealed class LiveApiTests : IDisposable
                 ],
             }, Ct);
 
-            container = await instance.Containers.SaveContainerAsync(new ContentContainer
+            container = await client.Containers.SaveContainerAsync(InstanceGuid!, new ContentContainer
             {
                 ContentViewID = 0,
                 ContentDefinitionID = model.Id,
@@ -184,7 +185,7 @@ public sealed class LiveApiTests : IDisposable
                 IsDynamicPageList = true,
             }, cancellationToken: Ct);
 
-            var saved = await instance.Content.SaveContentItemAsync(Locale, new ContentItem
+            var saved = await client.Content.SaveContentItemAsync(InstanceGuid!, Locale, new ContentItem
             {
                 ContentID = -1,
                 Properties = new ContentItemProperties { ReferenceName = container.ReferenceName, DefinitionName = model.ReferenceName, ItemOrder = 0 },
@@ -193,17 +194,17 @@ public sealed class LiveApiTests : IDisposable
             contentId = saved.ItemId;
             Assert.True(contentId > 0);
 
-            var published = await instance.Content.PublishContentItemAsync(Locale, contentId!.Value, "SDK integration test", cancellationToken: Ct);
+            var published = await client.Content.PublishContentItemAsync(InstanceGuid!, Locale, contentId!.Value, "SDK integration test", cancellationToken: Ct);
             Assert.True(published.IsProcessed);
 
-            var item = await instance.Content.GetContentItemAsync(Locale, contentId.Value, Ct);
+            var item = await client.Content.GetContentItemAsync(InstanceGuid!, Locale, contentId.Value, Ct);
             Assert.Equal("Hello from the .NET SDK", item.Fields?["title"]?.GetValue<string>());
         }
         finally
         {
-            if (contentId is int id) await instance.Content.DeleteContentItemAsync(Locale, id, cancellationToken: CancellationToken.None);
-            if (container?.ContentViewID is int cid) await instance.Containers.DeleteContainerAsync(cid, CancellationToken.None);
-            if (model?.Id is int mid) await instance.Models.DeleteModelAsync(mid, CancellationToken.None);
+            if (contentId is int id) await client.Content.DeleteContentItemAsync(InstanceGuid!, Locale, id, cancellationToken: CancellationToken.None);
+            if (container?.ContentViewID is int cid) await client.Containers.DeleteContainerAsync(InstanceGuid!, cid, CancellationToken.None);
+            if (model?.Id is int mid) await client.Models.DeleteModelAsync(InstanceGuid!, mid, CancellationToken.None);
         }
     }
 

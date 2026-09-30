@@ -6,10 +6,10 @@ page components. A **container** holds content items of one content model: a sin
 ## Models
 
 ```csharp
-List<ContentModel> contentModels = await instance.Models.GetContentModelsAsync(includeDefaults: false);
-List<ContentModel> componentModels = await instance.Models.GetComponentModelsAsync();
-ContentModel model = await instance.Models.GetModelByReferenceNameAsync("BlogPost");
-ContentModel byId = await instance.Models.GetModelAsync(model.Id!.Value);
+List<ContentModel> contentModels = await client.Models.GetContentModelsAsync(guid, includeDefaults: false);
+List<ContentModel> componentModels = await client.Models.GetComponentModelsAsync(guid);
+ContentModel model = await client.Models.GetModelByReferenceNameAsync(guid, "BlogPost");
+ContentModel byId = await client.Models.GetModelAsync(guid, model.Id!.Value);
 ```
 
 `GetContentModelsAsync` takes `includeModules: true` to include component models, and `updatedSince` to get only
@@ -18,7 +18,7 @@ recently changed models.
 Create or update a model; use an `Id` of `0` to create one:
 
 ```csharp
-var saved = await instance.Models.SaveModelAsync(new ContentModel
+var saved = await client.Models.SaveModelAsync(guid, new ContentModel
 {
     Id = 0,
     DisplayName = "Blog Post",
@@ -43,21 +43,22 @@ ones the instance's models use, including custom fields.
 ## Containers
 
 ```csharp
-List<ContentContainer> all = await instance.Containers.GetContainerListAsync();
-ContentContainer posts = await instance.Containers.GetContainerByReferenceNameAsync("blogposts");
-List<ContentContainer> forModel = await instance.Containers.GetContainersByModelAsync(model.Id!.Value);
+List<ContentContainer> all = await client.Containers.GetContainerListAsync(guid);
+ContentContainer posts = await client.Containers.GetContainerByReferenceNameAsync(guid, "blogposts");
+List<ContentContainer> forModel = await client.Containers.GetContainersByModelAsync(guid, model.Id!.Value);
 ```
 
 For large instances, page through them:
 
 ```csharp
-ContentContainerPagedResult page = await instance.Containers.GetContainerListPagedAsync(pageSize: 100, recordOffset: 0);
+ContentContainerPagedResult page = await client.Containers.GetContainerListPagedAsync(guid,
+    new ContainerListOptions { PageSize = 100, RecordOffset = 0 });
 ```
 
 Create a list container for a model:
 
 ```csharp
-var container = await instance.Containers.SaveContainerAsync(new ContentContainer
+var container = await client.Containers.SaveContainerAsync(guid, new ContentContainer
 {
     ContentViewID = 0,
     ContentDefinitionID = model.Id,

@@ -19,24 +19,24 @@ using var client = new AgilityManagementClient(new AgilityManagementOptions
     AccessToken = token,
     ApplicationName = "agility-sdk-sample/1.0",
 });
-var instance = client.ForInstance(args[0]);
-Console.WriteLine($"Instance {instance.InstanceGuid} at {instance.BaseUrl}");
+var guid = args[0];
+Console.WriteLine($"Instance {guid} at {AgilityRegions.ResolveBaseUrl(guid)}");
 
 try
 {
-    var locales = await instance.Locales.GetLocalesAsync();
+    var locales = await client.Locales.GetLocalesAsync(guid);
     Console.WriteLine($"Locales: {string.Join(", ", locales.Select(l => l.LocaleCode))}");
 
-    var models = await instance.Models.GetContentModelsAsync();
+    var models = await client.Models.GetContentModelsAsync(guid);
     Console.WriteLine($"{models.Count} content models");
 
-    var containers = await instance.Containers.GetContainerListAsync();
+    var containers = await client.Containers.GetContainerListAsync(guid);
     Console.WriteLine($"{containers.Count} containers");
 
-    foreach (var channel in await instance.Pages.GetSitemapAsync(locale))
+    foreach (var channel in await client.Pages.GetSitemapAsync(guid, locale))
         Console.WriteLine($"Channel {channel.Name}: {channel.Pages?.Count ?? 0} top-level pages");
 
-    var status = await instance.SyncStatus.GetFetchApiStatusAsync();
+    var status = await client.SyncStatus.GetFetchApiStatusAsync(guid);
     Console.WriteLine(status.InProgress ? "The Fetch API is syncing." : "The Fetch API is up to date.");
     return 0;
 }

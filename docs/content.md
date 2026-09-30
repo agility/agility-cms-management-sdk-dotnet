@@ -1,12 +1,12 @@
 # Content
 
-`instance.Content` works with content items. Every method takes the locale first. Saves, deletes and workflow
+`client.Content` works with content items. Every method takes the instance GUID and the locale first. Saves, deletes and workflow
 operations run as [batches](concepts.md#batches) and return a `BatchResult`.
 
 ## Read
 
 ```csharp
-ContentItem item = await instance.Content.GetContentItemAsync("en-us", 42);
+ContentItem item = await client.Content.GetContentItemAsync(guid, "en-us", 42);
 
 string? title = item.Fields?["title"]?.GetValue<string>();
 int? state = item.Properties?.State;        // see ItemState
@@ -19,7 +19,7 @@ type with `field.Deserialize<T>()`.
 Several items at once:
 
 ```csharp
-List<ContentItem> items = await instance.Content.GetContentItemsByIdAsync("en-us", [42, 43, 44]);
+List<ContentItem> items = await client.Content.GetContentItemsByIdAsync(guid, "en-us", [42, 43, 44]);
 ```
 
 ## List and filter
@@ -27,15 +27,15 @@ List<ContentItem> items = await instance.Content.GetContentItemsByIdAsync("en-us
 `GetContentListAsync` lists the items in a container (by its reference name), a page at a time:
 
 ```csharp
-ContentList page = await instance.Content.GetContentListAsync("en-us", "blogposts", take: 50, skip: 0,
-    sortField: "title", sortDirection: "asc");
+ContentList page = await client.Content.GetContentListAsync(guid, "en-us", "blogposts",
+    new ContentListOptions { Take = 50, Skip = 0, SortField = "title", SortDirection = "asc" });
 
 Console.WriteLine($"{page.TotalCount} items");
 foreach (JsonNode? row in page.Items ?? [])
     Console.WriteLine(row?["contentID"]);
 ```
 
-Filter with a `ContentListFilterModel`:
+Filter with a `ContentListFilterModel` in the options:
 
 ```csharp
 var filter = new ContentListFilterModel
@@ -48,10 +48,11 @@ var filter = new ContentListFilterModel
         new FieldFilter { Field = "category", Value = new FieldFilterValue { StringValue = "news" } },
     ],
 };
-var recent = await instance.Content.GetContentListAsync("en-us", "blogposts", filter, take: 20);
+var recent = await client.Content.GetContentListAsync(guid, "en-us", "blogposts",
+    new ContentListOptions { Filter = filter, Take = 20 });
 ```
 
-`fields: "title,category"` returns only those fields, which keeps large lists fast. `showDeleted: true` includes
+`Fields = "title,category"` returns only those fields, which keeps large lists fast. `ShowDeleted = true` includes
 deleted items.
 
 ## Save
@@ -59,15 +60,15 @@ deleted items.
 Read the whole item, change it, and send it all back: a save [replaces the item](concepts.md#saves-replace-the-whole-item).
 
 ```csharp
-var item = await instance.Content.GetContentItemAsync("en-us", 42);
+var item = await client.Content.GetContentItemAsync(guid, "en-us", 42);
 item.Fields!["title"] = "New title";
-BatchResult saved = await instance.Content.SaveContentItemAsync("en-us", item);
+BatchResult saved = await client.Content.SaveContentItemAsync(guid, "en-us", item);
 ```
 
 To create an item, use a `ContentID` of `-1` and name the container and model:
 
 ```csharp
-var created = await instance.Content.SaveContentItemAsync("en-us", new ContentItem
+var created = await client.Content.SaveContentItemAsync(guid, "en-us", new ContentItem
 {
     ContentID = -1,
     Properties = new ContentItemProperties { ReferenceName = "blogposts", DefinitionName = "BlogPost" },
@@ -79,7 +80,7 @@ int newId = created.ItemId!.Value;
 Several items in one batch:
 
 ```csharp
-BatchResult result = await instance.Content.SaveContentItemsAsync("en-us", [first, second, third]);
+BatchResult result = await client.Content.SaveContentItemsAsync(guid, "en-us", [first, second, third]);
 IReadOnlyList<int> ids = result.ItemIds;   // in the same order
 ```
 
@@ -90,18 +91,18 @@ A save always lands in Staging. [Publish](#workflow) for the change to go live.
 ## Workflow
 
 ```csharp
-await instance.Content.PublishContentItemAsync("en-us", 42, comments: "Launch");
-await instance.Content.UnpublishContentItemAsync("en-us", 42);
-await instance.Content.RequestApprovalContentItemAsync("en-us", 42);
-await instance.Content.ApproveContentItemAsync("en-us", 42);
-await instance.Content.DeclineContentItemAsync("en-us", 42, comments: "Needs a new image");
-await instance.Content.DeleteContentItemAsync("en-us", 42);
+await client.Content.PublishContentItemAsync(guid, "en-us", 42, comments: "Launch");
+await client.Content.UnpublishContentItemAsync(guid, "en-us", 42);
+await client.Content.RequestApprovalContentItemAsync(guid, "en-us", 42);
+await client.Content.ApproveContentItemAsync(guid, "en-us", 42);
+await client.Content.DeclineContentItemAsync(guid, "en-us", 42, comments: "Needs a new image");
+await client.Content.DeleteContentItemAsync(guid, "en-us", 42);
 ```
 
 Many items with one operation, in one batch:
 
 ```csharp
-await instance.Content.BatchWorkflowContentItemsAsync("en-us", [42, 43, 44], WorkflowOperationType.Publish);
+await client.Content.BatchWorkflowContentItemsAsync(guid, "en-us", [42, 43, 44], WorkflowOperationType.Publish);
 ```
 
 ### Publishing what an item depends on
@@ -110,17 +111,17 @@ An item can link to other content and nested lists. `GetCascadeItemsAsync` shows
 would include, and `PublishContentItemCascadeAsync` publishes it:
 
 ```csharp
-CascadeItem tree = await instance.Content.GetCascadeItemsAsync("en-us", 42);
-BatchCreateResult created = await instance.Content.PublishContentItemCascadeAsync("en-us", 42);
+CascadeItem tree = await client.Content.GetCascadeItemsAsync(guid, "en-us", 42);
+BatchCreateResult created = await client.Content.PublishContentItemCascadeAsync(guid, "en-us", 42);
 foreach (var batchId in created.BatchIDs ?? [])
-    await instance.Batches.WaitForBatchAsync(batchId);
+    await client.Batches.WaitForBatchAsync(guid, batchId);
 ```
 
 ## History and comments
 
 ```csharp
-ContentItemHistoryResponse history = await instance.Content.GetContentItemHistoryAsync("en-us", 42, take: 20);
-ItemCommentsResponse comments = await instance.Content.GetContentItemCommentsAsync("en-us", 42);
+ContentItemHistoryResponse history = await client.Content.GetContentItemHistoryAsync(guid, "en-us", 42, take: 20);
+ItemCommentsResponse comments = await client.Content.GetContentItemCommentsAsync(guid, "en-us", 42);
 ```
 
 ## Custom batches
@@ -128,7 +129,7 @@ ItemCommentsResponse comments = await instance.Content.GetContentItemCommentsAsy
 To group operations on pages and content items yourself, create a batch:
 
 ```csharp
-BatchCreateResult batch = await instance.Batches.CreateBatchAsync(new CreateBatchWithItemsRequest
+BatchCreateResult batch = await client.Batches.CreateBatchAsync(guid, new CreateBatchWithItemsRequest
 {
     BatchName = "Spring launch",
     Operation = WorkflowOperationType.Publish,

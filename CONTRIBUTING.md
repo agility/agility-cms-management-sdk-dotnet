@@ -44,8 +44,10 @@ CI fails if the generated models or `docs/api-coverage.md` don't match what's co
 ## Conventions
 
 - Every public member has XML docs that name the API route.
-- Instance-level methods take the locale first (when the route has one), then IDs, then optional parameters,
-  then `CancellationToken`.
+- Instance-level methods take the instance GUID first, then the locale (when the route has one), then IDs, then
+  optional parameters, then `CancellationToken`: the same order as the TypeScript SDK's new overloads.
+- Optional settings are named optional parameters. A method with five or more takes an options class instead
+  (`Clients/RequestOptions.cs`).
 - A method that only reads uses `RequestKind.Read`, so it's retried; anything that changes state uses
   `RequestKind.Write`, even when the API exposes it as `GET`.
 - Batch-producing methods take `waitForBatch` and return `BatchResult`.

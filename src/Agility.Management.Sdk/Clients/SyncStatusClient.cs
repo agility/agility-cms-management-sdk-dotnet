@@ -10,38 +10,38 @@ namespace Agility.Management.Sdk.Clients;
 public sealed class SyncStatusClient
 {
     private readonly ManagementConnection _connection;
-    private readonly string _guid;
 
-    internal SyncStatusClient(ManagementConnection connection, string guid)
+    internal SyncStatusClient(ManagementConnection connection)
     {
         _connection = connection;
-        _guid = guid;
     }
 
     /// <summary>Gets the Fetch API sync status. <c>GET fetch-api-status</c></summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="mode"><see cref="SyncMode.Fetch"/> for published content, <see cref="SyncMode.Preview"/> for staging.</param>
     /// <param name="cancellationToken">Cancels the request.</param>
-    public Task<SyncStatusResponse> GetFetchApiStatusAsync(SyncMode mode = SyncMode.Fetch, CancellationToken cancellationToken = default) =>
+    public Task<SyncStatusResponse> GetFetchApiStatusAsync(string instanceGuid, SyncMode mode = SyncMode.Fetch, CancellationToken cancellationToken = default) =>
         _connection.SendRequiredAsync(HttpMethod.Get,
-            _connection.InstanceUri(_guid, $"fetch-api-status", new Query().Add("mode", mode.ToApiValue())),
+            _connection.InstanceUri(instanceGuid, $"fetch-api-status", new Query().Add("mode", mode.ToApiValue())),
             RequestKind.Read, ManagementJsonContext.Default.SyncStatusResponse, cancellationToken: cancellationToken);
 
     /// <summary>
     /// Waits until the Fetch API has no sync in progress, for example after publishing, before reading the
     /// published content back. Checks every <see cref="BatchPollingOptions.Interval"/>.
     /// </summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="mode">Which Fetch API to wait for.</param>
     /// <param name="timeout">How long to wait. Default: <see cref="BatchPollingOptions.Timeout"/>.</param>
     /// <param name="cancellationToken">Stops waiting.</param>
     /// <exception cref="TimeoutException">A sync was still in progress after <paramref name="timeout"/>.</exception>
-    public async Task<SyncStatusResponse> WaitForFetchApiSyncAsync(SyncMode mode = SyncMode.Fetch, TimeSpan? timeout = null, CancellationToken cancellationToken = default)
+    public async Task<SyncStatusResponse> WaitForFetchApiSyncAsync(string instanceGuid, SyncMode mode = SyncMode.Fetch, TimeSpan? timeout = null, CancellationToken cancellationToken = default)
     {
         var polling = _connection.Options.BatchPolling;
         var limit = timeout ?? polling.Timeout;
         var started = _connection.Time.GetTimestamp();
         while (true)
         {
-            var status = await GetFetchApiStatusAsync(mode, cancellationToken).ConfigureAwait(false);
+            var status = await GetFetchApiStatusAsync(instanceGuid, mode, cancellationToken).ConfigureAwait(false);
             if (!status.InProgress) return status;
 
             var elapsed = _connection.Time.GetElapsedTime(started);

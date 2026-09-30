@@ -20,7 +20,7 @@ public partial class ReviewRegressionTests
         const int maxRetries = 2;
         var handler = new FakeHandler(_ => FakeHandler.Text("busy", HttpStatusCode.ServiceUnavailable));
         using var client = TestClient.Create(handler, o => o.Retry.MaxRetries = maxRetries);
-        var targets = SpecCoverageTests.Targets(client, client.ForInstance(TestClient.InstanceGuid));
+        var targets = SpecCoverageTests.Targets(client);
         var wrong = new List<string>();
 
         foreach (var type in SpecCoverageTests.ClientTypes)
@@ -60,9 +60,9 @@ public partial class ReviewRegressionTests
         var handler = new FakeHandler(r => IsBatchGet(r)
             ? FakeHandler.Json("""{"batchID":88,"batchState":3,"errorData":"Batch aborted.","items":[]}""")
             : FakeHandler.Json("88"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var ex = await Assert.ThrowsAsync<AgilityBatchException>(() => instance.Content.PublishContentItemAsync("en-us", 7, cancellationToken: Ct));
+        var ex = await Assert.ThrowsAsync<AgilityBatchException>(() => client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 7, cancellationToken: Ct));
 
         Assert.Contains("aborted", ex.Message, StringComparison.Ordinal);
     }
@@ -73,9 +73,9 @@ public partial class ReviewRegressionTests
         var handler = new FakeHandler(r => IsBatchGet(r)
             ? FakeHandler.Json("""{"batchID":88,"batchState":2,"abortYN":true}""")
             : FakeHandler.Json("88"));
-        var instance = TestClient.Instance(handler, o => o.BatchPolling.Timeout = TimeSpan.FromMinutes(5));
+        var client = TestClient.Create(handler, o => o.BatchPolling.Timeout = TimeSpan.FromMinutes(5));
 
-        var ex = await Assert.ThrowsAsync<AgilityBatchException>(() => instance.Content.PublishContentItemAsync("en-us", 7, cancellationToken: Ct));
+        var ex = await Assert.ThrowsAsync<AgilityBatchException>(() => client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 7, cancellationToken: Ct));
 
         Assert.IsNotType<AgilityBatchTimeoutException>(ex);
         Assert.Equal(2, handler.Requests.Count);
@@ -89,9 +89,9 @@ public partial class ReviewRegressionTests
     {
         var batch = $$"""{"batchID":88,"batchState":3,"errorData":{{System.Text.Json.JsonSerializer.Serialize(errorData)}},"items":[{"itemID":5}]}""";
         var handler = new FakeHandler(r => IsBatchGet(r) ? FakeHandler.Json(batch) : FakeHandler.Json("88"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var result = await instance.Content.PublishContentItemAsync("en-us", 5, cancellationToken: Ct);
+        var result = await client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 5, cancellationToken: Ct);
 
         Assert.True(result.IsProcessed);
     }
@@ -100,9 +100,9 @@ public partial class ReviewRegressionTests
     public async Task Creating_a_batch_without_an_operation_is_refused_instead_of_publishing()
     {
         var handler = new FakeHandler(_ => FakeHandler.Json("{}"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => instance.Batches.CreateBatchAsync(new CreateBatchWithItemsRequest
+        await Assert.ThrowsAsync<ArgumentException>(() => client.Batches.CreateBatchAsync(TestClient.InstanceGuid, new CreateBatchWithItemsRequest
         {
             Items = [new AddBatchItemRequest { ItemType = BatchItemType.Page, ItemID = 1 }],
         }, processNow: true, Ct));
@@ -116,9 +116,9 @@ public partial class ReviewRegressionTests
         var handler = new FakeHandler(_ => ++calls == 1
             ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new FailingContent() }
             : FakeHandler.Json("""["Text"]"""));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        var types = await instance.Models.GetFieldTypesAsync(Ct);
+        var types = await client.Models.GetFieldTypesAsync(TestClient.InstanceGuid, Ct);
 
         Assert.Equal(["Text"], types);
         Assert.Equal(2, calls);
@@ -128,10 +128,10 @@ public partial class ReviewRegressionTests
     public async Task A_write_whose_body_fails_is_wrapped_not_retried()
     {
         var handler = new FakeHandler(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new FailingContent() });
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
         var ex = await Assert.ThrowsAsync<AgilityManagementException>(() =>
-            instance.Content.PublishContentItemAsync("en-us", 7, waitForBatch: false, cancellationToken: Ct));
+            client.Content.PublishContentItemAsync(TestClient.InstanceGuid, "en-us", 7, waitForBatch: false, cancellationToken: Ct));
 
         Assert.IsType<HttpRequestException>(ex.InnerException);
         Assert.Single(handler.Requests);
@@ -146,9 +146,9 @@ public partial class ReviewRegressionTests
             cts.Cancel();
             return FakeHandler.Text("busy", HttpStatusCode.ServiceUnavailable);
         });
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => instance.Models.GetFieldTypesAsync(cts.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => client.Models.GetFieldTypesAsync(TestClient.InstanceGuid, cts.Token));
         Assert.Single(handler.Requests);
     }
 
@@ -158,9 +158,9 @@ public partial class ReviewRegressionTests
     public async Task Dot_segments_are_rejected_so_they_cant_change_the_route(string id)
     {
         var handler = new FakeHandler(_ => FakeHandler.Json("{}"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => instance.Webhooks.DeleteWebhookAsync(id, Ct));
+        await Assert.ThrowsAsync<ArgumentException>(() => client.Webhooks.DeleteWebhookAsync(TestClient.InstanceGuid, id, Ct));
         Assert.Empty(handler.Requests);
     }
 
@@ -168,12 +168,12 @@ public partial class ReviewRegressionTests
     public async Task Empty_ID_lists_are_rejected()
     {
         var handler = new FakeHandler(_ => FakeHandler.Json("[]"));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => instance.Content.GetContentItemsByIdAsync("en-us", [], Ct));
-        await Assert.ThrowsAsync<ArgumentException>(() => instance.Content.BatchWorkflowContentItemsAsync("en-us", [], WorkflowOperationType.Publish, cancellationToken: Ct));
-        await Assert.ThrowsAsync<ArgumentException>(() => instance.Pages.BatchWorkflowPagesAsync("en-us", [], WorkflowOperationType.Publish, cancellationToken: Ct));
-        await Assert.ThrowsAsync<ArgumentException>(() => instance.UrlRedirections.DeleteUrlRedirectionsAsync([], Ct));
+        await Assert.ThrowsAsync<ArgumentException>(() => client.Content.GetContentItemsByIdAsync(TestClient.InstanceGuid, "en-us", [], Ct));
+        await Assert.ThrowsAsync<ArgumentException>(() => client.Content.BatchWorkflowContentItemsAsync(TestClient.InstanceGuid, "en-us", [], WorkflowOperationType.Publish, cancellationToken: Ct));
+        await Assert.ThrowsAsync<ArgumentException>(() => client.Pages.BatchWorkflowPagesAsync(TestClient.InstanceGuid, "en-us", [], WorkflowOperationType.Publish, cancellationToken: Ct));
+        await Assert.ThrowsAsync<ArgumentException>(() => client.UrlRedirections.DeleteUrlRedirectionsAsync(TestClient.InstanceGuid, [], Ct));
         Assert.Empty(handler.Requests);
     }
 
@@ -181,9 +181,9 @@ public partial class ReviewRegressionTests
     public async Task A_locale_write_with_an_empty_success_body_doesnt_throw()
     {
         var handler = new FakeHandler(_ => new HttpResponseMessage(HttpStatusCode.OK));
-        var instance = TestClient.Instance(handler);
+        var client = TestClient.Create(handler);
 
-        Assert.Null(await instance.Locales.EnableLocaleAsync(3, Ct));
+        Assert.Null(await client.Locales.EnableLocaleAsync(TestClient.InstanceGuid, 3, Ct));
     }
 
     [Fact]
@@ -236,8 +236,8 @@ public partial class ReviewRegressionTests
         }).ConfigurePrimaryHttpMessageHandler(() => handler);
         await using var sp = services.BuildServiceProvider();
 
-        await sp.GetRequiredService<AgilityManagementClient>().Users.GetCurrentUserAsync(Ct);
-        await sp.GetRequiredService<AgilityManagementClient>().Users.GetCurrentUserAsync(Ct);
+        await sp.GetRequiredService<AgilityManagementClient>().ServerUsers.GetCurrentUserAsync(Ct);
+        await sp.GetRequiredService<AgilityManagementClient>().ServerUsers.GetCurrentUserAsync(Ct);
 
         Assert.Equal(1, refreshes);
         Assert.Equal("r1", stored);

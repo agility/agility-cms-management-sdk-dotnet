@@ -13,30 +13,30 @@ namespace Agility.Management.Sdk.Clients;
 public sealed class BatchesClient
 {
     private readonly ManagementConnection _connection;
-    private readonly string _guid;
 
-    internal BatchesClient(ManagementConnection connection, string guid)
+    internal BatchesClient(ManagementConnection connection)
     {
         _connection = connection;
-        _guid = guid;
     }
 
     /// <summary>Gets a batch. <c>GET batch/{id}</c></summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="batchId">The batch ID.</param>
     /// <param name="expandItems">Include the batch's items.</param>
     /// <param name="cancellationToken">Cancels the request.</param>
-    public Task<Batch> GetBatchAsync(int batchId, bool expandItems = true, CancellationToken cancellationToken = default) =>
+    public Task<Batch> GetBatchAsync(string instanceGuid, int batchId, bool expandItems = true, CancellationToken cancellationToken = default) =>
         _connection.SendRequiredAsync(HttpMethod.Get,
-            _connection.InstanceUri(_guid, $"batch/{batchId}", new Query().Add("expandItems", expandItems)),
+            _connection.InstanceUri(instanceGuid, $"batch/{batchId}", new Query().Add("expandItems", expandItems)),
             RequestKind.Read, ManagementJsonContext.Default.Batch, cancellationToken: cancellationToken);
 
     /// <summary>
     /// Creates a batch of workflow operations on pages and content items. <c>POST batch</c>
     /// </summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="request">The operation and the items to apply it to.</param>
     /// <param name="processNow">Queue the batch for processing now rather than leaving it as a draft.</param>
     /// <param name="cancellationToken">Cancels the request.</param>
-    public Task<BatchCreateResult> CreateBatchAsync(CreateBatchWithItemsRequest request, bool? processNow = null, CancellationToken cancellationToken = default)
+    public Task<BatchCreateResult> CreateBatchAsync(string instanceGuid, CreateBatchWithItemsRequest request, bool? processNow = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         // A non-nullable enum would have sent its zero value, Publish, for an unset operation: refuse instead.
@@ -45,55 +45,61 @@ public sealed class BatchesClient
         if (request.Items is null || request.Items.Count == 0 || request.Items.Any(i => i.ItemType is null))
             throw new ArgumentException($"Add at least one item, each with an {nameof(AddBatchItemRequest.ItemType)}.", nameof(request));
         return _connection.SendRequiredAsync(HttpMethod.Post,
-            _connection.InstanceUri(_guid, $"batch", new Query().Add("processNow", processNow)),
+            _connection.InstanceUri(instanceGuid, $"batch", new Query().Add("processNow", processNow)),
             RequestKind.Write, ManagementJsonContext.Default.BatchCreateResult,
             ManagementConnection.Json(request, ManagementJsonContext.Default.CreateBatchWithItemsRequest), cancellationToken: cancellationToken);
     }
 
     /// <summary>Publishes every item in an existing batch. <c>POST batch/{id}/publish</c></summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="batchId">The batch ID.</param>
     /// <param name="waitForBatch">Wait for the resulting batch to be processed.</param>
     /// <param name="cancellationToken">Cancels the request or the wait.</param>
-    public Task<BatchResult> PublishBatchAsync(int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
-        RunBatchOperationAsync(batchId, "publish", waitForBatch, cancellationToken);
+    public Task<BatchResult> PublishBatchAsync(string instanceGuid, int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
+        RunBatchOperationAsync(instanceGuid, batchId, "publish", waitForBatch, cancellationToken);
 
     /// <summary>Unpublishes every item in an existing batch. <c>POST batch/{id}/unpublish</c></summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="batchId">The batch ID.</param>
     /// <param name="waitForBatch">Wait for the resulting batch to be processed.</param>
     /// <param name="cancellationToken">Cancels the request or the wait.</param>
-    public Task<BatchResult> UnpublishBatchAsync(int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
-        RunBatchOperationAsync(batchId, "unpublish", waitForBatch, cancellationToken);
+    public Task<BatchResult> UnpublishBatchAsync(string instanceGuid, int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
+        RunBatchOperationAsync(instanceGuid, batchId, "unpublish", waitForBatch, cancellationToken);
 
     /// <summary>Approves every item in an existing batch. <c>POST batch/{id}/approve</c></summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="batchId">The batch ID.</param>
     /// <param name="waitForBatch">Wait for the resulting batch to be processed.</param>
     /// <param name="cancellationToken">Cancels the request or the wait.</param>
-    public Task<BatchResult> ApproveBatchAsync(int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
-        RunBatchOperationAsync(batchId, "approve", waitForBatch, cancellationToken);
+    public Task<BatchResult> ApproveBatchAsync(string instanceGuid, int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
+        RunBatchOperationAsync(instanceGuid, batchId, "approve", waitForBatch, cancellationToken);
 
     /// <summary>Declines every item in an existing batch. <c>POST batch/{id}/decline</c></summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="batchId">The batch ID.</param>
     /// <param name="waitForBatch">Wait for the resulting batch to be processed.</param>
     /// <param name="cancellationToken">Cancels the request or the wait.</param>
-    public Task<BatchResult> DeclineBatchAsync(int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
-        RunBatchOperationAsync(batchId, "decline", waitForBatch, cancellationToken);
+    public Task<BatchResult> DeclineBatchAsync(string instanceGuid, int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
+        RunBatchOperationAsync(instanceGuid, batchId, "decline", waitForBatch, cancellationToken);
 
     /// <summary>Requests approval for every item in an existing batch. <c>POST batch/{id}/request-approval</c></summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="batchId">The batch ID.</param>
     /// <param name="waitForBatch">Wait for the resulting batch to be processed.</param>
     /// <param name="cancellationToken">Cancels the request or the wait.</param>
-    public Task<BatchResult> RequestApprovalBatchAsync(int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
-        RunBatchOperationAsync(batchId, "request-approval", waitForBatch, cancellationToken);
+    public Task<BatchResult> RequestApprovalBatchAsync(string instanceGuid, int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
+        RunBatchOperationAsync(instanceGuid, batchId, "request-approval", waitForBatch, cancellationToken);
 
     /// <summary>
     /// Waits until a batch is processed, checking every <see cref="BatchPollingOptions.Interval"/>.
     /// </summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="batchId">The batch ID.</param>
     /// <param name="cancellationToken">Stops waiting. The batch keeps running on the server.</param>
     /// <returns>The processed batch, with its items.</returns>
     /// <exception cref="AgilityBatchException">The batch was processed but some items failed, or it was aborted or deleted.</exception>
     /// <exception cref="AgilityBatchTimeoutException">The batch didn't finish within <see cref="BatchPollingOptions.Timeout"/>.</exception>
-    public async Task<Batch> WaitForBatchAsync(int batchId, CancellationToken cancellationToken = default)
+    public async Task<Batch> WaitForBatchAsync(string instanceGuid, int batchId, CancellationToken cancellationToken = default)
     {
         var polling = _connection.Options.BatchPolling;
         var time = _connection.Time;
@@ -104,7 +110,7 @@ public sealed class BatchesClient
         {
             try
             {
-                last = await GetBatchAsync(batchId, expandItems: true, cancellationToken).ConfigureAwait(false);
+                last = await GetBatchAsync(instanceGuid, batchId, expandItems: true, cancellationToken).ConfigureAwait(false);
             }
             catch (AgilityManagementException ex) when (ex.StatusCode == HttpStatusCode.NotFound && time.GetElapsedTime(started) < polling.NotFoundGracePeriod)
             {
@@ -135,20 +141,20 @@ public sealed class BatchesClient
     }
 
     /// <summary>Turns the batch ID an operation returned into a <see cref="BatchResult"/>, waiting if asked.</summary>
-    internal async Task<BatchResult> CompleteAsync(int? batchId, string operation, bool waitForBatch, CancellationToken cancellationToken)
+    internal async Task<BatchResult> CompleteAsync(string instanceGuid, int? batchId, string operation, bool waitForBatch, CancellationToken cancellationToken)
     {
         if (batchId is not int id || id <= 0)
             throw new AgilityManagementException($"The API didn't return a batch ID for {operation} (got {batchId?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "null"}).");
         if (!waitForBatch) return new BatchResult(id, null);
-        var batch = await WaitForBatchAsync(id, cancellationToken).ConfigureAwait(false);
+        var batch = await WaitForBatchAsync(instanceGuid, id, cancellationToken).ConfigureAwait(false);
         return new BatchResult(id, batch);
     }
 
-    private async Task<BatchResult> RunBatchOperationAsync(int batchId, string operation, bool waitForBatch, CancellationToken cancellationToken)
+    private async Task<BatchResult> RunBatchOperationAsync(string instanceGuid, int batchId, string operation, bool waitForBatch, CancellationToken cancellationToken)
     {
-        var id = await _connection.SendAsync(HttpMethod.Post, _connection.InstanceUri(_guid, $"batch/{batchId}/{operation}"),
+        var id = await _connection.SendAsync(HttpMethod.Post, _connection.InstanceUri(instanceGuid, $"batch/{batchId}/{operation}"),
             RequestKind.Write, ManagementJsonContext.Default.NullableInt32, cancellationToken: cancellationToken).ConfigureAwait(false);
-        return await CompleteAsync(id, $"batch {operation}", waitForBatch, cancellationToken).ConfigureAwait(false);
+        return await CompleteAsync(instanceGuid, id, $"batch {operation}", waitForBatch, cancellationToken).ConfigureAwait(false);
     }
 
     internal static void ThrowIfFailed(int batchId, Batch batch)

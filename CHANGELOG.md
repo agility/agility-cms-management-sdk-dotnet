@@ -13,8 +13,9 @@ A rewrite for .NET 10. See [MIGRATION.md](MIGRATION.md) for how to upgrade.
   redirections, Personal Access Tokens, the current user, API enums, custom batches and batch actions, batch
   workflow, cascade publish, content and page history and comments, asset folder rename and delete, Fetch API sync
   status and keys, OAuth sign-in and refresh.
-- `AgilityManagementClient` with `ForInstance(guid)`, and `AddAgilityManagement` for dependency injection
-  through `IHttpClientFactory`. A caller-supplied `HttpClient` is also accepted.
+- `AgilityManagementClient` with one property per area (`Content`, `Pages`, ...), whose methods take the instance
+  GUID, then the locale, then IDs, matching the TypeScript SDK. `AddAgilityManagement` registers it for dependency
+  injection through `IHttpClientFactory`; a caller-supplied `HttpClient` is also accepted.
 - `BatchResult` from every save and workflow operation, which waits for the batch by default
   (`waitForBatch: false` to skip).
 - Typed errors: `AgilityManagementException`, `AgilityBatchException`, `AgilityBatchTimeoutException`.

@@ -32,6 +32,24 @@ public sealed class OAuthClient
             .Add("scope", offlineAccess ? "offline_access" : null));
     }
 
+    /// <summary>Gets an instance's Fetch API key for published content. <c>GET /oauth/getfetchkey</c></summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
+    /// <param name="cancellationToken">Cancels the request.</param>
+    public Task<string> GetFetchApiKeyAsync(string instanceGuid, CancellationToken cancellationToken = default) =>
+        GetKeyAsync(instanceGuid, "getfetchkey", cancellationToken);
+
+    /// <summary>Gets an instance's Fetch API key for preview (staging) content. <c>GET /oauth/getpreviewkey</c></summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
+    /// <param name="cancellationToken">Cancels the request.</param>
+    public Task<string> GetPreviewApiKeyAsync(string instanceGuid, CancellationToken cancellationToken = default) =>
+        GetKeyAsync(instanceGuid, "getpreviewkey", cancellationToken);
+
+    // Keys are served by the instance's regional host.
+    private Task<string> GetKeyAsync(string instanceGuid, string route, CancellationToken cancellationToken) =>
+        _connection.SendForStringAsync(HttpMethod.Get,
+            _connection.InstanceRootUri(instanceGuid, $"oauth/{route}", new Query().Add("guid", instanceGuid)),
+            RequestKind.Read, cancellationToken: cancellationToken);
+
     /// <summary>Exchanges the authorization code from the sign-in redirect for tokens. <c>POST /oauth/token</c></summary>
     /// <param name="code">The <c>code</c> query value the browser brought back.</param>
     /// <param name="cancellationToken">Cancels the request.</param>

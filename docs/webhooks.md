@@ -1,11 +1,11 @@
 # Webhooks
 
-`instance.Webhooks` manages the instance's webhooks.
+`client.Webhooks` manages the instance's webhooks.
 
 ## Create and update
 
 ```csharp
-var webhook = await instance.Webhooks.SaveWebhookAsync(new Webhook
+var webhook = await client.Webhooks.SaveWebhookAsync(guid, new Webhook
 {
     Name = "Rebuild site",
     Url = "https://build.example.com/hooks/agility",
@@ -32,7 +32,7 @@ Rotate the secret with `RotateSigningSecretAsync`. The previous secret keeps sig
 (`PreviousSigningSecret`), so receivers can switch over without dropping deliveries.
 
 ```csharp
-var rotated = await instance.Webhooks.RotateSigningSecretAsync(webhook.RowKey!);
+var rotated = await client.Webhooks.RotateSigningSecretAsync(guid, webhook.RowKey!);
 StoreSecret(rotated.SigningSecret!);
 ```
 
@@ -44,12 +44,12 @@ Webhook lists and delivery history are paged with a continuation token:
 string? token = null;
 do
 {
-    var page = await instance.Webhooks.GetWebhooksAsync(take: 50, continuationToken: token);
+    var page = await client.Webhooks.GetWebhooksAsync(guid, take: 50, continuationToken: token);
     foreach (var hook in page.Items ?? []) Console.WriteLine(hook.Name);
     token = page.Token;
 }
 while (token is not null);
 
-var history = await instance.Webhooks.GetWebhookHistoryAsync(webhook.RowKey!, fromDate: DateTime.UtcNow.AddDays(-1));
-await instance.Webhooks.DeleteWebhookAsync(webhook.RowKey!);
+var history = await client.Webhooks.GetWebhookHistoryAsync(guid, webhook.RowKey!, fromDate: DateTime.UtcNow.AddDays(-1));
+await client.Webhooks.DeleteWebhookAsync(guid, webhook.RowKey!);
 ```

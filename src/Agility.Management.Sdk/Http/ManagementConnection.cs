@@ -62,8 +62,18 @@ internal sealed class ManagementConnection
     /// <summary><c>{region host}/api/v1/instance/{guid}/{path}{query}</c></summary>
     public Uri InstanceUri(string guid, ApiPath path, Query? query = null)
     {
-        var host = Options.BaseUrl ?? AgilityRegions.ResolveBaseUrl(guid);
-        return Combine(host, $"api/v1/instance/{Uri.EscapeDataString(guid)}/{path.ToStringAndClear()}", query);
+        var host = InstanceHost(guid);
+        return Combine(host, $"api/v1/instance/{Uri.EscapeDataString(guid.Trim())}/{path.ToStringAndClear()}", query);
+    }
+
+    /// <summary><c>{region host}/{path}{query}</c>, for instance-scoped routes outside <c>/api</c>.</summary>
+    public Uri InstanceRootUri(string guid, ApiPath path, Query? query = null) =>
+        Combine(InstanceHost(guid), path.ToStringAndClear(), query);
+
+    private Uri InstanceHost(string guid)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(guid, "instanceGuid");
+        return Options.BaseUrl ?? AgilityRegions.ResolveBaseUrl(guid.Trim());
     }
 
     /// <summary><c>{server host}/api/v1/{path}{query}</c></summary>

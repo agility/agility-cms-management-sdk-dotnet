@@ -24,7 +24,7 @@ using var client = new AgilityManagementClient(new AgilityManagementOptions
 
 PATs can't call these; use OAuth for them:
 
-- instance user management (`instance.Users`)
+- instance user management (`client.InstanceUsers`)
 - token management (`client.PersonalAccessTokens`)
 
 ## OAuth
