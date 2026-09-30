@@ -24,6 +24,9 @@ internal ref struct ApiPath
     {
         if (string.IsNullOrWhiteSpace(value))
             throw new ArgumentException("A path segment can't be null or empty.");
+        // Escaping leaves "." and "..", and Uri would then collapse them into a different route.
+        if (value is "." or "..")
+            throw new ArgumentException($"'{value}' isn't a valid path segment.");
         _builder.AppendLiteral(Uri.EscapeDataString(value));
     }
 

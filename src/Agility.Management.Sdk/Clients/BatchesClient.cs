@@ -39,6 +39,11 @@ public sealed class BatchesClient
     public Task<BatchCreateResult> CreateBatchAsync(CreateBatchWithItemsRequest request, bool? processNow = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        // Unset, the API would read the operation as Publish (its first value): refuse rather than publish by accident.
+        if (request.Operation is null)
+            throw new ArgumentException($"Set {nameof(CreateBatchWithItemsRequest.Operation)}.", nameof(request));
+        if (request.Items is null || request.Items.Count == 0 || request.Items.Any(i => i.ItemType is null))
+            throw new ArgumentException($"Add at least one item, each with an {nameof(AddBatchItemRequest.ItemType)}.", nameof(request));
         return _connection.SendRequiredAsync(HttpMethod.Post,
             _connection.InstanceUri(_guid, $"batch", new Query().Add("processNow", processNow)),
             RequestKind.Write, ManagementJsonContext.Default.BatchCreateResult,
@@ -46,27 +51,37 @@ public sealed class BatchesClient
     }
 
     /// <summary>Publishes every item in an existing batch. <c>POST batch/{id}/publish</c></summary>
-    /// <inheritdoc cref="RunBatchOperationAsync" path="/param"/>
+    /// <param name="batchId">The batch ID.</param>
+    /// <param name="waitForBatch">Wait for the resulting batch to be processed.</param>
+    /// <param name="cancellationToken">Cancels the request or the wait.</param>
     public Task<BatchResult> PublishBatchAsync(int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
         RunBatchOperationAsync(batchId, "publish", waitForBatch, cancellationToken);
 
     /// <summary>Unpublishes every item in an existing batch. <c>POST batch/{id}/unpublish</c></summary>
-    /// <inheritdoc cref="RunBatchOperationAsync" path="/param"/>
+    /// <param name="batchId">The batch ID.</param>
+    /// <param name="waitForBatch">Wait for the resulting batch to be processed.</param>
+    /// <param name="cancellationToken">Cancels the request or the wait.</param>
     public Task<BatchResult> UnpublishBatchAsync(int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
         RunBatchOperationAsync(batchId, "unpublish", waitForBatch, cancellationToken);
 
     /// <summary>Approves every item in an existing batch. <c>POST batch/{id}/approve</c></summary>
-    /// <inheritdoc cref="RunBatchOperationAsync" path="/param"/>
+    /// <param name="batchId">The batch ID.</param>
+    /// <param name="waitForBatch">Wait for the resulting batch to be processed.</param>
+    /// <param name="cancellationToken">Cancels the request or the wait.</param>
     public Task<BatchResult> ApproveBatchAsync(int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
         RunBatchOperationAsync(batchId, "approve", waitForBatch, cancellationToken);
 
     /// <summary>Declines every item in an existing batch. <c>POST batch/{id}/decline</c></summary>
-    /// <inheritdoc cref="RunBatchOperationAsync" path="/param"/>
+    /// <param name="batchId">The batch ID.</param>
+    /// <param name="waitForBatch">Wait for the resulting batch to be processed.</param>
+    /// <param name="cancellationToken">Cancels the request or the wait.</param>
     public Task<BatchResult> DeclineBatchAsync(int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
         RunBatchOperationAsync(batchId, "decline", waitForBatch, cancellationToken);
 
     /// <summary>Requests approval for every item in an existing batch. <c>POST batch/{id}/request-approval</c></summary>
-    /// <inheritdoc cref="RunBatchOperationAsync" path="/param"/>
+    /// <param name="batchId">The batch ID.</param>
+    /// <param name="waitForBatch">Wait for the resulting batch to be processed.</param>
+    /// <param name="cancellationToken">Cancels the request or the wait.</param>
     public Task<BatchResult> RequestApprovalBatchAsync(int batchId, bool waitForBatch = true, CancellationToken cancellationToken = default) =>
         RunBatchOperationAsync(batchId, "request-approval", waitForBatch, cancellationToken);
 
@@ -96,6 +111,8 @@ public sealed class BatchesClient
                 // A new batch ID can 404 for a moment before the batch exists.
             }
 
+            if (last is not null && IsAborted(last))
+                throw new AgilityBatchException($"Batch {batchId} was aborted.", batchId, last);
             switch (last?.BatchState)
             {
                 case BatchState.Processed:
@@ -136,21 +153,21 @@ public sealed class BatchesClient
 
     internal static void ThrowIfFailed(int batchId, Batch batch)
     {
-        var failed = (batch.Items ?? []).Where(i => !string.IsNullOrWhiteSpace(i.ErrorMessage)).ToList();
-        var summaryFailures = SummaryFailureCount(batch.ErrorData);
-        if (failed.Count == 0 && summaryFailures == 0 && batch.AbortYN != true) return;
+        if (IsAborted(batch))
+            throw new AgilityBatchException($"Batch {batchId} was aborted.", batchId, batch);
 
-        string message;
-        if (batch.AbortYN == true || string.Equals(batch.ErrorData?.Trim(), "Batch aborted.", StringComparison.OrdinalIgnoreCase))
-            message = $"Batch {batchId} was aborted.";
-        else
-        {
-            var count = Math.Max(failed.Count, summaryFailures);
-            var details = string.Join("; ", failed.Take(3).Select(i => $"item {i.ItemID}: {ItemErrorText(i.ErrorMessage!)}"));
-            message = $"Batch {batchId} was processed with {count} failed item(s)" + (details.Length > 0 ? $": {details}" : ".");
-        }
-        throw new AgilityBatchException(message, batchId, batch);
+        var failed = (batch.Items ?? []).Where(i => !string.IsNullOrWhiteSpace(i.ErrorMessage)).ToList();
+        var count = Math.Max(failed.Count, SummaryFailureCount(batch.ErrorData));
+        if (count == 0) return;
+
+        var details = string.Join("; ", failed.Take(3).Select(i => $"item {i.ItemID}: {ItemErrorText(i.ErrorMessage!)}"));
+        throw new AgilityBatchException(
+            $"Batch {batchId} was processed with {count} failed item(s)" + (details.Length > 0 ? $": {details}" : "."), batchId, batch);
     }
+
+    // The processor marks a cancelled batch with AbortYN, or with this ErrorData, and may stop short of Processed.
+    private static bool IsAborted(Batch batch) =>
+        batch.AbortYN == true || string.Equals(batch.ErrorData?.Trim(), "Batch aborted.", StringComparison.OrdinalIgnoreCase);
 
     private static int SummaryFailureCount(string? errorData)
     {
@@ -158,7 +175,9 @@ public sealed class BatchesClient
         try
         {
             using var doc = JsonDocument.Parse(errorData);
-            return doc.RootElement.TryGetProperty("FailureCount", out var f) && f.TryGetInt32(out var n) ? n : 0;
+            return doc.RootElement.ValueKind == JsonValueKind.Object
+                && doc.RootElement.TryGetProperty("FailureCount", out var f)
+                && f.ValueKind == JsonValueKind.Number && f.TryGetInt32(out var n) ? n : 0;
         }
         catch (JsonException)
         {

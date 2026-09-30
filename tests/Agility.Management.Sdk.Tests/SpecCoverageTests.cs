@@ -19,7 +19,7 @@ public partial class SpecCoverageTests
         ["GET /oauth/callback"] = "The API's own redirect target during sign-in; clients don't call it.",
     };
 
-    private static readonly Type[] ClientTypes =
+    internal static readonly Type[] ClientTypes =
     [
         typeof(AssetsClient), typeof(BatchesClient), typeof(ContainersClient), typeof(ContentClient),
         typeof(InstanceUsersClient), typeof(LocalesClient), typeof(LocalizationClient), typeof(ModelsClient),
@@ -159,18 +159,7 @@ public partial class SpecCoverageTests
             : FakeHandler.Json(body));
         using var client = TestClient.Create(handler);
         var instance = client.ForInstance(TestClient.InstanceGuid);
-        var targets = new Dictionary<Type, object>
-        {
-            [typeof(AgilityInstanceClient)] = instance,
-            [typeof(AssetsClient)] = instance.Assets, [typeof(BatchesClient)] = instance.Batches,
-            [typeof(ContainersClient)] = instance.Containers, [typeof(ContentClient)] = instance.Content,
-            [typeof(InstanceUsersClient)] = instance.Users, [typeof(LocalesClient)] = instance.Locales,
-            [typeof(LocalizationClient)] = instance.Localization, [typeof(ModelsClient)] = instance.Models,
-            [typeof(PagesClient)] = instance.Pages, [typeof(SyncStatusClient)] = instance.SyncStatus,
-            [typeof(UrlRedirectionsClient)] = instance.UrlRedirections, [typeof(WebhooksClient)] = instance.Webhooks,
-            [typeof(OAuthClient)] = client.OAuth, [typeof(PersonalAccessTokensClient)] = client.PersonalAccessTokens,
-            [typeof(TypesClient)] = client.Types, [typeof(UsersClient)] = client.Users,
-        };
+        var targets = Targets(client, instance);
 
         var called = new Dictionary<string, List<string>>();
         foreach (var type in ClientTypes)
@@ -199,6 +188,22 @@ public partial class SpecCoverageTests
         return called;
     }
 
+    internal static Dictionary<Type, object> Targets(AgilityManagementClient client, AgilityInstanceClient instance)
+    {
+        return new Dictionary<Type, object>
+        {
+            [typeof(AgilityInstanceClient)] = instance,
+            [typeof(AssetsClient)] = instance.Assets, [typeof(BatchesClient)] = instance.Batches,
+            [typeof(ContainersClient)] = instance.Containers, [typeof(ContentClient)] = instance.Content,
+            [typeof(InstanceUsersClient)] = instance.Users, [typeof(LocalesClient)] = instance.Locales,
+            [typeof(LocalizationClient)] = instance.Localization, [typeof(ModelsClient)] = instance.Models,
+            [typeof(PagesClient)] = instance.Pages, [typeof(SyncStatusClient)] = instance.SyncStatus,
+            [typeof(UrlRedirectionsClient)] = instance.UrlRedirections, [typeof(WebhooksClient)] = instance.Webhooks,
+            [typeof(OAuthClient)] = client.OAuth, [typeof(PersonalAccessTokensClient)] = client.PersonalAccessTokens,
+            [typeof(TypesClient)] = client.Types, [typeof(UsersClient)] = client.Users,
+        };
+    }
+
     /// <summary>A response body that deserializes into what the method returns.</summary>
     private static string ResponseFor(Type returnType)
     {
@@ -210,7 +215,7 @@ public partial class SpecCoverageTests
         return "{}";
     }
 
-    private static object? DummyValue(ParameterInfo p)
+    internal static object? DummyValue(ParameterInfo p)
     {
         var t = p.ParameterType;
         if (t == typeof(CancellationToken)) return CancellationToken.None;
@@ -226,6 +231,12 @@ public partial class SpecCoverageTests
         if (t == typeof(IReadOnlyCollection<AssetUpload>)) return new[] { new AssetUpload("a.txt", new MemoryStream([1])) };
         if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IReadOnlyList<>))
             return Array.CreateInstance(t.GetGenericArguments()[0], 0);
+        if (t == typeof(Models.CreateBatchWithItemsRequest))
+            return new Models.CreateBatchWithItemsRequest
+            {
+                Operation = Models.WorkflowOperationType.Publish,
+                Items = [new Models.AddBatchItemRequest { ItemType = Models.BatchItemType.Page, ItemID = 5 }],
+            };
         if (p.HasDefaultValue) return p.DefaultValue;
         return Activator.CreateInstance(t);
     }

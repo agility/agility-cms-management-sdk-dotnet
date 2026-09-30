@@ -43,9 +43,9 @@ public sealed class ContentClient
     public Task<List<ContentItem>> GetContentItemsByIdAsync(string locale, IEnumerable<int> contentIds, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(locale);
-        ArgumentNullException.ThrowIfNull(contentIds);
+        var ids = RequireIds(contentIds);
         return _connection.SendRequiredAsync(HttpMethod.Get,
-            _connection.InstanceUri(_guid, $"{locale}/items", new Query().Add("ids", contentIds)),
+            _connection.InstanceUri(_guid, $"{locale}/items", new Query().Add("ids", ids)),
             RequestKind.Read, ManagementJsonContext.Default.ListContentItem, cancellationToken: cancellationToken);
     }
 
@@ -192,10 +192,10 @@ public sealed class ContentClient
         string locale, IEnumerable<int> contentIds, WorkflowOperationType operation, bool waitForBatch = true, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(locale);
-        ArgumentNullException.ThrowIfNull(contentIds);
+        var ids = RequireIds(contentIds);
         var batchId = await _connection.SendAsync(HttpMethod.Post,
             _connection.InstanceUri(_guid, $"{locale}/item/batch-workflow", new Query()
-                .Add("contentIDs", contentIds).Add("operation", operation.ToApiValue())),
+                .Add("contentIDs", ids).Add("operation", operation.ToApiValue())),
             RequestKind.Write, ManagementJsonContext.Default.NullableInt32, cancellationToken: cancellationToken).ConfigureAwait(false);
         return await _batches.CompleteAsync(batchId, $"content {operation}", waitForBatch, cancellationToken).ConfigureAwait(false);
     }
@@ -256,6 +256,13 @@ public sealed class ContentClient
         return _connection.SendRequiredAsync(HttpMethod.Get,
             _connection.InstanceUri(_guid, $"{locale}/item/{contentId}/history", new Query().Add("take", take).Add("skip", skip)),
             RequestKind.Read, ManagementJsonContext.Default.ContentItemHistoryResponse, cancellationToken: cancellationToken);
+    }
+
+    private static List<int> RequireIds(IEnumerable<int> ids, [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(ids))] string? name = null)
+    {
+        ArgumentNullException.ThrowIfNull(ids, name);
+        var list = ids.ToList();
+        return list.Count > 0 ? list : throw new ArgumentException("Pass at least one ID.", name);
     }
 
     // Workflow operations are GETs in the API, but they change state: never retried.

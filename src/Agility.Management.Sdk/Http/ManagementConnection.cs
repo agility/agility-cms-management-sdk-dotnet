@@ -154,7 +154,9 @@ internal sealed class ManagementConnection
             HttpResponseMessage response;
             try
             {
-                response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                // ResponseContentRead buffers the body here, so a body that fails or stalls mid-read is retried
+                // (for reads), wrapped, and covered by HttpClient.Timeout like the rest of the request.
+                response = await _http.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
             }
             catch (HttpRequestException ex)
             {

@@ -50,7 +50,7 @@ While waiting, the SDK polls `GET batch/{id}` every `BatchPolling.Interval` (3 s
 |---|---|
 | Processed, every item succeeded | `BatchResult` |
 | Processed, some items failed | `AgilityBatchException` with the batch, so you can see which items succeeded. The message includes the first few item errors. |
-| Aborted or deleted | `AgilityBatchException` |
+| Aborted (at any point) or deleted | `AgilityBatchException`, as soon as the SDK sees it |
 | Not processed within `BatchPolling.Timeout` (15 min) | `AgilityBatchTimeoutException` with the batch ID and its last state. The batch keeps running on the server. |
 | `cancellationToken` cancelled | `OperationCanceledException`. The batch keeps running. |
 
@@ -120,7 +120,9 @@ you mean "none". Other `null` properties are sent as `null`.
 | `AgilityManagementException` | Any error from the API or the network. `StatusCode`, `ApiMessage` (the API's own message), `ResponseBody`, `Problem` (for RFC 7807 responses), `RequestId`, `Method` and `RequestUri` say what went wrong. Network failures and timeouts keep the original exception as `InnerException`. |
 | `AgilityBatchException` | A batch was processed with failures, aborted or deleted. `BatchId` and `Batch` show what happened. |
 | `AgilityBatchTimeoutException` | A batch didn't finish in time. `Waited` says how long the SDK waited. |
-| `ArgumentException` | A required argument was missing, or an instance GUID has an unknown region suffix. |
+| `ArgumentException` | A required argument was missing or invalid (an empty ID list, a `.` or `..` path value, a batch request with no operation), or an instance GUID has an unknown region suffix. |
+| `InvalidOperationException` | An authenticated endpoint was called on a client with no credentials, or the options are invalid. |
+| `TimeoutException` | `WaitForFetchApiSyncAsync` gave up. |
 | `OperationCanceledException` | Your `CancellationToken` was cancelled. Not wrapped. |
 
 ```csharp
@@ -180,7 +182,9 @@ region. Server-level calls (`client.Users`, `client.PersonalAccessTokens`, `clie
 | Option | Default | |
 |---|---|---|
 | `AccessToken` | — | A PAT or OAuth access token |
-| `AccessTokenProvider` | — | Supplies a token per request; takes precedence over `AccessToken` |
+| `RefreshToken` | — | An OAuth refresh token; the client gets and renews access tokens from it |
+| `RefreshTokenChanged` | — | Called with the new refresh token when the API rotates it |
+| `AccessTokenProvider` | — | Supplies a token per request; takes precedence over `AccessToken` and `RefreshToken` |
 | `BaseUrl` | from the GUID | Override the API host |
 | `ApplicationName` | — | Appended to the `User-Agent`, e.g. `my-job/1.0` |
 | `BatchPolling.Interval` | 3 s | Time between batch status checks |

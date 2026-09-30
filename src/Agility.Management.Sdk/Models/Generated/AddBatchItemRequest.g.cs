@@ -15,7 +15,7 @@ namespace Agility.Management.Sdk.Models;
 public sealed partial class AddBatchItemRequest
 {
     [JsonPropertyName("itemType")]
-    public BatchItemType ItemType { get; set; }
+    public BatchItemType? ItemType { get; set; }
 
     /// <summary>
     /// The ID of the **existing** item to add to the batch.

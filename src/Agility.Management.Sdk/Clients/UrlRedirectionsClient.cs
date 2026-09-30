@@ -35,8 +35,10 @@ public sealed class UrlRedirectionsClient
     public Task<UrlRedirectionDeleteResult> DeleteUrlRedirectionsAsync(IEnumerable<int> redirectionIds, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(redirectionIds);
+        var ids = redirectionIds.ToList();
+        if (ids.Count == 0) throw new ArgumentException("Pass at least one redirection ID.", nameof(redirectionIds));
         return _connection.SendRequiredAsync(HttpMethod.Delete,
-            _connection.InstanceUri(_guid, $"url-redirections", new Query().Add("ids", redirectionIds)),
+            _connection.InstanceUri(_guid, $"url-redirections", new Query().Add("ids", ids)),
             RequestKind.Write, ManagementJsonContext.Default.UrlRedirectionDeleteResult, cancellationToken: cancellationToken);
     }
 

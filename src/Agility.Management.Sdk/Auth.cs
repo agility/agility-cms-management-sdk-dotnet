@@ -28,14 +28,14 @@ internal sealed class StaticAccessTokenProvider(string token) : IAccessTokenProv
 /// </remarks>
 public sealed class RefreshTokenAccessTokenProvider : IAccessTokenProvider, IDisposable
 {
-    private static readonly TimeSpan RefreshMargin = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan MaxRefreshMargin = TimeSpan.FromMinutes(2);
 
     private readonly Func<string, CancellationToken, Task<TokenResponseData>> _refresh;
     private readonly TimeProvider _time;
     private readonly SemaphoreSlim _lock = new(1, 1);
     private string _refreshToken;
-    private string? _accessToken;
-    private DateTimeOffset _expiresAt;
+    // Token and refresh time are read together without the lock, so they're swapped as one object.
+    private volatile CachedToken? _cached;
 
     /// <summary>Creates a provider that refreshes against <c>/oauth/refresh</c> on <paramref name="oauth"/>.</summary>
     public RefreshTokenAccessTokenProvider(Clients.OAuthClient oauth, string refreshToken, TimeProvider? timeProvider = null)
@@ -59,35 +59,43 @@ public sealed class RefreshTokenAccessTokenProvider : IAccessTokenProvider, IDis
     /// <inheritdoc/>
     public async ValueTask<string> GetAccessTokenAsync(CancellationToken cancellationToken)
     {
-        if (_accessToken is { } cached && _time.GetUtcNow() < _expiresAt - RefreshMargin)
-            return cached;
+        if (_cached is { } cached && _time.GetUtcNow() < cached.RefreshAt)
+            return cached.Token;
 
+        string? rotated = null;
+        string token;
         await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            if (_accessToken is { } again && _time.GetUtcNow() < _expiresAt - RefreshMargin)
-                return again;
+            if (_cached is { } again && _time.GetUtcNow() < again.RefreshAt)
+                return again.Token;
 
             var response = await _refresh(_refreshToken, cancellationToken).ConfigureAwait(false);
             if (string.IsNullOrEmpty(response.AccessToken))
                 throw new AgilityManagementException("The OAuth refresh response had no access token.");
 
-            _accessToken = response.AccessToken;
-            // No expiry in the response: assume a short lifetime rather than caching forever.
-            _expiresAt = _time.GetUtcNow() + TimeSpan.FromSeconds(response.ExpiresIn ?? 300);
+            // No expiry in the response: assume a short lifetime rather than caching forever. Refresh a little
+            // early, but never so early that a short-lived token is refreshed on every request.
+            var lifetime = TimeSpan.FromSeconds(response.ExpiresIn is > 0 ? response.ExpiresIn.Value : 300);
+            var margin = lifetime / 2 < MaxRefreshMargin ? lifetime / 2 : MaxRefreshMargin;
+            token = response.AccessToken;
+            _cached = new CachedToken(token, _time.GetUtcNow() + lifetime - margin);
+
             if (!string.IsNullOrEmpty(response.RefreshToken) && response.RefreshToken != _refreshToken)
-            {
-                _refreshToken = response.RefreshToken;
-                RefreshTokenChanged?.Invoke(this, _refreshToken);
-            }
-            return _accessToken;
+                rotated = _refreshToken = response.RefreshToken;
         }
         finally
         {
             _lock.Release();
         }
+
+        // Outside the lock, so a handler can call back into the provider.
+        if (rotated is not null) RefreshTokenChanged?.Invoke(this, rotated);
+        return token;
     }
 
     /// <inheritdoc/>
     public void Dispose() => _lock.Dispose();
+
+    private sealed record CachedToken(string Token, DateTimeOffset RefreshAt);
 }

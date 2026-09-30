@@ -13,7 +13,8 @@
 // - collections and dictionaries are omitted from request bodies when null. The API reads a sent
 //   list as a replacement (e.g. a zone's defaultModules, where [] clears), so "not set" must never
 //   be written as [] or null;
-// - explicit [JsonPropertyName] keeps the wire names exact (abortYN, relativeURL, eTag...).
+// - explicit [JsonPropertyName] keeps the wire names exact (abortYN, relativeURL, eTag...);
+// - enums on *Request models are nullable, so the client can refuse to send an unset one.
 
 using System.Text;
 using System.Text.Json.Nodes;
@@ -98,7 +99,10 @@ string GenerateClass(string name, JsonObject schema)
     {
         var p = pnode!.AsObject();
         var (type, isValueType, isCollection) = MapType(p);
-        var nullable = !isValueType || p["nullable"]?.GetValue<bool>() == true;
+        // An enum on a request model is nullable: its zero value is a real operation (WorkflowOperationType.Publish),
+        // so an unset property must be detectable rather than silently sent as that value.
+        var requestEnum = name.EndsWith("Request", StringComparison.Ordinal) && p["$ref"] is not null && isValueType;
+        var nullable = !isValueType || requestEnum || p["nullable"]?.GetValue<bool>() == true;
         var clr = Pascal(wire);
         if (clr == name) clr += "Value";
 

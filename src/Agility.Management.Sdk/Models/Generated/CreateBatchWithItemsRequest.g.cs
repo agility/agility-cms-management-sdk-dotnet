@@ -24,7 +24,7 @@ public sealed partial class CreateBatchWithItemsRequest
     public string? BatchName { get; set; }
 
     [JsonPropertyName("operation")]
-    public WorkflowOperationType Operation { get; set; }
+    public WorkflowOperationType? Operation { get; set; }
 
     /// <summary>
     /// Whether the batch should be private (visible only to the creator). Defaults to true.

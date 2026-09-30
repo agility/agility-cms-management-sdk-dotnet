@@ -144,9 +144,11 @@ public sealed class PagesClient
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(locale);
         ArgumentNullException.ThrowIfNull(pageIds);
+        var ids = pageIds.ToList();
+        if (ids.Count == 0) throw new ArgumentException("Pass at least one page ID.", nameof(pageIds));
         var batchId = await _connection.SendAsync(HttpMethod.Post,
             _connection.InstanceUri(_guid, $"{locale}/page/batch-workflow", new Query()
-                .Add("pageIDs", pageIds).Add("operation", operation.ToApiValue())),
+                .Add("pageIDs", ids).Add("operation", operation.ToApiValue())),
             RequestKind.Write, ManagementJsonContext.Default.NullableInt32, cancellationToken: cancellationToken).ConfigureAwait(false);
         return await _batches.CompleteAsync(batchId, $"page {operation}", waitForBatch, cancellationToken).ConfigureAwait(false);
     }

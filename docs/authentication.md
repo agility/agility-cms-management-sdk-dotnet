@@ -53,6 +53,10 @@ PATs can't call these; use OAuth for them:
    });
    ```
 
+   Create one client and reuse it: each client built from a `RefreshToken` keeps its own token cache. With
+   `AddAgilityManagement`, every client the container creates shares one, so the rotated refresh token reaches all
+   of them.
+
    Steps 1 and 2 need no credentials, so the client you use for sign-in can be created with empty options.
    `RefreshTokenAccessTokenProvider` is the same logic as a standalone `IAccessTokenProvider`, if you'd rather
    share one provider between clients.

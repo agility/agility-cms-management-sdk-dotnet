@@ -19,7 +19,7 @@ A rewrite for .NET 10. See [MIGRATION.md](MIGRATION.md) for how to upgrade.
   (`waitForBatch: false` to skip).
 - Typed errors: `AgilityManagementException`, `AgilityBatchException`, `AgilityBatchTimeoutException`.
 - Token providers: `AccessToken`, `RefreshToken` (with automatic renewal), or your own `IAccessTokenProvider`.
-- Retries with backoff for reads on 408, 429 and 5xx; writes are never retried.
+- Retries with backoff for reads on 408, 429, 500, 502, 503 and 504, and network errors; writes are never retried.
 - `CancellationToken` on every method.
 - An identifying `User-Agent` (`agility-management-sdk-dotnet/<version>`), with an optional application name.
 - XML documentation on the whole public API; guides in `docs/`; compiled samples.
@@ -39,7 +39,7 @@ A rewrite for .NET 10. See [MIGRATION.md](MIGRATION.md) for how to upgrade.
 
 - `SavePageTemplateAsync` no longer clears every zone's default components.
 - Instances in the USA 2 region (`-us2`) are sent to `mgmt-usa2.aglty.io`. An unknown region suffix is now an error.
-- Batch waits last the full configured time (1.x stopped at half).
+- Batch waits last the full configured time (1.x stopped at half), and an aborted batch is reported as a failure.
 - Query values are URL-encoded.
 - `Options.BaseUrl` is honoured.
 

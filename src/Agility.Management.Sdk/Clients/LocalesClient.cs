@@ -35,13 +35,16 @@ public sealed class LocalesClient
         _connection.SendRequiredAsync(HttpMethod.Get, _connection.InstanceUri(_guid, $"locales/{localeId}"),
             RequestKind.Read, ManagementJsonContext.Default.Locale, cancellationToken: cancellationToken);
 
-    /// <summary>Creates or updates a locale. <c>POST locales</c></summary>
+    /// <summary>
+    /// Creates or updates a locale. <c>POST locales</c>. Returns the saved locale, or <see langword="null"/> if
+    /// the API sent no body.
+    /// </summary>
     /// <param name="locale">The locale. <c>LocaleName</c> and <c>LocaleCode</c> are required.</param>
     /// <param name="cancellationToken">Cancels the request.</param>
-    public Task<Locale> SaveLocaleAsync(Locale locale, CancellationToken cancellationToken = default)
+    public Task<Locale?> SaveLocaleAsync(Locale locale, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(locale);
-        return _connection.SendRequiredAsync(HttpMethod.Post, _connection.InstanceUri(_guid, $"locales"),
+        return _connection.SendAsync(HttpMethod.Post, _connection.InstanceUri(_guid, $"locales"),
             RequestKind.Write, ManagementJsonContext.Default.Locale,
             ManagementConnection.Json(locale, ManagementJsonContext.Default.Locale), cancellationToken: cancellationToken);
     }
@@ -49,15 +52,15 @@ public sealed class LocalesClient
     /// <summary>Enables a locale. <c>PATCH locales/{localeId}/enable</c></summary>
     /// <param name="localeId">The locale ID.</param>
     /// <param name="cancellationToken">Cancels the request.</param>
-    public Task<Locale> EnableLocaleAsync(int localeId, CancellationToken cancellationToken = default) =>
-        _connection.SendRequiredAsync(HttpMethod.Patch, _connection.InstanceUri(_guid, $"locales/{localeId}/enable"),
+    public Task<Locale?> EnableLocaleAsync(int localeId, CancellationToken cancellationToken = default) =>
+        _connection.SendAsync(HttpMethod.Patch, _connection.InstanceUri(_guid, $"locales/{localeId}/enable"),
             RequestKind.Write, ManagementJsonContext.Default.Locale, cancellationToken: cancellationToken);
 
     /// <summary>Disables a locale. <c>PATCH locales/{localeId}/disable</c></summary>
     /// <param name="localeId">The locale ID.</param>
     /// <param name="cancellationToken">Cancels the request.</param>
-    public Task<Locale> DisableLocaleAsync(int localeId, CancellationToken cancellationToken = default) =>
-        _connection.SendRequiredAsync(HttpMethod.Patch, _connection.InstanceUri(_guid, $"locales/{localeId}/disable"),
+    public Task<Locale?> DisableLocaleAsync(int localeId, CancellationToken cancellationToken = default) =>
+        _connection.SendAsync(HttpMethod.Patch, _connection.InstanceUri(_guid, $"locales/{localeId}/disable"),
             RequestKind.Write, ManagementJsonContext.Default.Locale, cancellationToken: cancellationToken);
 
     /// <summary>Sets the order locales appear in. <c>POST locales/sort-order</c></summary>

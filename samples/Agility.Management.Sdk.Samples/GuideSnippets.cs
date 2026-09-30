@@ -249,7 +249,8 @@ internal static class LocalizationGuide
         LocalesResponse all = await instance.Locales.GetAllLocalesAsync();
         Locale fr = await instance.Locales.GetLocaleAsync(localeId);
 
-        var added = await instance.Locales.SaveLocaleAsync(new Locale { LocaleName = "French (Canada)", LocaleCode = "fr-ca" });
+        var added = await instance.Locales.SaveLocaleAsync(new Locale { LocaleName = "French (Canada)", LocaleCode = "fr-ca" })
+            ?? throw new InvalidOperationException("The API didn't return the saved locale.");
         await instance.Locales.EnableLocaleAsync(added.LocaleID!.Value);
         await instance.Locales.DisableLocaleAsync(added.LocaleID!.Value);
         await instance.Locales.SetSortOrderAsync([1, added.LocaleID!.Value, 3]);

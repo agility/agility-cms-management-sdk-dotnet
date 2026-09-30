@@ -100,12 +100,13 @@ The Management API has a few behaviours that surprise people. The SDK handles wh
 
 ## Errors and retries
 
-- Every failure from the API is an `AgilityManagementException`, with the status code, the API's message, the
-  response body and a request ID.
+- Every error from the API or the network is an `AgilityManagementException`, with the status code, the API's
+  message, the response body and a request ID. Bad arguments throw `ArgumentException`, and calling an
+  authenticated endpoint with no credentials throws `InvalidOperationException`.
 - A batch that finishes with failed items throws `AgilityBatchException`, which carries the batch.
 - A batch that doesn't finish in time throws `AgilityBatchTimeoutException`. The batch keeps running on the server.
-- Reads are retried on 408, 429 and 5xx responses and network errors, with exponential backoff and `Retry-After`
-  support (`Retry` in the options). Writes are never retried.
+- Reads are retried on 408, 429, 500, 502, 503 and 504 responses and network errors, with exponential backoff and
+  `Retry-After` support (`Retry` in the options). Writes are never retried.
 - Every method takes a `CancellationToken`.
 
 ## Regions
