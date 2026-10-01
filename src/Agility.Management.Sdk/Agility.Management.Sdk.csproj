@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Agility.Management.Sdk</RootNamespace>
+    <PackageId>Agility.Management.SDK</PackageId>
+    <Version>2.0.0</Version>
+    <Authors>Agility Inc.</Authors>
+    <Company>Agility Inc.</Company>
+    <Description>.NET client for the Agility CMS Management API: content, pages, models, containers, assets, batches, webhooks, locales and more.</Description>
+    <PackageTags>agility;agilitycms;cms;headless;management-api</PackageTags>
+    <PackageLicenseFile>license.txt</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/agility/agility-cms-management-sdk-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/agility/agility-cms-management-sdk-dotnet</RepositoryUrl>
+    <PackageReleaseNotes>See https://github.com/agility/agility-cms-management-sdk-dotnet/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnablePackageValidation>true</EnablePackageValidation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../license.txt" Pack="true" PackagePath="/" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Agility.Management.Sdk.Tests" />
+  </ItemGroup>
+
+</Project>

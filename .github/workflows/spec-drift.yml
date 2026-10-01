@@ -1,0 +1,28 @@
+name: API spec drift
+
+# Weekly: fails if the live Management API spec differs from spec/management-api.openapi.json, so new or
+# changed operations are noticed. To update: replace the snapshot, run 'dotnet run tools/GenerateModels.cs',
+# and fix whatever SpecCoverageTests reports.
+on:
+  schedule:
+    - cron: '0 13 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compare the live spec with the snapshot
+        run: |
+          curl -fsSL https://mgmt.aglty.io/swagger/v1/swagger.json -o live.json
+          jq -S . live.json > live.sorted.json
+          jq -S . spec/management-api.openapi.json > snapshot.sorted.json
+          if ! diff -u snapshot.sorted.json live.sorted.json > spec.diff; then
+            echo "::error::The live API spec has changed since the snapshot."
+            head -200 spec.diff
+            exit 1
+          fi

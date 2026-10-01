@@ -290,3 +290,7 @@ Website/wwwroot/dist/server.js
 .DS_Store
 
 .claude/CODEBASE.md
+artifacts/
+
+# Local integration-test credentials (see tools/run-integration-tests.sh)
+.env.integration

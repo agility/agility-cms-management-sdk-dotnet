@@ -1,0 +1,21 @@
+{
+  "$comment": "Member names for the integer enums in management-api.openapi.json. The spec carries only the values; the names come from management-api-dotnet Agility.Management.Domain/Enums. GenerateModels fails if a spec enum value has no name here.",
+  "BatchItemType": { "Page": 1, "ContentItem": 2, "ContentList": 3, "Tag": 4, "ModuleDef": 5 },
+  "BatchOperationType": {
+    "Publish": 1, "Unpublish": 2, "Approve": 3, "Decline": 4, "RequestApproval": 5, "Copy": 6,
+    "ClonePageTemplate": 7, "Sync": 8, "TagExport": 9, "TagImport": 10, "ContentExport": 11,
+    "ContentImport": 12, "InstanceTemplateImport": 13, "InsertContent": 14, "DeleteContent": 15,
+    "SavePage": 16, "DeletePage": 17, "Translate": 19, "Initialize": 20
+  },
+  "BatchState": { "None": 0, "Pending": 1, "InProcess": 2, "Processed": 3, "Deleted": 4 },
+  "ContentViewType": { "All": 0, "Shared": 1, "Linked": 2, "DynamicPageList": 3 },
+  "ItemState": {
+    "New": -1, "None": 0, "Staging": 1, "Published": 2, "Deleted": 3, "Approved": 4,
+    "AwaitingApproval": 5, "Declined": 6, "Unpublished": 7
+  },
+  "NotificationTypes": {
+    "SentComment": -2, "AssignedTask": -1, "Insert": 0, "Update": 1, "Approve": 2,
+    "RequestApproval": 3, "Decline": 4, "Publish": 5
+  },
+  "PageItemTemplateType": { "Variable": 0, "FixedModule": 1 }
+}

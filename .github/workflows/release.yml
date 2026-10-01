@@ -1,11 +1,11 @@
 name: Release
 
-# Publishes Agility.Management.SDK to NuGet when a version tag is pushed, e.g. v1.0.12-beta.
-# The tag must match <Version> in management.api.sdk/management.api.sdk.csproj.
+# Publishes to NuGet when a version tag is pushed, e.g. v2.0.0 or v2.1.0-beta.1.
+# The tag must match <Version> in src/Agility.Management.Sdk/Agility.Management.Sdk.csproj.
 #
-# Uses NuGet Trusted Publishing (OIDC): no API key is stored. The nuget.org policy (owner Agility-Inc) allows
-# this repository's release.yml in the "nuget" environment to push new versions of Agility.Management.SDK only.
-# The environment accepts only v* tags and waits for a reviewer's approval.
+# Uses NuGet Trusted Publishing (OIDC): no API key is stored in the repo. One-time setup on nuget.org by a
+# package owner: add a trusted publishing policy for this repository and workflow (release.yml), and set the
+# NUGET_USER repository variable to that owner's nuget.org user name.
 on:
   push:
     tags: ['v*']
@@ -19,29 +19,29 @@ jobs:
     runs-on: ubuntu-latest
     environment: nuget
     env:
+      CI: true
       DOTNET_NOLOGO: true
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '6.0.x'
+          global-json-file: global.json
 
       - name: Check the tag matches the project version
         run: |
-          version=$(dotnet msbuild management.api.sdk/management.api.sdk.csproj -getProperty:Version)
+          version=$(dotnet msbuild src/Agility.Management.Sdk -getProperty:Version)
           if [ "v$version" != "$GITHUB_REF_NAME" ]; then
             echo "::error::Tag $GITHUB_REF_NAME doesn't match project version $version."
             exit 1
           fi
 
-      # The 1.x suite is otherwise live-only; these offline tests cover the fix this release ships.
       - name: Build and test
         run: |
           dotnet build -c Release
-          dotnet test management.api.sdk.tests -c Release --no-build --filter "FullyQualifiedName~ContentSectionDefinitionSerializationTests"
+          dotnet test --no-build -c Release
 
       - name: Pack
-        run: dotnet pack management.api.sdk/management.api.sdk.csproj --no-build -c Release -o artifacts
+        run: dotnet pack src/Agility.Management.Sdk --no-build -c Release -o artifacts
 
       - name: Get a short-lived NuGet API key
         id: nuget

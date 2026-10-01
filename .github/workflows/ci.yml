@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      DOTNET_NOLOGO: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Generated models match the spec snapshot
+        run: |
+          dotnet run tools/GenerateModels.cs
+          git diff --exit-code -- src/ || { echo "::error::Run 'dotnet run tools/GenerateModels.cs' and commit the result."; exit 1; }
+
+      - name: Build
+        run: dotnet build --no-restore -c Release
+
+      # The integration tests skip themselves without AGILITY_* credentials, so this runs the offline suite.
+      - name: Test
+        run: dotnet test --no-build -c Release
+
+      - name: Pack
+        run: dotnet pack src/Agility.Management.Sdk --no-build -c Release -o artifacts
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: packages
+          path: artifacts/
