@@ -2,7 +2,7 @@
 
 This project follows [Semantic Versioning](https://semver.org/). Breaking changes happen only in a major version.
 
-## [2.0.0]
+## [2.0.0] - 2026-10-01
 
 A rewrite for .NET 10. See [MIGRATION.md](MIGRATION.md) for how to upgrade.
 
@@ -53,4 +53,12 @@ A rewrite for .NET 10. See [MIGRATION.md](MIGRATION.md) for how to upgrade.
 
 ## 1.x
 
-The 1.x line (.NET 6) gets fixes only. The `SavePageTemplate` default-components fix ships as a 1.0.x patch.
+The 1.x line (.NET 6) gets fixes only, from the `release/1.x` branch.
+
+### [1.0.12-beta] - 2026-09-30
+
+- Fixed: `SavePageTemplate` no longer clears every zone's default components. `DefaultModules` and `SharedModules` on
+  `ContentSectionDefinition` are left out of the request when they're `null`, so the API keeps the zone's defaults.
+
+[2.0.0]: https://github.com/agility/agility-cms-management-sdk-dotnet/releases/tag/v2.0.0
+[1.0.12-beta]: https://github.com/agility/agility-cms-management-sdk-dotnet/releases/tag/v1.0.12-beta

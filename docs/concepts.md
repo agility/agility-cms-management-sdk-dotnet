@@ -179,8 +179,9 @@ The instance GUID's suffix selects the API host:
 | `-d` | `https://mgmt-dev.aglty.io` |
 
 An unknown suffix throws an `ArgumentException` before any request is sent, rather than sending requests to the
-wrong region. Server-level calls (`client.Users`, `client.PersonalAccessTokens`, `client.OAuth`) go to
-`https://mgmt.aglty.io`. `BaseUrl` overrides all of this, for a local or test deployment of the API.
+wrong region. Server-level calls (`client.ServerUsers`, `client.PersonalAccessTokens`, `client.Types`, and the OAuth
+sign-in and token calls on `client.OAuth`) go to `https://mgmt.aglty.io`. `client.OAuth`'s Fetch and preview API key
+calls go to the instance's region. `BaseUrl` overrides all of this, for a local or test deployment of the API.
 
 ## Options reference
 

@@ -17,8 +17,12 @@ var webhook = await client.Webhooks.SaveWebhookAsync(guid, new Webhook
 });
 
 if (webhook.SigningSecretJustCreated)
-    StoreSecret(webhook.SigningSecret!);   // returned in full only now
+    StoreSecret(webhook.SigningSecret!);   // this save created the secret
 ```
+
+`SigningSecretJustCreated` is true only on the save that created the secret, so that's the moment to store it.
+Later reads return the secret in full only to users with full permission on the instance's webhooks; anyone else
+gets it masked. The API generates the secret, and ignores a `SigningSecret` sent on save.
 
 A webhook's ID is its `RowKey`. To update one, get it, change it and save it.
 
