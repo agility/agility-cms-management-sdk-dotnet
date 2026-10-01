@@ -11,7 +11,8 @@ For *reading published content* on a website, use the Fetch API and its SDKs ins
 managing content.
 
 - **Target:** .NET 10
-- **Upgrading from 1.x?** See [MIGRATION.md](MIGRATION.md). Version 2.0 is a new API shape.
+- **Upgrading from 1.x?** See [MIGRATION.md](MIGRATION.md) or the
+  [migration guide](https://agilitycms.com/docs/dotNet/management-sdk-dotnet-migrating-to-2) on agilitycms.com. Version 2.0 is a new API shape.
 
 ## Install
 
@@ -118,6 +119,8 @@ Australia, `-d` dev; a GUID with no suffix is USA. An unknown suffix throws rath
 
 ## Documentation
 
+- [Agility CMS docs](https://agilitycms.com/docs/dotNet/management-sdk-dotnet-intro): the SDK guides on
+  agilitycms.com, including [migrating to 2.0](https://agilitycms.com/docs/dotNet/management-sdk-dotnet-migrating-to-2)
 - [Concepts](docs/concepts.md): batches, staging, whole-item saves, page template zones, errors, retries
 - [Authentication](docs/authentication.md)
 - Guides: [content](docs/content.md) · [pages](docs/pages.md) · [models and containers](docs/models-and-containers.md) ·
