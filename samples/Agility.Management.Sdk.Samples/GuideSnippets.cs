@@ -152,6 +152,15 @@ internal static class PagesGuide
         var created = await client.Pages.SavePageAsync(guid, "en-us", page, new SavePageOptions { ParentPageId = 7 });
         await client.Pages.PublishPageAsync(guid, "en-us", 7);
 
+        page = await client.Pages.GetPageAsync(guid, "en-us", 7);
+        page.Geo ??= new GeoProperties();
+        page.Geo.SchemaType = GeoSchemaTypes.AboutPage;
+        page.Geo.StructuredData = new JsonObject { ["@type"] = "Organization", ["name"] = "Example" };
+        page.Geo.ClearSummary();   // remove the stored summary
+        page.Seo ??= new SeoProperties();
+        page.Seo.Robots = new SeoRobots { Index = true, Follow = true };
+        await client.Pages.SavePageAsync(guid, "en-us", page);
+
         List<PageModel> templates = await client.Pages.GetPageTemplatesAsync(guid, "en-us", includeModuleZones: true);
         PageModel byName = await client.Pages.GetPageTemplateByNameAsync(guid, "en-us", "Main Template");
 

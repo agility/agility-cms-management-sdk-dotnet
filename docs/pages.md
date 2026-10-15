@@ -40,6 +40,34 @@ var created = await client.Pages.SavePageAsync(guid, "en-us", newPage, new SaveP
 
 `result.ItemId` is the page ID.
 
+## GEO / AEO and SEO properties
+
+A page can carry GEO / AEO data in `Geo` (`SchemaType`, `Summary`, `StructuredData`, `Ai`) and four more SEO
+properties in `Seo` (`Title`, `CanonicalUrl`, `Robots`, `OgImage`). On save, each has three states:
+
+| In the page you save | Effect |
+|---|---|
+| `null` (unset), or `Geo` itself `null` | the stored value is kept |
+| cleared with its `Clear*` method | the stored value is cleared |
+| a value | the stored value is replaced |
+
+The SDK leaves `null` properties out of the request, so a read-modify-save that doesn't touch them keeps them.
+Setting a property to `null` does **not** clear it: use the matching `Clear*` method, which sends an explicit
+`null`.
+
+```csharp
+page = await client.Pages.GetPageAsync(guid, "en-us", 7);
+page.Geo ??= new GeoProperties();
+page.Geo.SchemaType = GeoSchemaTypes.AboutPage;
+page.Geo.StructuredData = new JsonObject { ["@type"] = "Organization", ["name"] = "Example" };
+page.Geo.ClearSummary();   // remove the stored summary
+page.Seo ??= new SeoProperties();
+page.Seo.Robots = new SeoRobots { Index = true, Follow = true };
+await client.Pages.SavePageAsync(guid, "en-us", page);
+```
+
+`StructuredData` is any JSON-LD object or array, as a `JsonNode`.
+
 ## Workflow
 
 `PublishPageAsync`, `UnpublishPageAsync`, `ApprovePageAsync`, `DeclinePageAsync`, `RequestApprovalPageAsync` and

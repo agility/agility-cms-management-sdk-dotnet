@@ -7638,6 +7638,47 @@
         },
         "additionalProperties": false
       },
+      "GeoAi": {
+        "type": "object",
+        "description": "A page's AI-engine settings.",
+        "properties": {
+          "llmsInclude": {
+            "type": "string",
+            "nullable": true,
+            "description": "Whether the page is listed in llms.txt: inherit (follow sitemap visibility), include or exclude. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+          },
+          "crawl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Whether AI crawlers may crawl the page: inherit (follow the site policy) or block. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+          }
+        },
+        "additionalProperties": false
+      },
+      "GeoProperties": {
+        "type": "object",
+        "description": "A page's GEO / AEO properties. Left out of responses when the page has none; leaving it out of a save keeps what's stored.",
+        "properties": {
+          "schemaType": {
+            "type": "string",
+            "nullable": true,
+            "description": "The schema.org page type: WebPage, AboutPage, ContactPage, CollectionPage, FAQPage, ItemPage or ProfilePage. WebPage when not set. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true,
+            "description": "A short, answer-first plain-text summary of the page. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+          },
+          "structuredData": {
+            "nullable": true,
+            "description": "Editor-supplied JSON-LD: an object (which may hold an @graph) or an array of objects. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+          },
+          "ai": {
+            "$ref": "#/components/schemas/GeoAi"
+          }
+        },
+        "additionalProperties": false
+      },
       "InitializeContentListRequest": {
         "type": "object",
         "properties": {
@@ -8191,6 +8232,9 @@
           "seo": {
             "$ref": "#/components/schemas/SeoProperties"
           },
+          "geo": {
+            "$ref": "#/components/schemas/GeoProperties"
+          },
           "scripts": {
             "$ref": "#/components/schemas/PageScripts"
           },
@@ -8628,6 +8672,41 @@
           "sitemapVisible": {
             "type": "boolean",
             "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pages only. The page's <title>, when it differs from the page title. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+          },
+          "canonicalUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pages only. The page's canonical URL override. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+          },
+          "robots": {
+            "$ref": "#/components/schemas/SeoRobots"
+          },
+          "ogImage": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pages only. The URL of the page's social share (Open Graph) image. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+          }
+        },
+        "additionalProperties": false
+      },
+      "SeoRobots": {
+        "type": "object",
+        "description": "A page's robots directives. Pages only. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set.",
+        "properties": {
+          "index": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether search engines may index the page."
+          },
+          "follow": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether search engines may follow the page's links."
           }
         },
         "additionalProperties": false
