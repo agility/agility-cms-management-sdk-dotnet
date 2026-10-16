@@ -6975,6 +6975,9 @@
           "seo": {
             "$ref": "#/components/schemas/SeoProperties"
           },
+          "geo": {
+            "$ref": "#/components/schemas/GeoProperties"
+          },
           "scripts": {
             "$ref": "#/components/schemas/ContentScripts"
           }
@@ -7657,7 +7660,7 @@
       },
       "GeoProperties": {
         "type": "object",
-        "description": "A page's GEO / AEO properties. Left out of responses when the page has none; leaving it out of a save keeps what's stored.",
+        "description": "The GEO / AEO properties of a page, or of a content item in a list that backs a dynamic page. Left out of responses when there are none; leaving it out of a save keeps what's stored.",
         "properties": {
           "schemaType": {
             "type": "string",
@@ -8676,12 +8679,12 @@
           "title": {
             "type": "string",
             "nullable": true,
-            "description": "Pages only. The page's <title>, when it differs from the page title. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+            "description": "Pages and dynamic page list items. The page's <title>, when it differs from the page title. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
           },
           "canonicalUrl": {
             "type": "string",
             "nullable": true,
-            "description": "Pages only. The page's canonical URL override. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+            "description": "Pages and dynamic page list items. The page's canonical URL override. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
           },
           "robots": {
             "$ref": "#/components/schemas/SeoRobots"
@@ -8689,14 +8692,14 @@
           "ogImage": {
             "type": "string",
             "nullable": true,
-            "description": "Pages only. The URL of the page's social share (Open Graph) image. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
+            "description": "Pages and dynamic page list items. The URL of the page's social share (Open Graph) image. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set."
           }
         },
         "additionalProperties": false
       },
       "SeoRobots": {
         "type": "object",
-        "description": "A page's robots directives. Pages only. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set.",
+        "description": "A page's robots directives. Pages and dynamic page list items. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set.",
         "properties": {
           "index": {
             "type": "boolean",

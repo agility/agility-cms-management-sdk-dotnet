@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 namespace Agility.Management.Sdk.Models;
 
 /// <summary>
-/// A page&apos;s GEO / AEO properties. Left out of responses when the page has none; leaving it out of a save keeps what&apos;s stored.
+/// The GEO / AEO properties of a page, or of a content item in a list that backs a dynamic page. Left out of responses when there are none; leaving it out of a save keeps what&apos;s stored.
 /// </summary>
 public sealed partial class GeoProperties
 {

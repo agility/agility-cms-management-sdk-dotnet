@@ -109,6 +109,13 @@ internal static class ContentGuide
         BatchResult result = await client.Content.SaveContentItemsAsync(guid, "en-us", [item, item]);
         IReadOnlyList<int> ids = result.ItemIds;
 
+        var post = await client.Content.GetContentItemAsync(guid, "en-us", 42);
+        post.Geo ??= new GeoProperties();
+        post.Geo.Summary = "The post in one sentence.";
+        post.Geo.Ai = new GeoAi { Crawl = "block" };
+        await client.Content.SaveContentItemAsync(guid, "en-us", post);
+        await client.Content.SaveContentItemAsync(guid, "en-us", post.ClearGeo());
+
         await client.Content.PublishContentItemAsync(guid, "en-us", 42, comments: "Launch");
         await client.Content.UnpublishContentItemAsync(guid, "en-us", 42);
         await client.Content.RequestApprovalContentItemAsync(guid, "en-us", 42);

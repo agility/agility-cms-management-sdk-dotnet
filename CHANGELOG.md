@@ -12,6 +12,9 @@ This project follows [Semantic Versioning](https://semver.org/). Breaking change
   `SeoProperties.ClearTitle()`, ...) send an explicit `null` to clear one, and `PageItem.ClearGeo()` sends
   `"geo": null` to clear the whole block (setting `Geo` afterwards cancels it). `GeoSchemaTypes` lists the
   `SchemaType` values. The Management API accepts these properties once its GEO release reaches your instance.
+- `ContentItem.Geo` for items in a list that backs a dynamic page (the same `GeoProperties`), with the same three
+  states, and `ContentItem.ClearGeo()` to send `"geo": null`. The four newer `SeoProperties` members apply to these
+  items too.
 - `SeoProperties`, `GeoProperties` and `GeoAi` keep members they don't know in `AdditionalProperties` and send them
   back on save.
 

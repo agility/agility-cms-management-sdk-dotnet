@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 namespace Agility.Management.Sdk.Models;
 
 /// <summary>
-/// A page&apos;s robots directives. Pages only. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set.
+/// A page&apos;s robots directives. Pages and dynamic page list items. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set.
 /// </summary>
 public sealed partial class SeoRobots
 {
