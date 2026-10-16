@@ -121,4 +121,61 @@ public class GeoContractTests
         Assert.Equal(1, body.Split("\"summary\"").Length - 1);
         Assert.Equal("Set again", (string?)SentBody(handler)["geo"]!["summary"]);
     }
+    [Fact]
+    public async Task ClearGeo_sends_geo_null_to_clear_the_whole_block()
+    {
+        var (client, handler) = Capture();
+
+        await Save(client, new PageItem { PageID = 7, Title = "About" }.ClearGeo());
+
+        var body = SentBody(handler);
+        Assert.True(body.ContainsKey("geo") && body["geo"] is null, body.ToJsonString());
+        Assert.Equal(1, handler.Requests.Last().Body!.Split("\"geo\"").Length - 1);
+    }
+
+    [Fact]
+    public async Task ClearGeo_on_a_page_read_from_the_API_sends_geo_null()
+    {
+        var (client, handler) = Capture();
+
+        var page = await client.Pages.GetPageAsync(TestClient.InstanceGuid, "en-us", 7, Ct);
+        page.ClearGeo();
+        await Save(client, page);
+
+        var body = SentBody(handler);
+        Assert.Null(page.Geo);
+        Assert.True(body.ContainsKey("geo") && body["geo"] is null, body.ToJsonString());
+        Assert.NotNull(body["seo"]);
+    }
+
+    [Fact]
+    public async Task Geo_set_after_ClearGeo_cancels_the_clear()
+    {
+        var (client, handler) = Capture();
+        var page = new PageItem { PageID = 7 }.ClearGeo();
+        page.Geo = new GeoProperties { Summary = "Set again" };
+
+        await Save(client, page);
+
+        var body = handler.Requests.Last().Body!;
+        Assert.Equal(1, body.Split("\"geo\"").Length - 1);
+        Assert.Equal("Set again", (string?)SentBody(handler)["geo"]!["summary"]);
+    }
+
+    [Fact]
+    public async Task A_response_with_geo_null_reads_and_saves_without_geo()
+    {
+        var handler = new FakeHandler(r => r.Method == HttpMethod.Get
+            ? FakeHandler.Json("""{ "pageID": 7, "name": "about", "geo": null, "unknownPageKey": 1 }""")
+            : FakeHandler.Json("9"));
+        var client = TestClient.Create(handler);
+
+        var page = await client.Pages.GetPageAsync(TestClient.InstanceGuid, "en-us", 7, Ct);
+        Assert.Null(page.Geo);
+        await Save(client, page);
+
+        var body = SentBody(handler);
+        Assert.False(body.ContainsKey("geo"), body.ToJsonString());
+        Assert.False(body.ContainsKey("unknownPageKey"), body.ToJsonString());
+    }
 }

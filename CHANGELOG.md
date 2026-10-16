@@ -9,7 +9,8 @@ This project follows [Semantic Versioning](https://semver.org/). Breaking change
 - GEO / AEO page properties: `PageItem.Geo` (`GeoProperties`: `SchemaType`, `Summary`, `StructuredData`, `Ai`)
   and four new `SeoProperties` members for pages (`Title`, `CanonicalUrl`, `Robots`, `OgImage`). Unset ones are
   left out of a save, so the API keeps what's stored; the `Clear*` methods (`GeoProperties.ClearSummary()`,
-  `SeoProperties.ClearTitle()`, ...) send an explicit `null` to clear one. `GeoSchemaTypes` lists the
+  `SeoProperties.ClearTitle()`, ...) send an explicit `null` to clear one, and `PageItem.ClearGeo()` sends
+  `"geo": null` to clear the whole block (setting `Geo` afterwards cancels it). `GeoSchemaTypes` lists the
   `SchemaType` values. The Management API accepts these properties once its GEO release reaches your instance.
 - `SeoProperties`, `GeoProperties` and `GeoAi` keep members they don't know in `AdditionalProperties` and send them
   back on save.

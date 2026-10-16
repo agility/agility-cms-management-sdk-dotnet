@@ -161,6 +161,9 @@ internal static class PagesGuide
         page.Seo.Robots = new SeoRobots { Index = true, Follow = true };
         await client.Pages.SavePageAsync(guid, "en-us", page);
 
+        page = await client.Pages.GetPageAsync(guid, "en-us", 7);
+        await client.Pages.SavePageAsync(guid, "en-us", page.ClearGeo());
+
         List<PageModel> templates = await client.Pages.GetPageTemplatesAsync(guid, "en-us", includeModuleZones: true);
         PageModel byName = await client.Pages.GetPageTemplateByNameAsync(guid, "en-us", "Main Template");
 
