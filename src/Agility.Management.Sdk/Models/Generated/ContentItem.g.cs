@@ -30,6 +30,9 @@ public sealed partial class ContentItem
     [JsonPropertyName("seo")]
     public SeoProperties? Seo { get; set; }
 
+    [JsonPropertyName("geo")]
+    public GeoProperties? Geo { get; set; }
+
     [JsonPropertyName("scripts")]
     public ContentScripts? Scripts { get; set; }
 }

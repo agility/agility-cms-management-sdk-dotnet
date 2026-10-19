@@ -118,6 +118,10 @@ The SDK leaves every `null` property out of the request. The API binds a missing
 
 Values inside `ContentItem.Fields` are data, so a field set to `null` is still sent as `null`.
 
+A few page and content item properties read an explicit `null` as "clear": `Geo` (the whole block, and each of its
+members) and the newer `Seo` members. `PageItem.ClearGeo()`, `ContentItem.ClearGeo()` and the models' `Clear*`
+methods send it; see [Pages](pages.md#geo--aeo-and-seo-properties).
+
 ## Errors
 
 | Exception | When |

@@ -40,6 +40,50 @@ var created = await client.Pages.SavePageAsync(guid, "en-us", newPage, new SaveP
 
 `result.ItemId` is the page ID.
 
+## GEO / AEO and SEO properties
+
+A page can carry GEO / AEO data in `Geo` (`SchemaType`, `Summary`, `StructuredData`, `Ai`) and four more SEO
+properties in `Seo` (`Title`, `CanonicalUrl`, `Robots`, `OgImage`). On save, each has three states:
+
+| In the page you save | Effect |
+|---|---|
+| `null` (unset), or `Geo` itself `null` | the stored value is kept |
+| cleared with its `Clear*` method | the stored value is cleared |
+| a value | the stored value is replaced |
+
+The whole `Geo` block has the same three states:
+
+| `Geo` in the page you save | Sent | Effect |
+|---|---|---|
+| `null`, and `ClearGeo()` not called | no `geo` key | every stored GEO value is kept |
+| `page.ClearGeo()` | `"geo": null` | every stored GEO value is cleared |
+| a `GeoProperties` | `"geo": { ... }` | merged property by property, as above |
+
+The SDK leaves `null` properties out of the request, so a read-modify-save that doesn't touch them keeps them.
+Setting a property (or `Geo`) to `null` does **not** clear it: use the matching `Clear*` method, which sends an
+explicit `null`. A value set after a `Clear*` call wins: setting `page.Geo` after `page.ClearGeo()` cancels the
+clear and sends the new block instead.
+
+```csharp
+page = await client.Pages.GetPageAsync(guid, "en-us", 7);
+page.Geo ??= new GeoProperties();
+page.Geo.SchemaType = GeoSchemaTypes.AboutPage;
+page.Geo.StructuredData = new JsonObject { ["@type"] = "Organization", ["name"] = "Example" };
+page.Geo.ClearSummary();   // remove the stored summary
+page.Seo ??= new SeoProperties();
+page.Seo.Robots = new SeoRobots { Index = true, Follow = true };
+await client.Pages.SavePageAsync(guid, "en-us", page);
+```
+
+Clear every GEO value on a page, keeping the rest of it:
+
+```csharp
+page = await client.Pages.GetPageAsync(guid, "en-us", 7);
+await client.Pages.SavePageAsync(guid, "en-us", page.ClearGeo());
+```
+
+`StructuredData` is any JSON-LD object or array, as a `JsonNode`.
+
 ## Workflow
 
 `PublishPageAsync`, `UnpublishPageAsync`, `ApprovePageAsync`, `DeclinePageAsync`, `RequestApprovalPageAsync` and

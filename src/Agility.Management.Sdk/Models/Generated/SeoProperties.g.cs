@@ -28,4 +28,25 @@ public sealed partial class SeoProperties
 
     [JsonPropertyName("sitemapVisible")]
     public bool? SitemapVisible { get; set; }
+
+    /// <summary>
+    /// Pages and dynamic page list items. The page&apos;s &lt;title&gt;, when it differs from the page title. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set.
+    /// </summary>
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
+    /// <summary>
+    /// Pages and dynamic page list items. The page&apos;s canonical URL override. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set.
+    /// </summary>
+    [JsonPropertyName("canonicalUrl")]
+    public string? CanonicalUrl { get; set; }
+
+    [JsonPropertyName("robots")]
+    public SeoRobots? Robots { get; set; }
+
+    /// <summary>
+    /// Pages and dynamic page list items. The URL of the page&apos;s social share (Open Graph) image. On save: left out keeps the stored value, null clears it, a value replaces it. Left out of responses when not set.
+    /// </summary>
+    [JsonPropertyName("ogImage")]
+    public string? OgImage { get; set; }
 }

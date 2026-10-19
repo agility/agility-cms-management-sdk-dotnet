@@ -53,6 +53,9 @@ public sealed partial class PageItem
     [JsonPropertyName("seo")]
     public SeoProperties? Seo { get; set; }
 
+    [JsonPropertyName("geo")]
+    public GeoProperties? Geo { get; set; }
+
     [JsonPropertyName("scripts")]
     public PageScripts? Scripts { get; set; }
 

@@ -88,6 +88,23 @@ If any item fails, the call throws `AgilityBatchException`; `ex.Batch.Items` sho
 
 A save always lands in Staging. [Publish](#workflow) for the change to go live.
 
+### GEO / AEO on dynamic page list items
+
+An item in a list that backs a dynamic page carries its own `Geo` (`SchemaType`, `Summary`, `StructuredData`, `Ai`),
+the same `GeoProperties` as a page's, with the same three states on save: unset keeps the stored value, a `Clear*`
+method clears it, a value replaces it. `item.ClearGeo()` sends `"geo": null` to clear the whole block. See
+[Pages](pages.md#geo--aeo-and-seo-properties) for the details. Items in other lists don't carry `Geo`.
+
+```csharp
+var post = await client.Content.GetContentItemAsync(guid, "en-us", 42);
+post.Geo ??= new GeoProperties();
+post.Geo.Summary = "The post in one sentence.";
+post.Geo.Ai = new GeoAi { Crawl = "block" };
+await client.Content.SaveContentItemAsync(guid, "en-us", post);
+
+await client.Content.SaveContentItemAsync(guid, "en-us", post.ClearGeo());   // clear all of its GEO data
+```
+
 ## Workflow
 
 ```csharp

@@ -109,6 +109,13 @@ internal static class ContentGuide
         BatchResult result = await client.Content.SaveContentItemsAsync(guid, "en-us", [item, item]);
         IReadOnlyList<int> ids = result.ItemIds;
 
+        var post = await client.Content.GetContentItemAsync(guid, "en-us", 42);
+        post.Geo ??= new GeoProperties();
+        post.Geo.Summary = "The post in one sentence.";
+        post.Geo.Ai = new GeoAi { Crawl = "block" };
+        await client.Content.SaveContentItemAsync(guid, "en-us", post);
+        await client.Content.SaveContentItemAsync(guid, "en-us", post.ClearGeo());
+
         await client.Content.PublishContentItemAsync(guid, "en-us", 42, comments: "Launch");
         await client.Content.UnpublishContentItemAsync(guid, "en-us", 42);
         await client.Content.RequestApprovalContentItemAsync(guid, "en-us", 42);
@@ -151,6 +158,18 @@ internal static class PagesGuide
         await client.Pages.SavePageAsync(guid, "en-us", page);
         var created = await client.Pages.SavePageAsync(guid, "en-us", page, new SavePageOptions { ParentPageId = 7 });
         await client.Pages.PublishPageAsync(guid, "en-us", 7);
+
+        page = await client.Pages.GetPageAsync(guid, "en-us", 7);
+        page.Geo ??= new GeoProperties();
+        page.Geo.SchemaType = GeoSchemaTypes.AboutPage;
+        page.Geo.StructuredData = new JsonObject { ["@type"] = "Organization", ["name"] = "Example" };
+        page.Geo.ClearSummary();   // remove the stored summary
+        page.Seo ??= new SeoProperties();
+        page.Seo.Robots = new SeoRobots { Index = true, Follow = true };
+        await client.Pages.SavePageAsync(guid, "en-us", page);
+
+        page = await client.Pages.GetPageAsync(guid, "en-us", 7);
+        await client.Pages.SavePageAsync(guid, "en-us", page.ClearGeo());
 
         List<PageModel> templates = await client.Pages.GetPageTemplatesAsync(guid, "en-us", includeModuleZones: true);
         PageModel byName = await client.Pages.GetPageTemplateByNameAsync(guid, "en-us", "Main Template");

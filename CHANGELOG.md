@@ -2,6 +2,22 @@
 
 This project follows [Semantic Versioning](https://semver.org/). Breaking changes happen only in a major version.
 
+## [Unreleased]
+
+### Added
+
+- GEO / AEO page properties: `PageItem.Geo` (`GeoProperties`: `SchemaType`, `Summary`, `StructuredData`, `Ai`)
+  and four new `SeoProperties` members for pages (`Title`, `CanonicalUrl`, `Robots`, `OgImage`). Unset ones are
+  left out of a save, so the API keeps what's stored; the `Clear*` methods (`GeoProperties.ClearSummary()`,
+  `SeoProperties.ClearTitle()`, ...) send an explicit `null` to clear one, and `PageItem.ClearGeo()` sends
+  `"geo": null` to clear the whole block (setting `Geo` afterwards cancels it). `GeoSchemaTypes` lists the
+  `SchemaType` values. The Management API accepts these properties once its GEO release reaches your instance.
+- `ContentItem.Geo` for items in a list that backs a dynamic page (the same `GeoProperties`), with the same three
+  states, and `ContentItem.ClearGeo()` to send `"geo": null`. The four newer `SeoProperties` members apply to these
+  items too.
+- `SeoProperties`, `GeoProperties` and `GeoAi` keep members they don't know in `AdditionalProperties` and send them
+  back on save.
+
 ## [2.0.0] - 2026-10-01
 
 A rewrite for .NET 10. See [MIGRATION.md](MIGRATION.md) for how to upgrade.
