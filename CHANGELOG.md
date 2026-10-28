@@ -2,7 +2,7 @@
 
 This project follows [Semantic Versioning](https://semver.org/). Breaking changes happen only in a major version.
 
-## [2.1.0] - Unreleased
+## [2.1.0] - 2026-10-28
 
 ### Added
 
