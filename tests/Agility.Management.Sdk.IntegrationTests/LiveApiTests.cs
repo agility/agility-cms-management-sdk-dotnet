@@ -93,6 +93,44 @@ public sealed class LiveApiTests : IDisposable
     }
 
     [Fact]
+    public async Task Searches_with_a_kinds_filter_and_pages_through_results()
+    {
+        var client = Client();
+        // "a" as a prefix matches almost anything, so any instance with content has results.
+        const string query = "a";
+
+        SearchResult all;
+        try
+        {
+            all = await client.Search.SearchAsync(InstanceGuid!, query, new SearchOptions { Take = 4 }, Ct);
+        }
+        catch (AgilitySearchNotAvailableException)
+        {
+            Assert.Skip("Search isn't available on the test instance.");
+            return;
+        }
+        Assert.NotEmpty(all.Facets!);
+        Assert.SkipWhen(all.Total < 4, "The test instance has too few search results.");
+        Assert.Equal(4, all.Hits!.Count);
+
+        // A kinds filter narrows the hits, but the facets still count every kind.
+        var kind = all.Hits[0].Kind!;
+        var filtered = await client.Search.SearchAsync(InstanceGuid!, query, new SearchOptions { Kinds = [kind], Take = 10 }, Ct);
+        Assert.NotEmpty(filtered.Hits!);
+        Assert.All(filtered.Hits!, h => Assert.Equal(kind, h.Kind));
+        Assert.Equal(all.Facets!.Keys.Order(), filtered.Facets!.Keys.Order());
+        if (!all.Facets[kind].Capped) Assert.Equal(all.Facets[kind].Count, filtered.Total);
+
+        // Two pages of two are the first four results, in order.
+        var page1 = await client.Search.SearchAsync(InstanceGuid!, query, new SearchOptions { Take = 2 }, Ct);
+        var page2 = await client.Search.SearchAsync(InstanceGuid!, query, new SearchOptions { Skip = 2, Take = 2 }, Ct);
+        Assert.Equal(all.Hits.Select(Key), page1.Hits!.Concat(page2.Hits!).Select(Key));
+
+        static string Key(SearchHit h) =>
+            $"{h.Kind}|{h.LanguageCode}|{h.ContentID}|{h.PageID}|{h.MediaID}|{h.ModelID}|{h.ContainerID}";
+    }
+
+    [Fact]
     public async Task Page_template_read_then_save_keeps_every_zones_default_components()
     {
         // The 1.x SDK cleared every zone's default components on this round trip (PROD-2376).

@@ -32,6 +32,27 @@ public class AgilityManagementException : Exception
     public string? RequestId { get; init; }
 }
 
+/// <summary>
+/// Search isn't available for this instance yet: the API returned 501 from
+/// <see cref="Clients.SearchClient.SearchAsync"/>. It's a property of the instance, not a transient failure, so
+/// it isn't retried.
+/// </summary>
+public sealed class AgilitySearchNotAvailableException : AgilityManagementException
+{
+    /// <summary>Creates the exception from the API's 501 response.</summary>
+    public AgilitySearchNotAvailableException(AgilityManagementException response)
+        : base((response ?? throw new ArgumentNullException(nameof(response))).Message, response)
+    {
+        StatusCode = response.StatusCode;
+        Method = response.Method;
+        RequestUri = response.RequestUri;
+        ResponseBody = response.ResponseBody;
+        ApiMessage = response.ApiMessage;
+        Problem = response.Problem;
+        RequestId = response.RequestId;
+    }
+}
+
 /// <summary>A batch finished, but the API reported that it or some of its items failed.</summary>
 public class AgilityBatchException : AgilityManagementException
 {

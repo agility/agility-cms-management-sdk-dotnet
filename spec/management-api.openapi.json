@@ -5316,6 +5316,67 @@
         }
       }
     },
+    "/api/v1/instance/{guid}/search": {
+      "post": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Search everything in an instance: content items, components, pages, assets, models and containers.",
+        "description": "Words match as prefixes and every word must match; text in double quotes matches as an exact\r\nphrase, and a number also matches IDs exactly. If nothing matches every word, the results match\r\nany of them and {relaxed} is true.\r\n            \r\nResults are ranked across kinds, best match first. {facets} counts every kind you can see,\r\nwhichever kinds you asked for, so it can drive tabs. You only see what your permissions allow:\r\ncomponents and models need Develop or Manage, assets need Edit or Delete, and content and pages\r\nin containers or pages you cannot read are left out.\r\n            \r\nChanges are searchable a few seconds after they are saved. After a large import or sync the index\r\ncan be behind for longer: {indexing.pending} says how many changes are not searchable yet, and\r\n{indexing.catchingUp} that they are being indexed in the background, so search again shortly.",
+        "parameters": [
+          {
+            "name": "guid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "What to search for, and optional filters and paging.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The facet counts and the requested page of results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Search is not available for this instance yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseException"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/instance/{guid}/translate/page": {
       "post": {
         "tags": [
@@ -8652,6 +8713,285 @@
           }
         },
         "additionalProperties": {}
+      },
+      "ResponseException": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exceptionMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "additionalParameters": {
+            "type": "object",
+            "additionalProperties": {},
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SearchFacet": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "capped": {
+            "type": "boolean",
+            "description": "True when there are more results than were counted; show the count as a minimum."
+          }
+        },
+        "additionalProperties": false,
+        "description": "The number of results of one kind."
+      },
+      "SearchHit": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "content, component, page, asset, model or container.",
+            "nullable": true
+          },
+          "typeLabel": {
+            "type": "string",
+            "description": "Content Item, List Item, Component, Page, Asset, Content Model, Component Model, Content List or Single Item.",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "The result's display name.",
+            "nullable": true
+          },
+          "context": {
+            "type": "string",
+            "description": "Where the result lives: its container, page path, folder or model reference name.",
+            "nullable": true
+          },
+          "snippet": {
+            "type": "string",
+            "description": "The matching text, HTML-encoded, with each matched word wrapped in <mark>.",
+            "nullable": true
+          },
+          "matchedFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Which fields matched. Field names, or _title, _id, _attachment, _file, _model, _container.",
+            "nullable": true
+          },
+          "score": {
+            "type": "integer",
+            "description": "The relevance score the results are ordered by. Higher is better.",
+            "format": "int32"
+          },
+          "languageCode": {
+            "type": "string",
+            "description": "The locale of a content, component or page result. Null for assets and models.",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "description": "The state of a content, component or page result (Staging, Published, ...).",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "viewLink": {
+            "type": "string",
+            "description": "A path to open the result in the Content Manager, relative to the instance (for example content/list-12/listitem-34).",
+            "nullable": true
+          },
+          "contentID": {
+            "type": "integer",
+            "description": "The content ID of a content item, component or page's content.",
+            "format": "int32",
+            "nullable": true
+          },
+          "containerID": {
+            "type": "integer",
+            "description": "The ID of a container, or of the container a content item or component lives in.",
+            "format": "int32",
+            "nullable": true
+          },
+          "containerReferenceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "pageID": {
+            "type": "integer",
+            "description": "The page ID of a page, or of a page a component sits on.",
+            "format": "int32",
+            "nullable": true
+          },
+          "pagePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "channel": {
+            "type": "string",
+            "nullable": true
+          },
+          "mediaID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "description": "The asset's URL.",
+            "nullable": true
+          },
+          "contentType": {
+            "type": "string",
+            "nullable": true
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "modelID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "modelReferenceName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "One search result."
+      },
+      "SearchIndexing": {
+        "type": "object",
+        "properties": {
+          "pending": {
+            "type": "integer",
+            "description": "Content changes not yet searchable. Usually 0: a change is searchable within seconds. It is higher\r\nafter a large import or sync; new or edited items in it may be missing from results or match on\r\ntheir old text until it reaches 0.",
+            "format": "int32"
+          },
+          "catchingUp": {
+            "type": "boolean",
+            "description": "True when the index is being brought up to date in the background; search again shortly."
+          }
+        },
+        "additionalProperties": false,
+        "description": "How far the search index is behind the instance's content."
+      },
+      "SearchRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The text to search for. Words match as prefixes (\"newsl\" finds \"newsletter\") and every word must\r\nmatch; text in double quotes matches as an exact phrase. A number also matches content, page,\r\nasset and model IDs exactly.",
+            "nullable": true
+          },
+          "kinds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The kinds of result to return: content, component, page, asset, model, container. Defaults to every kind\r\nthe caller is allowed to see. The facet counts always cover every allowed kind, whatever this is.",
+            "nullable": true
+          },
+          "locale": {
+            "type": "string",
+            "description": "Only search content, components and pages in this locale (for example en-us). Omit it, or pass *, to search every locale.",
+            "nullable": true
+          },
+          "containers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Only return content in these containers, by reference name. Limits the search to content kinds.",
+            "nullable": true
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Only return content and components of these models, by reference name. Limits the search to content kinds.",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "description": "Only return content in this state: staging, published or unpublished. Limits the search to content kinds.",
+            "nullable": true
+          },
+          "modifiedAfter": {
+            "type": "string",
+            "description": "Only return results modified on or after this date.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "skip": {
+            "type": "integer",
+            "description": "Results to skip, for paging.",
+            "format": "int32"
+          },
+          "take": {
+            "type": "integer",
+            "description": "Results to return. At most 100.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A search across everything in an instance: content items, components, pages, assets and models."
+      },
+      "SearchResult": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The query as it was searched.",
+            "nullable": true
+          },
+          "relaxed": {
+            "type": "boolean",
+            "description": "True when nothing matched every word, so the results match ANY of the words instead."
+          },
+          "facets": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SearchFacet"
+            },
+            "description": "How many results there are of each kind the caller can see, whichever kinds were requested.",
+            "nullable": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "How many results there are across the requested kinds.",
+            "format": "int32"
+          },
+          "hits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchHit"
+            },
+            "description": "The requested page of results, best match first.",
+            "nullable": true
+          },
+          "indexing": {
+            "$ref": "#/components/schemas/SearchIndexing"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The result of a search."
       },
       "SeoProperties": {
         "type": "object",

@@ -2,10 +2,19 @@
 
 This project follows [Semantic Versioning](https://semver.org/). Breaking changes happen only in a major version.
 
-## [Unreleased]
+## [2.1.0] - 2026-10-28
 
 ### Added
 
+- Search: `client.Search.SearchAsync(guid, query, options)` searches content items, components, pages, assets,
+  models and containers in one call (`POST search`), returning a `SearchResult` with the ranked `Hits`, a count per
+  kind (`Facets`) and how far the index is behind (`Indexing`). `SearchOptions` filters by kind (`SearchKinds`),
+  locale, container, model, state and modified date, and pages with `Skip` and `Take`. Search is a read, so it's
+  retried like other reads.
+- `AgilitySearchNotAvailableException`, a subclass of `AgilityManagementException`, for an instance that doesn't
+  have search yet (the API's 501). It isn't retried.
+- The spec snapshot includes the search operation; 114 of its 116 operations are covered (the other two are
+  browser redirects).
 - GEO / AEO page properties: `PageItem.Geo` (`GeoProperties`: `SchemaType`, `Summary`, `StructuredData`, `Ai`)
   and four new `SeoProperties` members for pages (`Title`, `CanonicalUrl`, `Robots`, `OgImage`). Unset ones are
   left out of a save, so the API keeps what's stored; the `Clear*` methods (`GeoProperties.ClearSummary()`,
@@ -17,6 +26,11 @@ This project follows [Semantic Versioning](https://semver.org/). Breaking change
   items too.
 - `SeoProperties`, `GeoProperties` and `GeoAi` keep members they don't know in `AdditionalProperties` and send them
   back on save.
+
+### Fixed
+
+- `AgilityManagementException.ApiMessage` and the exception message include the API's message when the error body
+  is the API's `{ statusCode, exceptionMessage }` shape (it was left out).
 
 ## [2.0.0] - 2026-10-01
 

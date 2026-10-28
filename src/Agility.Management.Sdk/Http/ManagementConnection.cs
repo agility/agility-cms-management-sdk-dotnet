@@ -319,7 +319,7 @@ internal sealed class ManagementConnection
                     if (mediaType == "application/problem+json" || root.TryGetProperty("title", out _) || root.TryGetProperty("detail", out _))
                         problem = root.Deserialize(ManagementJsonContext.Default.ProblemDetails);
                     var message = Str(root, "detail") ?? Str(root, "error_description") ?? Str(root, "message")
-                        ?? Str(root, "title") ?? Str(root, "error");
+                        ?? Str(root, "exceptionMessage") ?? Str(root, "title") ?? Str(root, "error");
                     // Validation problems list what's wrong per field; that's the useful part.
                     if (root.TryGetProperty("errors", out var errors) && errors.ValueKind == JsonValueKind.Object)
                     {
