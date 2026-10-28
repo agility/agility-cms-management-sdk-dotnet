@@ -319,6 +319,37 @@ internal static class WebhooksGuide
     }
 }
 
+internal static class SearchGuide
+{
+    public static async Task Examples(AgilityManagementClient client, string guid)
+    {
+        SearchResult result = await client.Search.SearchAsync(guid, "newsletter");
+        Console.WriteLine($"{result.Total} results");
+        foreach (var hit in result.Hits ?? [])
+            Console.WriteLine($"{hit.TypeLabel}: {hit.Name} ({hit.Context}) → {hit.ViewLink}");
+
+        SearchResult posts = await client.Search.SearchAsync(guid, "\"spring sale\"", new SearchOptions
+        {
+            Kinds = [SearchKinds.Content, SearchKinds.Page],
+            Locale = "en-us",
+            Containers = ["posts"],
+            State = "published",
+            ModifiedAfter = DateTime.UtcNow.AddDays(-30),
+            Skip = 25,
+            Take = 25,
+        });
+
+        try
+        {
+            var found = await client.Search.SearchAsync(guid, "newsletter");
+        }
+        catch (AgilitySearchNotAvailableException)
+        {
+            // Search isn't available for this instance yet. List content instead.
+        }
+    }
+}
+
 internal static class UrlRedirectionsGuide
 {
     public static async Task Examples(AgilityManagementClient client, string guid)

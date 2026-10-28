@@ -39,9 +39,10 @@ public partial class ReviewRegressionTests
                 }
                 var sent = handler.Requests.Skip(before).ToList();
                 var first = sent[0];
-                // The API's reads: GETs that aren't workflow verbs, and the content list query.
+                // The API's reads: GETs that aren't workflow verbs, the content list query, and search.
                 var isRead = (first.Method == HttpMethod.Get && !WorkflowVerb().IsMatch(first.Uri.AbsolutePath))
-                    || first.Uri.AbsolutePath.Contains("/list/", StringComparison.Ordinal) && first.Method == HttpMethod.Post;
+                    || first.Uri.AbsolutePath.Contains("/list/", StringComparison.Ordinal) && first.Method == HttpMethod.Post
+                    || first.Uri.AbsolutePath.EndsWith("/search", StringComparison.Ordinal) && first.Method == HttpMethod.Post;
                 var expected = isRead ? maxRetries + 1 : 1;
                 if (sent.Count != expected)
                     wrong.Add($"{type.Name}.{method.Name}: {first.Method} {first.Uri.AbsolutePath} sent {sent.Count}, expected {expected}");

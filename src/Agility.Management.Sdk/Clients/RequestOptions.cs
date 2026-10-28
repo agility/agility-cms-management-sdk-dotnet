@@ -67,3 +67,56 @@ public sealed class ContainerListOptions
     /// <summary>Only containers changed after this time.</summary>
     public DateTime? UpdatedSince { get; set; }
 }
+
+/// <summary>Filters and paging for <see cref="SearchClient.SearchAsync"/>.</summary>
+public sealed class SearchOptions
+{
+    internal const int DefaultTake = 25;
+
+    /// <summary>
+    /// The kinds of result to return (<see cref="SearchKinds"/>). <see langword="null"/>: every kind you can see.
+    /// <see cref="SearchResult.Facets"/> counts every kind you can see whatever this is.
+    /// </summary>
+    public IReadOnlyList<string>? Kinds { get; set; }
+
+    /// <summary>Only content, components and pages in this locale, e.g. <c>en-us</c>. <see langword="null"/> or <c>*</c>: every locale.</summary>
+    public string? Locale { get; set; }
+
+    /// <summary>Only content in these containers, by reference name. Limits the search to content kinds.</summary>
+    public IReadOnlyList<string>? Containers { get; set; }
+
+    /// <summary>Only content and components of these models, by reference name. Limits the search to content kinds.</summary>
+    public IReadOnlyList<string>? Models { get; set; }
+
+    /// <summary>
+    /// Only content in this state: <c>staging</c>, <c>published</c>, <c>unpublished</c> or <c>any</c>. Limits the
+    /// search to content kinds.
+    /// </summary>
+    public string? State { get; set; }
+
+    /// <summary>Only results modified on or after this time.</summary>
+    public DateTime? ModifiedAfter { get; set; }
+
+    /// <summary>How many results to skip, for paging. Default: 0.</summary>
+    public int? Skip { get; set; }
+
+    /// <summary>Results per page. Default: 25. The API returns at most 100.</summary>
+    public int? Take { get; set; }
+}
+
+/// <summary>The kinds of result <see cref="SearchClient.SearchAsync"/> returns, for <see cref="SearchOptions.Kinds"/> and <see cref="SearchHit.Kind"/>.</summary>
+public static class SearchKinds
+{
+    /// <summary><c>content</c>: content items.</summary>
+    public const string Content = "content";
+    /// <summary><c>component</c>: components on pages.</summary>
+    public const string Component = "component";
+    /// <summary><c>page</c></summary>
+    public const string Page = "page";
+    /// <summary><c>asset</c></summary>
+    public const string Asset = "asset";
+    /// <summary><c>model</c>: content and component models.</summary>
+    public const string Model = "model";
+    /// <summary><c>container</c></summary>
+    public const string Container = "container";
+}

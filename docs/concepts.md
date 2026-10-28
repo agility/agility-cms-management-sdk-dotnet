@@ -129,6 +129,7 @@ methods send it; see [Pages](pages.md#geo--aeo-and-seo-properties).
 | `AgilityManagementException` | Any error from the API or the network. `StatusCode`, `ApiMessage` (the API's own message), `ResponseBody`, `Problem` (for RFC 7807 responses), `RequestId`, `Method` and `RequestUri` say what went wrong. Network failures and timeouts keep the original exception as `InnerException`. |
 | `AgilityBatchException` | A batch was processed with failures, aborted or deleted. `BatchId` and `Batch` show what happened. |
 | `AgilityBatchTimeoutException` | A batch didn't finish in time. `Waited` says how long the SDK waited. |
+| `AgilitySearchNotAvailableException` | `SearchAsync` on an instance that doesn't have search yet (501). A subclass of `AgilityManagementException`; not retried. |
 | `ArgumentException` | A required argument was missing or invalid (an empty ID list, a `.` or `..` path value, a batch request with no operation), or an instance GUID has an unknown region suffix. |
 | `InvalidOperationException` | An authenticated endpoint was called on a client with no credentials, or the options are invalid. |
 | `TimeoutException` | `WaitForFetchApiSyncAsync` gave up. |
@@ -157,8 +158,8 @@ waits `Retry.BaseDelay` (500 ms), doubling each time with jitter, up to `Retry.M
 `Retry-After` up to `Retry.MaxDelay` (30 s).
 
 It **never retries a write**, because repeating a save or a publish would repeat the change. That includes the
-workflow operations the API exposes as `GET` (`.../publish`, `.../approve`, ...), and content list queries are the
-one `POST` that is retried, because they only read. Set `Retry.MaxRetries = 0` to turn retrying off.
+workflow operations the API exposes as `GET` (`.../publish`, `.../approve`, ...). Content list queries and search are
+the `POST`s that are retried, because they only read. Set `Retry.MaxRetries = 0` to turn retrying off.
 
 ## Waiting for the Fetch API
 

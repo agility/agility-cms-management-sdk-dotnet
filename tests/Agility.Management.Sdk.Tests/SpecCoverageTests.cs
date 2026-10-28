@@ -25,6 +25,7 @@ public partial class SpecCoverageTests
         typeof(InstanceUsersClient), typeof(LocalesClient), typeof(LocalizationClient), typeof(ModelsClient),
         typeof(OAuthClient), typeof(PagesClient), typeof(PersonalAccessTokensClient), typeof(SyncStatusClient),
         typeof(TypesClient), typeof(UrlRedirectionsClient), typeof(ServerUsersClient), typeof(WebhooksClient),
+        typeof(SearchClient),
     ];
 
     [Fact]
@@ -195,6 +196,7 @@ public partial class SpecCoverageTests
         [typeof(UrlRedirectionsClient)] = client.UrlRedirections, [typeof(WebhooksClient)] = client.Webhooks,
         [typeof(OAuthClient)] = client.OAuth, [typeof(PersonalAccessTokensClient)] = client.PersonalAccessTokens,
         [typeof(TypesClient)] = client.Types, [typeof(ServerUsersClient)] = client.ServerUsers,
+        [typeof(SearchClient)] = client.Search,
     };
 
     /// <summary>A response body that deserializes into what the method returns.</summary>

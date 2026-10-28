@@ -66,6 +66,7 @@ public sealed class AgilityManagementClient : IDisposable
         UrlRedirections = new UrlRedirectionsClient(_connection);
         Webhooks = new WebhooksClient(_connection);
         SyncStatus = new SyncStatusClient(_connection);
+        Search = new SearchClient(_connection);
     }
 
     /// <summary>Assets (media), folders and galleries.</summary>
@@ -103,6 +104,9 @@ public sealed class AgilityManagementClient : IDisposable
 
     /// <summary>Fetch API sync status.</summary>
     public SyncStatusClient SyncStatus { get; }
+
+    /// <summary>Search across content, components, pages, assets, models and containers.</summary>
+    public SearchClient Search { get; }
 
     /// <summary>OAuth sign-in and token refresh, and an instance's Fetch API keys.</summary>
     public OAuthClient OAuth { get; }

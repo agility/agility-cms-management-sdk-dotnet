@@ -54,6 +54,7 @@ the route has one, then IDs, then optional settings:
 | `UrlRedirections` | redirections, spreadsheet import and export | [URL redirections](docs/url-redirections.md) |
 | `InstanceUsers` | the instance's users and roles | [users and tokens](docs/users-and-tokens.md) |
 | `SyncStatus` | whether published changes have reached the Fetch API | [concepts](docs/concepts.md#waiting-for-the-fetch-api) |
+| `Search` | search across content, components, pages, assets, models and containers | [search](docs/search.md) |
 
 Server-level areas don't take a GUID: `client.ServerUsers` (the signed-in user), `client.PersonalAccessTokens`,
 `client.OAuth` and `client.Types`. The method names and argument order line up with the TypeScript Management SDK.
@@ -106,6 +107,8 @@ The Management API has a few behaviours that surprise people. The SDK handles wh
   authenticated endpoint with no credentials throws `InvalidOperationException`.
 - A batch that finishes with failed items throws `AgilityBatchException`, which carries the batch.
 - A batch that doesn't finish in time throws `AgilityBatchTimeoutException`. The batch keeps running on the server.
+- A search on an instance that doesn't have search yet throws `AgilitySearchNotAvailableException` (a 501). It isn't
+  retried.
 - Reads are retried on 408, 429, 500, 502, 503 and 504 responses and network errors, with exponential backoff and
   `Retry-After` support (`Retry` in the options). Writes are never retried.
 - Every method takes a `CancellationToken`.
@@ -122,7 +125,7 @@ Australia, `-d` dev; a GUID with no suffix is USA. An unknown suffix throws rath
 - [Authentication](docs/authentication.md)
 - Guides: [content](docs/content.md) · [pages](docs/pages.md) · [models and containers](docs/models-and-containers.md) ·
   [assets](docs/assets.md) · [localization](docs/localization.md) · [webhooks](docs/webhooks.md) ·
-  [URL redirections](docs/url-redirections.md) · [users and tokens](docs/users-and-tokens.md)
+  [URL redirections](docs/url-redirections.md) · [users and tokens](docs/users-and-tokens.md) · [search](docs/search.md)
 - [API coverage](docs/api-coverage.md): every API operation and the SDK method that calls it
 - [Samples](samples/Agility.Management.Sdk.Samples): compiled examples of common tasks
 - [Migrating from 1.x](MIGRATION.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)
