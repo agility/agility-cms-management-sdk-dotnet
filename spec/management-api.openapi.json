@@ -2679,6 +2679,88 @@
         }
       }
     },
+    "/api/v1/instance/{guid}/{locale}/list/{referenceName}/item-order": {
+      "post": {
+        "tags": [
+          "ContentItem"
+        ],
+        "summary": "Puts the items of a content list in the given order, for one locale.",
+        "description": "Send the content IDs in the order they should appear. Items you leave out keep their current\r\nrelative order after the ones you list, so sending part of a list never drops anything.\r\n            \r\nThe new order applies to the staging and the live list at once. Each moved item keeps its\r\nversion and state, so nothing goes into staging and nothing needs publishing, including items\r\nthat have unpublished changes. Order is kept per locale; call this once for each locale whose\r\norder should change.\r\n            \r\nWhen both lists are already in that order nothing is written and {itemsUpdated} is 0.\r\nA content ID that isn't in the list, or one given twice, is a 400 and nothing is written.",
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "path",
+            "description": "The locale whose order to set.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "referenceName",
+            "in": "path",
+            "description": "The referenceName of the content list.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Content IDs in the order they should appear.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListItemOrderResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/instance/{guid}/{locale}/item/{contentID}/comments": {
       "get": {
         "tags": [
@@ -7987,6 +8069,27 @@
         ],
         "type": "integer",
         "format": "int32"
+      },
+      "ListItemOrderResult": {
+        "type": "object",
+        "properties": {
+          "contentIDs": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Every item in the list, by content ID, in its new order.",
+            "nullable": true
+          },
+          "itemsUpdated": {
+            "type": "integer",
+            "description": "How many items had their order value changed. 0 when the list was already in that order.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The order of a content list after setting it."
       },
       "Locale": {
         "type": "object",

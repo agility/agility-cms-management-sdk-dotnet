@@ -87,6 +87,7 @@ namespace Agility.Management.Sdk.Serialization;
 [JsonSerializable(typeof(ItemComment))]
 [JsonSerializable(typeof(ItemCommentsResponse))]
 [JsonSerializable(typeof(ItemState))]
+[JsonSerializable(typeof(ListItemOrderResult))]
 [JsonSerializable(typeof(Locale))]
 [JsonSerializable(typeof(LocalesResponse))]
 [JsonSerializable(typeof(Notification))]

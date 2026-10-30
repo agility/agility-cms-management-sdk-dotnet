@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Agility.Management.Sdk</RootNamespace>
     <PackageId>Agility.Management.SDK</PackageId>
-    <Version>2.1.0</Version>
+    <Version>2.2.0</Version>
     <Authors>Agility Inc.</Authors>
     <Company>Agility Inc.</Company>
     <Description>.NET client for the Agility CMS Management API: content, pages, models, containers, assets, batches, webhooks, locales, search and more.</Description>

@@ -78,6 +78,37 @@ public sealed class ContentClient
     }
 
     /// <summary>
+    /// Puts the items of a content list in the given order, for one locale.
+    /// <c>POST {locale}/list/{referenceName}/item-order</c>
+    /// </summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
+    /// <param name="locale">The locale code. Order is kept per locale; call this once for each locale to change.</param>
+    /// <param name="referenceName">The list's reference name.</param>
+    /// <param name="contentIds">
+    /// Content IDs in the order they should appear. Items left out keep their current relative order after these.
+    /// </param>
+    /// <param name="cancellationToken">Cancels the request.</param>
+    /// <returns>Every item in the list in its new order, and how many items changed (0 when it was already in that order).</returns>
+    /// <remarks>
+    /// The order applies to the staging and the live list at once. No item gets a new version or changes state,
+    /// so nothing needs publishing, including items that have unpublished changes. One request; no batch.
+    /// A content ID that isn't in the list or is given twice is a 400, and an unknown list a 404; nothing is
+    /// changed in either case.
+    /// </remarks>
+    public Task<ListItemOrderResult> SetContentListItemOrderAsync(
+        string instanceGuid, string locale, string referenceName, IEnumerable<int> contentIds, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(locale);
+        ArgumentException.ThrowIfNullOrWhiteSpace(referenceName);
+        ArgumentNullException.ThrowIfNull(contentIds);
+        List<int> ids = [.. contentIds];
+        return _connection.SendRequiredAsync(HttpMethod.Post,
+            _connection.InstanceUri(instanceGuid, $"{locale}/list/{referenceName}/item-order"),
+            RequestKind.Write, ManagementJsonContext.Default.ListItemOrderResult,
+            ManagementConnection.Json(ids, ManagementJsonContext.Default.ListInt32), cancellationToken: cancellationToken);
+    }
+
+    /// <summary>
     /// Saves a content item: creates it when <c>ContentID</c> is 0 or less, otherwise replaces it.
     /// <c>POST {locale}/item</c>
     /// </summary>

@@ -2,6 +2,17 @@
 
 This project follows [Semantic Versioning](https://semver.org/). Breaking changes happen only in a major version.
 
+## [2.2.0] - Unreleased
+
+### Added
+
+- `client.Content.SetContentListItemOrderAsync(guid, locale, referenceName, contentIds)` puts a list's items in the
+  given order for one locale (`POST {locale}/list/{referenceName}/item-order`) and returns a `ListItemOrderResult`
+  with every item in its new order and how many changed. Items left out keep their relative order after the listed
+  ones. The order applies to the staging and the live list with no new versions, so nothing needs publishing. It
+  writes, so it isn't retried. Needs the Management API release that adds the route.
+- The spec snapshot includes the operation; 115 of its 117 operations are covered.
+
 ## [2.1.0] - 2026-10-28
 
 ### Added
