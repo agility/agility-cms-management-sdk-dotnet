@@ -98,6 +98,8 @@ internal static class ContentGuide
         var recent = await client.Content.GetContentListAsync(guid, "en-us", "blogposts",
             new ContentListOptions { Filter = filter, Take = 20 });
 
+        ListItemOrderResult order = await client.Content.SetContentListItemOrderAsync(guid, "en-us", "footer_links", [12]);
+
         var created = await client.Content.SaveContentItemAsync(guid, "en-us", new ContentItem
         {
             ContentID = -1,

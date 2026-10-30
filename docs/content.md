@@ -55,6 +55,24 @@ var recent = await client.Content.GetContentListAsync(guid, "en-us", "blogposts"
 `Fields = "title,category"` returns only those fields, which keeps large lists fast. `ShowDeleted = true` includes
 deleted items.
 
+### Order
+
+`SetContentListItemOrderAsync` puts a list's items in the order you give, for one locale. Items you leave out keep
+their relative order after the ones you list, so moving one item to the top takes just its ID:
+
+```csharp
+ListItemOrderResult order = await client.Content.SetContentListItemOrderAsync(guid, "en-us", "footer_links", [12]);
+// order.ContentIDs: every item in its new order. order.ItemsUpdated: 0 if 12 was already first.
+```
+
+The order applies to the staging and the live list at once. No item gets a new version or changes state, so there's
+nothing to publish, even for items with unpublished changes. Order is kept per locale: call it once per locale.
+`order.UpdatedContentIDs` lists the items that moved.
+
+A content ID given twice is a 400 and nothing changes. So is one that isn't in the list, unless you pass
+`skipUnknownIds: true`: then it's left out, the rest are ordered, and it comes back in `order.SkippedContentIDs`.
+That suits syncing an order from another instance, where one stale ID shouldn't block the rest.
+
 ## Save
 
 Read the whole item, change it, and send it all back: a save [replaces the item](concepts.md#saves-replace-the-whole-item).
