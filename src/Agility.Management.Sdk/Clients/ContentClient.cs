@@ -87,23 +87,32 @@ public sealed class ContentClient
     /// <param name="contentIds">
     /// Content IDs in the order they should appear. Items left out keep their current relative order after these.
     /// </param>
+    /// <param name="skipUnknownIds">
+    /// Leave out content IDs that aren't in the list and order the rest, instead of failing. They come back in
+    /// <see cref="ListItemOrderResult.SkippedContentIDs"/>.
+    /// </param>
     /// <param name="cancellationToken">Cancels the request.</param>
-    /// <returns>Every item in the list in its new order, and how many items changed (0 when it was already in that order).</returns>
+    /// <returns>
+    /// Every item in the list in its new order, the items that moved and how many (0 when it was already in that
+    /// order), and any IDs that were skipped.
+    /// </returns>
     /// <remarks>
     /// The order applies to the staging and the live list at once. No item gets a new version or changes state,
     /// so nothing needs publishing, including items that have unpublished changes. One request; no batch.
-    /// A content ID that isn't in the list or is given twice is a 400, and an unknown list a 404; nothing is
-    /// changed in either case.
+    /// A content ID given twice is a 400, as is one that isn't in the list unless <paramref name="skipUnknownIds"/>
+    /// is set; an unknown list is a 404. Nothing is changed in those cases.
     /// </remarks>
     public Task<ListItemOrderResult> SetContentListItemOrderAsync(
-        string instanceGuid, string locale, string referenceName, IEnumerable<int> contentIds, CancellationToken cancellationToken = default)
+        string instanceGuid, string locale, string referenceName, IEnumerable<int> contentIds, bool skipUnknownIds = false,
+        CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(locale);
         ArgumentException.ThrowIfNullOrWhiteSpace(referenceName);
         ArgumentNullException.ThrowIfNull(contentIds);
         List<int> ids = [.. contentIds];
         return _connection.SendRequiredAsync(HttpMethod.Post,
-            _connection.InstanceUri(instanceGuid, $"{locale}/list/{referenceName}/item-order"),
+            _connection.InstanceUri(instanceGuid, $"{locale}/list/{referenceName}/item-order",
+                new Query().Add("skipUnknownIds", skipUnknownIds ? true : null)),
             RequestKind.Write, ManagementJsonContext.Default.ListItemOrderResult,
             ManagementConnection.Json(ids, ManagementJsonContext.Default.ListInt32), cancellationToken: cancellationToken);
     }

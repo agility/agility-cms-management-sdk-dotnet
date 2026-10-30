@@ -26,4 +26,18 @@ public sealed partial class ListItemOrderResult
     /// </summary>
     [JsonPropertyName("itemsUpdated")]
     public int ItemsUpdated { get; set; }
+
+    /// <summary>
+    /// The items whose order value changed, in their new order. Left out of the request when <see langword="null"/>.
+    /// </summary>
+    [JsonPropertyName("updatedContentIDs")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<int>? UpdatedContentIDs { get; set; }
+
+    /// <summary>
+    /// Requested IDs that weren&apos;t items in the list and were left out. Only with {skipUnknownIds}. Left out of the request when <see langword="null"/>.
+    /// </summary>
+    [JsonPropertyName("skippedContentIDs")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<int>? SkippedContentIDs { get; set; }
 }

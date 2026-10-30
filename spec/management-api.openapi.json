@@ -2685,7 +2685,7 @@
           "ContentItem"
         ],
         "summary": "Puts the items of a content list in the given order, for one locale.",
-        "description": "Send the content IDs in the order they should appear. Items you leave out keep their current\r\nrelative order after the ones you list, so sending part of a list never drops anything.\r\n            \r\nThe new order applies to the staging and the live list at once. Each moved item keeps its\r\nversion and state, so nothing goes into staging and nothing needs publishing, including items\r\nthat have unpublished changes. Order is kept per locale; call this once for each locale whose\r\norder should change.\r\n            \r\nWhen both lists are already in that order nothing is written and {itemsUpdated} is 0.\r\nA content ID that isn't in the list, or one given twice, is a 400 and nothing is written.",
+        "description": "Send the content IDs in the order they should appear. Items you leave out keep their current\r\nrelative order after the ones you list, so sending part of a list never drops anything.\r\n            \r\nThe new order applies to the staging and the live list at once. Each moved item keeps its\r\nversion and state, so nothing goes into staging and nothing needs publishing, including items\r\nthat have unpublished changes. Order is kept per locale; call this once for each locale whose\r\norder should change.\r\n            \r\nWhen both lists are already in that order nothing is written and {itemsUpdated} is 0.\r\nA content ID given twice is a 400 and nothing is written. So is a content ID that isn't in the\r\nlist, unless skipUnknownIds is set: then it is left out, the rest are ordered,\r\nand it comes back in {skippedContentIDs}.",
         "parameters": [
           {
             "name": "locale",
@@ -2703,6 +2703,15 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "skipUnknownIds",
+            "in": "query",
+            "description": "Leave out content IDs that aren't in the list instead of rejecting the request.",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           },
           {
@@ -8086,6 +8095,24 @@
             "type": "integer",
             "description": "How many items had their order value changed. 0 when the list was already in that order.",
             "format": "int32"
+          },
+          "updatedContentIDs": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "The items whose order value changed, in their new order.",
+            "nullable": true
+          },
+          "skippedContentIDs": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Requested IDs that weren't items in the list and were left out. Only with {skipUnknownIds}.",
+            "nullable": true
           }
         },
         "additionalProperties": false,

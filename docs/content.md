@@ -66,8 +66,12 @@ ListItemOrderResult order = await client.Content.SetContentListItemOrderAsync(gu
 ```
 
 The order applies to the staging and the live list at once. No item gets a new version or changes state, so there's
-nothing to publish, even for items with unpublished changes. Order is kept per locale: call it once per locale. A
-content ID that isn't in the list, or one given twice, is a 400 and nothing changes.
+nothing to publish, even for items with unpublished changes. Order is kept per locale: call it once per locale.
+`order.UpdatedContentIDs` lists the items that moved.
+
+A content ID given twice is a 400 and nothing changes. So is one that isn't in the list, unless you pass
+`skipUnknownIds: true`: then it's left out, the rest are ordered, and it comes back in `order.SkippedContentIDs`.
+That suits syncing an order from another instance, where one stale ID shouldn't block the rest.
 
 ## Save
 

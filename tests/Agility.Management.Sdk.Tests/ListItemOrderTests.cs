@@ -7,7 +7,7 @@ public class ListItemOrderTests
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
-    private const string Result = """{"contentIDs":[12,9,15],"itemsUpdated":2}""";
+    private const string Result = """{"contentIDs":[12,9,15],"itemsUpdated":2,"updatedContentIDs":[12,9],"skippedContentIDs":[]}""";
 
     [Fact]
     public async Task Posts_the_ids_in_order_to_the_lists_item_order_route_and_reads_the_result()
@@ -15,7 +15,7 @@ public class ListItemOrderTests
         var handler = new FakeHandler(_ => FakeHandler.Json(Result));
         var client = TestClient.Create(handler);
 
-        var result = await client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, "en-us", "footer_links", [12, 9], Ct);
+        var result = await client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, "en-us", "footer_links", [12, 9], cancellationToken: Ct);
 
         var request = handler.Requests.Single();
         Assert.Equal(HttpMethod.Post, request.Method);
@@ -23,8 +23,26 @@ public class ListItemOrderTests
         Assert.Equal("application/json", request.ContentType);
         Assert.Equal([12, 9], JsonNode.Parse(request.Body!)!.AsArray().Select(n => n!.GetValue<int>()));
 
+        Assert.Equal("", request.Uri.Query);
+
         Assert.Equal([12, 9, 15], result.ContentIDs);
         Assert.Equal(2, result.ItemsUpdated);
+        Assert.Equal([12, 9], result.UpdatedContentIDs);
+        Assert.Empty(result.SkippedContentIDs!);
+    }
+
+    [Fact]
+    public async Task SkipUnknownIds_sends_the_flag_and_reads_the_skipped_ids()
+    {
+        var handler = new FakeHandler(_ => FakeHandler.Json(
+            """{"contentIDs":[12,9],"itemsUpdated":1,"updatedContentIDs":[12],"skippedContentIDs":[99]}"""));
+        var client = TestClient.Create(handler);
+
+        var result = await client.Content.SetContentListItemOrderAsync(
+            TestClient.InstanceGuid, "en-us", "footer_links", [12, 99], skipUnknownIds: true, cancellationToken: Ct);
+
+        Assert.Equal("?skipUnknownIds=true", handler.Requests.Single().Uri.Query);
+        Assert.Equal([99], result.SkippedContentIDs);
     }
 
     [Fact]
@@ -33,7 +51,7 @@ public class ListItemOrderTests
         var handler = new FakeHandler(_ => FakeHandler.Json(Result));
         var client = TestClient.Create(handler);
 
-        await client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, "en-us", "a b/c", [1], Ct);
+        await client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, "en-us", "a b/c", [1], cancellationToken: Ct);
 
         Assert.EndsWith("/en-us/list/a%20b%2Fc/item-order", handler.Requests.Single().Uri.AbsoluteUri, StringComparison.Ordinal);
     }
@@ -46,7 +64,7 @@ public class ListItemOrderTests
         var client = TestClient.Create(handler, o => o.Retry.MaxRetries = 3);
 
         var ex = await Assert.ThrowsAsync<AgilityManagementException>(() =>
-            client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, "en-us", "footer_links", [1, 99], Ct));
+            client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, "en-us", "footer_links", [1, 99], cancellationToken: Ct));
 
         Assert.Equal(HttpStatusCode.BadRequest, ex.StatusCode);
         Assert.Contains("footer_links for locale en-us: 99", ex.Message, StringComparison.Ordinal);
@@ -60,7 +78,7 @@ public class ListItemOrderTests
         var client = TestClient.Create(handler, o => o.Retry.MaxRetries = 3);
 
         await Assert.ThrowsAsync<AgilityManagementException>(() =>
-            client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, "en-us", "footer_links", [1], Ct));
+            client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, "en-us", "footer_links", [1], cancellationToken: Ct));
 
         Assert.Single(handler.Requests);
     }
@@ -72,9 +90,9 @@ public class ListItemOrderTests
         var client = TestClient.Create(handler);
 
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, " ", "footer_links", [1], Ct));
+            client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, " ", "footer_links", [1], cancellationToken: Ct));
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, "en-us", "", [1], Ct));
+            client.Content.SetContentListItemOrderAsync(TestClient.InstanceGuid, "en-us", "", [1], cancellationToken: Ct));
         Assert.Empty(handler.Requests);
     }
 }
