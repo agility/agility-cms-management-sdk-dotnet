@@ -84,6 +84,23 @@ await client.Pages.SavePageAsync(guid, "en-us", page.ClearGeo());
 
 `StructuredData` is any JSON-LD object or array, as a `JsonNode`.
 
+## Move a page
+
+A save keeps an existing page where it is (`PlaceBeforePageId` only places a new page). To change an existing page's
+parent or its place among its siblings, move it:
+
+```csharp
+// Put page 8 before page 10, under page 7
+var moved = await client.Pages.MovePageAsync(guid, "en-us", 8, parentPageId: 7, placeBeforePageId: 10);
+// moved.Moved == true, moved.SiblingPageIDs == [15, 13, 11, 8, 10, 9]
+await client.Pages.PublishPageAsync(guid, "en-us", 8);
+```
+
+Omit `parentPageId` for the root of the sitemap and `placeBeforePageId` to place the page last. A page's place is
+shared by all locales; the move puts the page in staging in each of them, so publish it for the live sitemap to show
+the new place. When the page is already in that place nothing changes and `Moved` is `false`, so it's safe to call
+for every page you want in a given order.
+
 ## Workflow
 
 `PublishPageAsync`, `UnpublishPageAsync`, `ApprovePageAsync`, `DeclinePageAsync`, `RequestApprovalPageAsync` and

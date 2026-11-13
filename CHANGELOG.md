@@ -2,6 +2,18 @@
 
 This project follows [Semantic Versioning](https://semver.org/). Breaking changes happen only in a major version.
 
+## [Unreleased]
+
+### Added
+
+- `client.Pages.MovePageAsync(guid, locale, pageId, parentPageId, placeBeforePageId)` moves an existing page under a
+  parent, before a sibling (`POST {locale}/page/{id}/move`), as dragging it in the page tree does, and returns a
+  `PageMoveResult` with its parent, latest version, whether it moved, and the parent's pages in their new order. A
+  save never moves an existing page, so this is the only way to change one's place. The move puts the page in
+  staging in every locale; publish it for the live sitemap. A page already in that place isn't moved (`Moved` is
+  false). It writes, so it isn't retried. Needs the Management API release that adds the route.
+- The spec snapshot includes the operation.
+
 ## [2.2.0] - 2026-10-30
 
 ### Added
