@@ -4993,6 +4993,76 @@
         }
       }
     },
+    "/api/v1/instance/{guid}/{locale}/page/{id}/move": {
+      "post": {
+        "tags": [
+          "Page"
+        ],
+        "summary": "Moves a page to a new place in its sitemap: under a parent page, before one of that parent's pages.",
+        "description": "This is the same move as dragging the page in the page tree. Leave out parentPageID\r\n(or send -1) to move the page to the root of its sitemap, and leave out\r\nplaceBeforePageID (or send -1) to place it last. The page to place before must\r\nalready be under the new parent. A page moves within its own sitemap only, and can't be moved under\r\nitself or one of its own pages.\r\n            \r\nA move creates a new version of the page and puts it in staging, in every locale it exists in, since\r\na page's place in the sitemap is shared by all locales. The live sitemap shows the new place once the\r\npage is published. The page's pages move with it.\r\n            \r\nWhen the page is already directly before that page (or already last) under that parent, nothing is\r\nwritten and {moved} is false, so it is safe to call for every page you want in a given order.\r\n            \r\nA 404 means the page, the parent or the page to place before wasn't found. A 400 means the move isn't\r\nallowed, and the message says why: for example another page with the same name, or a dynamic page,\r\nis already at that level.",
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "path",
+            "description": "The locale to look the pages up in. The move applies to every locale.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the page to move.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "parentPageID",
+            "in": "query",
+            "description": "The ID of the new parent page, or -1 for the root of the sitemap.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": -1
+            }
+          },
+          {
+            "name": "placeBeforePageID",
+            "in": "query",
+            "description": "The ID of the page to place it before, or -1 to place it last.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": -1
+            }
+          },
+          {
+            "name": "guid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageMoveResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/instance/{guid}/{locale}/page": {
       "post": {
         "tags": [
@@ -8574,6 +8644,41 @@
           }
         },
         "additionalProperties": false
+      },
+      "PageMoveResult": {
+        "type": "object",
+        "properties": {
+          "pageID": {
+            "type": "integer",
+            "description": "The page that was moved.",
+            "format": "int32"
+          },
+          "parentPageID": {
+            "type": "integer",
+            "description": "The page's parent, or -1 at the root of its sitemap.",
+            "format": "int32"
+          },
+          "versionID": {
+            "type": "integer",
+            "description": "The page's new latest version. Unchanged when the page didn't move.",
+            "format": "int32"
+          },
+          "moved": {
+            "type": "boolean",
+            "description": "False when the page was already in that place, in which case nothing was written."
+          },
+          "siblingPageIDs": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "The pages under the parent, in their order after the move, including this one.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Where a page sits after a move."
       },
       "PageScripts": {
         "type": "object",

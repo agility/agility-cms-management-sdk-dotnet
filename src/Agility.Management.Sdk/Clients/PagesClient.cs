@@ -188,6 +188,41 @@ public sealed class PagesClient
             RequestKind.Write, ManagementJsonContext.Default.BatchCreateResult, cancellationToken: cancellationToken);
     }
 
+    /// <summary>
+    /// Moves a page to a new place in its sitemap: under a parent page, before one of that parent's pages.
+    /// <c>POST {locale}/page/{id}/move</c>
+    /// </summary>
+    /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
+    /// <param name="locale">The locale code to look the pages up in. The move applies to every locale.</param>
+    /// <param name="pageId">The page to move.</param>
+    /// <param name="parentPageId">The new parent page; omit for the root of the sitemap.</param>
+    /// <param name="placeBeforePageId">
+    /// The page to place it before, which must already be under the new parent; omit to place it last.
+    /// </param>
+    /// <param name="cancellationToken">Cancels the request.</param>
+    /// <returns>
+    /// The page's parent and latest version, whether it moved (false when it was already in that place, and nothing
+    /// changed), and the parent's pages in their new order.
+    /// </returns>
+    /// <remarks>
+    /// The same move as dragging the page in the page tree. A page's place is shared by all locales: the move creates
+    /// a new version and puts the page in staging in every locale it exists in, so publish it for the live sitemap to
+    /// show the new place. Its child pages move with it. One request; no batch. It writes, so it isn't retried.
+    /// A page, parent or page to place before that isn't found is a 404; a move that isn't allowed (under itself or
+    /// one of its own pages, a page to place before under another parent, another page with the same name or a
+    /// dynamic page already at that level) is a 400.
+    /// </remarks>
+    public Task<PageMoveResult> MovePageAsync(
+        string instanceGuid, string locale, int pageId, int? parentPageId = null, int? placeBeforePageId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(locale);
+        return _connection.SendRequiredAsync(HttpMethod.Post,
+            _connection.InstanceUri(instanceGuid, $"{locale}/page/{pageId}/move",
+                new Query().Add("parentPageID", parentPageId ?? -1).Add("placeBeforePageID", placeBeforePageId ?? -1)),
+            RequestKind.Write, ManagementJsonContext.Default.PageMoveResult, cancellationToken: cancellationToken);
+    }
+
     /// <summary>Gets a page's comments. <c>GET {locale}/page/{id}/comments</c></summary>
     /// <param name="instanceGuid">The instance GUID, e.g. <c>1234abcd-u</c>. Its suffix selects the region.</param>
     /// <param name="locale">The locale code.</param>

@@ -101,6 +101,7 @@ namespace Agility.Management.Sdk.Serialization;
 [JsonSerializable(typeof(PageItemTemplateType))]
 [JsonSerializable(typeof(PageModel))]
 [JsonSerializable(typeof(PageModule))]
+[JsonSerializable(typeof(PageMoveResult))]
 [JsonSerializable(typeof(PageScripts))]
 [JsonSerializable(typeof(PageVisible))]
 [JsonSerializable(typeof(PersonalAccessTokenCreationResponse))]
